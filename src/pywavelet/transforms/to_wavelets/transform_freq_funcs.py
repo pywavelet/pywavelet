@@ -1,38 +1,8 @@
 """helper functions for transform_freq"""
 import numpy as np
 from numba import njit
-import scipy.special
-from . import fft_funcs as fft
+from pywavelet import fft_funcs as fft
 
-
-def phitilde_vec(om,Nf,nx=4.):
-    """compute phitilde, om i array, nx is filter steepness, defaults to 4."""
-    OM = np.pi  #Nyquist angular frequency
-    DOM = OM/Nf #2 pi times DF
-    insDOM = 1./np.sqrt(DOM)
-    B = OM/(2*Nf)
-    A = (DOM-B)/2
-    z = np.zeros(om.size)
-
-    mask = (np.abs(om)>= A)&(np.abs(om)<A+B)
-
-    x = (np.abs(om[mask])-A)/B
-    y = scipy.special.betainc(nx,nx, x)
-    z[mask] = insDOM*np.cos(np.pi/2.*y)
-
-    z[np.abs(om)<A] = insDOM
-    return z
-
-def phitilde_vec_norm(Nf,Nt,nx):
-    """normalize phitilde as needed for inverse frequency domain transform"""
-    ND = Nf*Nt
-    oms = 2*np.pi/ND*np.arange(0,Nt//2+1)
-    phif = phitilde_vec(oms,Nf,nx)
-    #nrm should be 1
-    nrm = np.sqrt((2*np.sum(phif[1:]**2)+phif[0]**2)*2*np.pi/ND)
-    nrm /= np.pi**(3/2)/np.pi
-    phif /= nrm
-    return phif
 
 @njit()
 def tukey(data,alpha,N):

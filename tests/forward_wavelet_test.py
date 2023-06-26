@@ -4,13 +4,14 @@ import numpy as np
 
 import pytest
 
-from pywavelet.wavelet_transforms import transform_wavelet_time,transform_wavelet_freq,transform_wavelet_freq_time
+from pywavelet.transforms import from_time_to_wavelet, from_freq_to_wavelet, from_time_to_freq_to_wavelet
+
 import pywavelet.fft_funcs as fft
 import matplotlib.pyplot as plt
 
 EXACT_MATCH = False
 
-def test_inverse_wavelets():
+def test_forward_wavelets():
     """test that forward wavelet transforms perform precisely as recorded in the input dat files
     for random input data"""
     file_freq = 'rand_wave_freq.dat'
@@ -27,8 +28,12 @@ def test_inverse_wavelets():
     t0 = perf_counter()
     #the original data (wave_in)
     wave_in = np.loadtxt(file_wave)
-    plt.imshow(wave_in)
-    plt.savefig("wavelet.png")
+    plt.imshow(wave_in.T)
+    plt.xlabel("time [s]")
+    plt.ylabel("frequency [hz]")
+    plt.savefig("wavein.png")
+    plt.show()
+
 
     #the forward wavelet transform of wave_in inverse wavelet transformed using frequency domain transforms both ways
     wave_freq_in = np.loadtxt(file_wave_freq)
@@ -74,26 +79,21 @@ def test_inverse_wavelets():
     assert np.all(ts_in==ts)
     assert np.all(fs_in==fs)
 
-    wave_freq_got = transform_wavelet_freq(signal_freq_in,Nf,Nt)
-
     t0 = perf_counter()
-    wave_freq_got = transform_wavelet_freq(signal_freq_in,Nf,Nt)
+    wave_freq_got = from_freq_to_wavelet(signal_freq_in, Nf, Nt)
     t1 = perf_counter()
 
     print('got frequency domain transform in %5.3fs'%(t1-t0))
 
 
-    wave_time_got = transform_wavelet_time(signal_time_in,Nf,Nt,mult=32)
-
     t0 = perf_counter()
-    wave_time_got = transform_wavelet_time(signal_time_in,Nf,Nt,mult=32)
+    wave_time_got = from_time_to_wavelet(signal_time_in, Nf, Nt, mult=32)
     t1 = perf_counter()
     print('got time domain forward transform in %5.3fs'%(t1-t0))
 
-    wave_time_got2 = transform_wavelet_freq_time(signal_time_in,Nf,Nt)
 
     t0 = perf_counter()
-    wave_time_got2 = transform_wavelet_freq_time(signal_time_in,Nf,Nt)
+    wave_time_got2 = from_time_to_freq_to_wavelet(signal_time_in, Nf, Nt)
     t1 = perf_counter()
 
     plt.plot(wave_time_got2)
@@ -102,7 +102,7 @@ def test_inverse_wavelets():
     print('got from time domain to wavelet domain via fft in %5.3fs'%(t1-t0))
 
     #needed for internal consistency check of wave_time_got2
-    wave_time_got3 = transform_wavelet_freq(fft.rfft(signal_time_in),Nf,Nt)
+    wave_time_got3 = from_freq_to_wavelet(fft.rfft(signal_time_in), Nf, Nt)
 
     if EXACT_MATCH:
         assert np.all(wave_freq_got==wave_freq_in)

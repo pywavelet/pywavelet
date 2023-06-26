@@ -1,5 +1,5 @@
 import numpy as np
-from scipy.signal import tukey
+from scipy.signal.windows import tukey
 
 def PowerSpectralDensity(f):
     """

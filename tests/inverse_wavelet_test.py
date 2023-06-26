@@ -4,7 +4,8 @@ import numpy as np
 
 import pytest
 
-from pywavelet.wavelet_transforms import inverse_wavelet_freq,inverse_wavelet_freq_time,inverse_wavelet_time
+from pywavelet.transforms import from_wavelet_to_time, from_wavelet_to_freq, inverse_wavelet_freq_time
+
 import pywavelet.fft_funcs as fft
 
 #whether to expect exact match for input files
@@ -50,10 +51,10 @@ def test_inverse_wavelets():
     assert np.all(fs_in==fs)
 
 
-    signal_freq = inverse_wavelet_freq(wave_in,Nf,Nt)
+    signal_freq = from_wavelet_to_freq(wave_in, Nf, Nt)
 
     t0 = perf_counter()
-    signal_freq = inverse_wavelet_freq(wave_in,Nf,Nt)
+    signal_freq = from_wavelet_to_freq(wave_in, Nf, Nt)
     t1 = perf_counter()
 
     print('got frequency domain transform in %5.3fs'%(t1-t0))
@@ -67,10 +68,10 @@ def test_inverse_wavelets():
     print('got inverse fourier transform in %5.3fs'%(t3-t2))
 
 
-    signal_time = inverse_wavelet_time(wave_in,Nf,Nt,mult=32)
+    signal_time = from_wavelet_to_time(wave_in, Nf, Nt, mult=32)
 
     t4 = perf_counter()
-    signal_time = inverse_wavelet_time(wave_in,Nf,Nt,mult=32)
+    signal_time = from_wavelet_to_time(wave_in, Nf, Nt, mult=32)
     t5 = perf_counter()
 
     print('got time domain transform in %5.3fs'%(t5-t4))

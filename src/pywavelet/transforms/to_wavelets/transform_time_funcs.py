@@ -1,11 +1,11 @@
 """helper functions for transform_time.py"""
 import numpy as np
 from numba import njit
-from .transform_freq_funcs import phitilde_vec
-from . import fft_funcs as fft
+from ... import fft_funcs as fft
+
 
 def transform_wavelet_time_helper(data,Nf,Nt,phi,mult):
-    """helper function do do the wavelet transform in the time domain"""
+    """helper function to do the wavelet transform in the time domain"""
     # the time domain data stream
     ND = Nf*Nt
 
@@ -56,36 +56,3 @@ def pack_wave(i,mult,Nf,wdata_trans,wave):
         else:
             wave[i,j] = np.real(wdata_trans[j*mult])
 
-def phi_vec(Nf,nx=4.,mult=16):
-    """get time domain phi as fourier transform of phitilde_vec"""
-    #TODO fix mult
-
-    OM = np.pi
-    DOM = OM/Nf
-    insDOM = 1./np.sqrt(DOM)
-    K = mult*2*Nf
-    half_K = mult*Nf#np.int64(K/2)
-
-    dom = 2*np.pi/K  # max frequency is K/2*dom = pi/dt = OM
-
-    DX = np.zeros(K,dtype=np.complex128)
-
-    #zero frequency
-    DX[0] =  insDOM
-
-    DX = DX.copy()
-    # postive frequencies
-    DX[1:half_K+1] = phitilde_vec(dom*np.arange(1,half_K+1),Nf,nx)
-    # negative frequencies
-    DX[half_K+1:] = phitilde_vec(-dom*np.arange(half_K-1,0,-1),Nf,nx)
-    DX = K*fft.ifft(DX,K)
-
-    phi = np.zeros(K)
-    phi[0:half_K] = np.real(DX[half_K:K])
-    phi[half_K:] = np.real(DX[0:half_K])
-
-    nrm = np.sqrt(K/dom)#*np.linalg.norm(phi)
-
-    fac = np.sqrt(2.0)/nrm
-    phi *= fac
-    return phi

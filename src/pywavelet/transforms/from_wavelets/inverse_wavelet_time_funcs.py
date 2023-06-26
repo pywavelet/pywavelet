@@ -2,7 +2,7 @@
 from numba import njit
 import numpy as np
 
-from . import fft_funcs as fft
+from ... import fft_funcs as fft
 
 def inverse_wavelet_time_helper_fast(wave_in,phi,Nf,Nt,mult):
     """helper loop for fast inverse wavelet transform"""
