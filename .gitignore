@@ -8,6 +8,7 @@ __pycache__/
 *.DS_Store
 # C extensions
 *.so
+out_*
 
 # Distribution / packaging
 .Python

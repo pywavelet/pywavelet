@@ -1,84 +1,47 @@
 import numpy as np
-from scipy.signal.windows import tukey, hann
-import matplotlib.pyplot as plt
 
-from scipy.signal import chirp, spectrogram
-import scipy
+from utils import (
+    generate_chirp_time_domain_signal,
+    plot_time_domain_signal,
+    plot_wavelet_domain_signal,
+    plot_residuals
+)
+from pywavelet.transforms import from_wavelet_to_time
+from pywavelet.transforms import from_time_to_wavelet
 
-from pywavelet.transforms import from_time_to_wavelet, from_wavelet_to_time
-from pywavelet.transforms import from_freq_to_wavelet, from_wavelet_to_freq
+def test_time_to_wavelet_to_time(make_plots, plot_dir):
 
+    dt = 1 / 512
+    Nt = 2**6
+    Nf = 2**6
+    mult = 16
 
+    freq_range = (10, 0.2 * (1 / dt) )
 
-def waveform_fft(t, waveform,):
-    N = len(waveform)
-    taper = tukey(N,0.1)
-    waveform_w_pad = zero_pad(waveform*taper)
-    waveform_f = np.fft.rfft(waveform_w_pad)[1:]
+    ND = Nt * Nf
 
-    n_t = len(zero_pad(t))
-    delta_t = t[1]-t[0]
-    freq = np.fft.rfftfreq(n_t,delta_t)[1:]
-    return freq, waveform_f
+    # time and frequency grids
+    ts = np.arange(0, ND) * dt
+    Tobs = max(ts)
+    fs = np.arange(0, ND // 2 + 1) * 1 / (Tobs)
 
-def zero_pad(data):
-    N = len(data)
-    pow_2 = np.ceil(np.log2(N))
-    return np.pad(data,(0,int((2**pow_2)-N)),'constant')
+    # generate signal
+    h_time = generate_chirp_time_domain_signal(ts, freq_range)
+    h_wavelet = from_time_to_wavelet(h_time, Nf=Nf, Nt=Nt, mult=mult)
+    h_reconstructed = from_wavelet_to_time(h_wavelet, Nf=Nf, Nt=Nt, mult=mult)
 
+    if make_plots:
+        fig = plot_time_domain_signal(ts, h_time, freq_range)
+        fig.savefig(f"{plot_dir}/original_signal.png", dpi=300)
 
-# plot signal
-def plot_signal(t, h):
-    T = max(t)
-    h_phase = np.arcsin(h)
-    fs = 1/(t[1]-t[0])
-    ff, tt, Sxx = spectrogram(h, fs=fs, nperseg=256, nfft=576)
-    freq, h_freq = waveform_fft(t, h)
+        fig = plot_wavelet_domain_signal(h_wavelet, ts, fs, freq_range)
+        fig.savefig(f"{plot_dir}/wavelet_domain.png", dpi=300)
 
-    fig, axes = plt.subplots(3,1, figsize=(4,6))
-    axes[0].scatter(t, h, marker='.', c=h_phase, lw=0.1)
-    axes[0].set_ylabel("h(t)")
-    axes[0].set_xlim(0, T)
-    axes[1].plot(freq, np.abs(h_freq))
-    axes[1].set_ylabel("|h(f)|")
-    axes[1].set_xlabel("Frequency (Hz)")
-    axes[2].set_xlim(0, T)
-    axes[2].pcolormesh(tt, ff[:145], Sxx[:145],)
-    axes[2].set_xlabel("Time (s)")
-    axes[2].set_ylabel("Frequency (Hz)")
-    axes[2].set_xlim(0, T)
-    plt.tight_layout()
-    plt.show()
+        fig = plot_time_domain_signal(ts, h_reconstructed, freq_range)
+        fig.savefig(f"{plot_dir}/reconstructed_signal.png", dpi=300)
 
-def generate_signal():
-    fs = 4096
-    T = 4
-    t = np.arange(0, int(T * fs)) / fs
-    h = chirp(t, f0=10, f1=1000, t1=T, method='quadratic')
-    return t, h
+        fig = plot_residuals(h_time - h_reconstructed)
+        fig.savefig(f"{plot_dir}/residuals.png", dpi=300)
 
-
-def test_wavelet_to_freq_roundtrip():
-    t, h = generate_signal()
-    freq, h_freq = waveform_fft(t, h)
-    plot_signal(t, h)
-
-    Nt = 128
-    Nf = 512
-    h_wavelet = from_freq_to_wavelet(h_freq, Nf=Nf, Nt=Nt)
-    h_time = from_wavelet_to_time(h_wavelet, Nf=Nf, Nt=Nt, mult=16)
-
-    plot_signal(t, h_time)
-
-
-def test_wavelet_to_time_roundtrip():
-    t, h = generate_signal()
-
-    plot_signal(t, h)
-
-    Nt = 128
-    Nf = 512
-    h_wavelet = from_time_to_wavelet(h, Nf=Nf, Nt=Nt, mult=16)
-    h_time = from_wavelet_to_time(h_wavelet, Nf=Nf, Nt=Nt, mult=16)
-
-    plot_signal(t, h_time)
+    # check that the reconstructed signal is the same as the original
+    assert np.allclose(h_time, h_reconstructed, atol=1e-3)
