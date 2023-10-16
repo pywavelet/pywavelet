@@ -15,11 +15,8 @@ def transform_wavelet_time_helper(data,Nf:int,Nt:int,phi,mult:int)->np.ndarray:
 
     # windowed data packets
     wdata = np.zeros(K)
-
     wave = np.zeros((Nt,Nf))  # wavelet wavepacket transform of the signal
-    data_pad = np.zeros(ND+K)
-    data_pad[:ND] = data
-    data_pad[ND:ND+K] = data[:K]
+    data_pad = np.concatenate((data, data[:K]))
 
     for i in range(0,Nt):
         assign_wdata(i,K,ND,Nf,wdata,data_pad,phi)
@@ -29,23 +26,15 @@ def transform_wavelet_time_helper(data,Nf:int,Nt:int,phi,mult:int)->np.ndarray:
     return wave
 
 @njit()
-def assign_wdata(i,K,ND,Nf,wdata,data_pad,phi):
-    """assign wdata to be fftd in loop, data_pad needs K extra values on the right to loop"""
-    #half_K = np.int64(K/2)
-    jj = i*Nf-K//2
-    if jj<0:
-        jj += ND  # periodically wrap the data
-    if jj>=ND:
-        jj -= ND # periodically wrap the data
-    for j in range(0,K):
-        #jj = i*Nf-half_K+j
-        wdata[j] = data_pad[jj]*phi[j]  # apply the window
-        jj += 1
-        #if jj==ND:
-        #    jj -= ND # periodically wrap the data
+def assign_wdata(i:int,K:int,ND:int,Nf:int,wdata:np.ndarray,data_pad:np.ndarray,phi:np.ndarray):
+    """Assign wdata to be FFT'd in a loop with K extra values on the right to loop."""
+    jj = (i * Nf - K // 2) % ND  # Periodically wrap the data
+    for j in range(K):
+        wdata[j] = data_pad[jj] * phi[j]  # Apply the window
+        jj = (jj + 1) % ND  # Periodically wrap the data
 
 @njit()
-def pack_wave(i,mult,Nf,wdata_trans,wave):
+def pack_wave(i:int,mult:int,Nf:int,wdata_trans:np.ndarray,wave:np.ndarray):
     """pack fftd wdata into wave array"""
     if i%2==0 and i<wave.shape[0]-1:
         #m=0 value at even Nt and
