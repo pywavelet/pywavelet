@@ -6,3 +6,4 @@ pylint
 sphinx
 twine
 wheel
+pycbc
