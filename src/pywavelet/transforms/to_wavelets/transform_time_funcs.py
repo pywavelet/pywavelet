@@ -4,12 +4,14 @@ from numba import njit
 from ... import fft_funcs as fft
 
 
-def transform_wavelet_time_helper(data,Nf,Nt,phi,mult):
+def transform_wavelet_time_helper(data,Nf:int,Nt:int,phi,mult:int)->np.ndarray:
     """helper function to do the wavelet transform in the time domain"""
     # the time domain data stream
     ND = Nf*Nt
 
     K = mult*2*Nf
+
+    assert len(data) == ND, f"len(data)={len(data)} != Nf*Nt={ND}"
 
     # windowed data packets
     wdata = np.zeros(K)

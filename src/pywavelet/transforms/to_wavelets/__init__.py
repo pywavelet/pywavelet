@@ -3,7 +3,7 @@ from ... import fft_funcs as fft
 from ..common import phi_vec, phitilde_vec_norm
 from .transform_freq_funcs import transform_wavelet_freq_helper
 from .transform_time_funcs import transform_wavelet_time_helper
-
+from ...logger import logger
 
 def from_time_to_wavelet(data, Nf, Nt, nx=4., mult=32):
     """From time domain data to wavelet domain
@@ -24,6 +24,10 @@ def from_time_to_wavelet(data, Nf, Nt, nx=4., mult=32):
     mult : int, optional
         Number of time bins to use for the wavelet transform, by default 32
     """
+
+    if mult > Nt/2:
+        logger.warning(f"mult={mult} is too large for Nt={Nt}. This may lead to bogus results.")
+
     mult = min(mult,Nt//2) #make sure K isn't bigger than ND
     phi = phi_vec(Nf,nx,mult)
     wave = transform_wavelet_time_helper(data,Nf,Nt,phi,mult)
