@@ -5,6 +5,9 @@ SNR(h) = Sum_{ti,fi} [ h_hat[ti,fi] d[ti,fi] / PSD[ti,fi] ],
 where h_hat[ti,fi] is the unit normalized wavelet transform of the model:
 h_hat[ti,fi] = h[ti,fi] / sqrt(<h[ti,fi] | h[ti,fi] >)
 
+NOTE: to maximize over masses and spins we require some additional steps....
+
+
 """
 
 import numpy as np

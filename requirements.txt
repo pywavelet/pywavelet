@@ -3,3 +3,4 @@ numba
 matplotlib
 tqdm
 loguru
+bilby
