@@ -1,7 +1,12 @@
 pywavelet
 #########
-.. image:: https://coveralls.io/repos/github/avivajpeyi/pywavelet/badge.svg?branch=main
-:target: https://coveralls.io/github/avivajpeyi/pywavelet?branch=main
+
+.. image:: https://badge.fury.io/py/pywavelet.svg
+    :target: https://badge.fury.io/py/pywavelet
+.. image:: https://coveralls.io/repos/github/avivajpeyi/pywavelet/badge.svg?branch=main&kill_cache=1
+    :target: https://coveralls.io/github/avivajpeyi/pywavelet?branch=main
+
+
 
 
 

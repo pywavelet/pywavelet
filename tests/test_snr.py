@@ -90,7 +90,7 @@ def get_wavelet_psd_from_median_noise(n=32):
     return np.median(np.array(noise_wavelets), axis=0)
 
 
-@pytest.skip("Not implemented")
+@pytest.mark.skip("Not implemented")
 def test_snr():
     t, h, _ = inject_signal_in_noise(mc=30, q=1, distance=0.1)
     _, data, time_domain_snr = inject_signal_in_noise(
