@@ -4,15 +4,26 @@ import numpy as np
 import pytest
 from matplotlib import colors
 
+from pywavelet.psd import evolutionary_psd_from_stationary_psd
 from pywavelet.transforms import from_time_to_wavelet
 from pywavelet.utils.snr import compute_snr
 
 Nf, Nt = 64, 64
-mult = 16
-
+ND = Nf * Nt
+MULT = 16
 DURATION = 8
 SAMPLING_FREQUENCY = 512
+DT = 1 / SAMPLING_FREQUENCY
+T_BIN_SIZE = Nf * DT
+F_BIN_SIZE = 1 / (2 * DT * Nf)
 MINIMUM_FREQUENCY = 20
+
+
+# time and frequency grids
+T_GRID = np.arange(0, ND) * DT
+T_MAX = max(T_GRID)
+F_GRID = np.arange(0, Nf // 2 + 1) * 1 / (T_MAX)
+
 
 CBC_GENERATOR = bilby.gw.WaveformGenerator(
     duration=DURATION,
@@ -45,7 +56,7 @@ GW_PARMS = dict(
 )
 
 
-def get_ifo(t0):
+def get_ifo(t0=0):
     ifos = bilby.gw.detector.InterferometerList(["H1"])  # design sensitivity
     ifos.set_strain_data_from_power_spectral_densities(
         sampling_frequency=SAMPLING_FREQUENCY,
@@ -83,14 +94,16 @@ def get_noise_wavelet_data(t0):
 
 def get_wavelet_psd_from_median_noise(n=32):
     """n: number of noise wavelets to take median of"""
-    noise_wavelets = []
-    for i in range(n):
-        np.random.seed(i)
-        noise_wavelets.append(get_noise_wavelet_data(i * DURATION))
-    return np.median(np.array(noise_wavelets), axis=0)
+    ifo: bilby.gw.detector.Interferometer = get_ifo()[0]
+    return evolutionary_psd_from_stationary_psd(
+        psd=ifo.power_spectral_density.psd_array,
+        psd_f=ifo.power_spectral_density.frequency_array,
+        f_range=[min(F_GRID), max(F_GRID)],
+        Nt=Nt,
+        delta_f=1 / Nf,
+    )
 
 
-@pytest.mark.skip("Not implemented")
 def test_snr():
     t, h, _ = inject_signal_in_noise(mc=30, q=1, distance=0.1)
     _, data, time_domain_snr = inject_signal_in_noise(

@@ -29,6 +29,7 @@ dependencies = [
     "tqdm",
     "loguru",
     "bilby",
+    "xarray-dataclasses"
 ]
 
 [project.optional-dependencies]

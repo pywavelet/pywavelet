@@ -1,4 +1,7 @@
 import numpy as np
+import xarray as xr
+
+from pywavelet.transforms.types.wavelet_dataset import wavelet_dataset
 
 from ... import fft_funcs as fft
 from ...logger import logger
@@ -7,7 +10,9 @@ from .transform_freq_funcs import transform_wavelet_freq_helper
 from .transform_time_funcs import transform_wavelet_time_helper
 
 
-def from_time_to_wavelet(data, Nf, Nt, nx=4.0, mult=32):
+def from_time_to_wavelet(
+    data: np.ndarray, Nf: int, Nt: int, nx=4.0, mult=32
+) -> xr.Dataset:
     """From time domain data to wavelet domain
 
     Warning: there can be significant leakage if mult is too small and the
@@ -35,18 +40,18 @@ def from_time_to_wavelet(data, Nf, Nt, nx=4.0, mult=32):
     mult = min(mult, Nt // 2)  # make sure K isn't bigger than ND
     phi = phi_vec(Nf, nx, mult)
     wave = transform_wavelet_time_helper(data, Nf, Nt, phi, mult)
+    return wavelet_dataset(wave, Nt=Nt, Nf=Nf)
 
-    return wave
 
-
-def from_time_to_freq_to_wavelet(data, Nf, Nt, nx=4.0):
+def from_time_to_freq_to_wavelet(data, Nf, Nt, nx=4.0) -> xr.Dataset:
     """transform time domain data into wavelet domain via fft and then frequency transform"""
     data_fft = fft.rfft(data)
 
     return from_freq_to_wavelet(data_fft, Nf, Nt, nx)
 
 
-def from_freq_to_wavelet(data, Nf, Nt, nx=4.0):
+def from_freq_to_wavelet(data, Nf, Nt, nx=4.0) -> xr.Dataset:
     """do the wavelet transform using the fast wavelet domain transform"""
     phif = 2 / Nf * phitilde_vec_norm(Nf, Nt, nx)
-    return transform_wavelet_freq_helper(data, Nf, Nt, phif)
+    wave = transform_wavelet_freq_helper(data, Nf, Nt, phif)
+    return wavelet_dataset(wave, Nt=Nt, Nf=Nf)

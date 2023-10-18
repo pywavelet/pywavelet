@@ -7,8 +7,33 @@ PI = np.pi
 
 
 def phitilde_vec(om: np.ndarray, Nf: int, nx=4.0) -> np.ndarray:
-    """compute phitilde, om i array, nx is filter steepness, defaults to 4."""
-    # Note: Pi is Nyquist angular frequency
+    """Compute phi_tilde(omega_i) array, nx is filter steepness, defaults to 4.
+
+    Eq 11 of https://arxiv.org/pdf/2009.00043.pdf (Cornish et al. 2020)
+
+    phi(omega_i) =
+        1/sqrt(2π∆F) if |omega_i| < A
+        1/sqrt(2π∆F) cos(nu_d π/2 * |omega|-A / B) if A < |omega_i| < A + B
+
+    Where nu_d = normalized incomplete beta function
+
+
+    Parameters
+    ----------
+    om : np.ndarray
+        Array of angular frequencies
+    Nf : int
+        Number of frequency bins
+    nx : float, optional
+        Number of standard deviations for the gaussian wavelet, by default 4.
+
+    Returns
+    -------
+    np.ndarray
+        Array of phi_tilde(omega_i) values
+
+    """
+
     DOM = PI / Nf  # 2 pi times DF
     insDOM = 1.0 / np.sqrt(DOM)
     B = PI / (2 * Nf)
@@ -44,7 +69,7 @@ def phitilde_vec_norm(Nf: int, Nt: int, nx: int) -> np.ndarray:
     return u_phit / nrm_fctor
 
 
-def phi_vec(Nf: int, nx: int = 4.0, mult: int = 16) -> np.ndarray:
+def phi_vec(Nf: int, nx: float = 4.0, mult: int = 16) -> np.ndarray:
     """get time domain phi as fourier transform of phitilde_vec"""
     insDOM = 1.0 / np.sqrt(PI / Nf)
     K = mult * 2 * Nf

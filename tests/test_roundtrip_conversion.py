@@ -27,13 +27,15 @@ def test_time_to_wavelet_to_time(make_plots, plot_dir):
     # generate signal
     h_time = generate_chirp_time_domain_signal(ts, freq_range)
     h_wavelet = from_time_to_wavelet(h_time, Nf=Nf, Nt=Nt, mult=mult)
-    h_reconstructed = from_wavelet_to_time(h_wavelet, Nf=Nf, Nt=Nt, mult=mult)
+    h_reconstructed = from_wavelet_to_time(
+        h_wavelet.data, Nf=Nf, Nt=Nt, mult=mult
+    )
 
     if make_plots:
         fig = plot_time_domain_signal(ts, h_time, freq_range)
         fig.savefig(f"{plot_dir}/original_signal.png", dpi=300)
 
-        fig = plot_wavelet_domain_signal(h_wavelet, ts, fs, freq_range)
+        fig = plot_wavelet_domain_signal(h_wavelet.data, ts, fs, freq_range)
         fig.savefig(f"{plot_dir}/wavelet_domain.png", dpi=300)
 
         fig = plot_time_domain_signal(ts, h_reconstructed, freq_range)
