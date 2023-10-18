@@ -50,11 +50,9 @@ version_file = "src/pywavelet/_version.py"
 
 
 [project.urls]  # Optional
-"Homepage" = "https://github.com/pypa/pywavelet"
-"Bug Reports" = "https://github.com/pypa/pywavelet/issues"
-"Funding" = "https://donate.pypi.org"
-"Say Thanks!" = "http://saythanks.io/to/example"
-"Source" = "https://github.com/pypa/pywavelet/"
+"Homepage" = "https://avivajpeyi.github.io/pywavelet/"
+"Bug Reports" = "https://github.com/avivajpeyi/pywavelet/issues"
+"Source" = "https://github.com/avivajpeyi/pywavelet/"
 
 
 [tool.setuptools]
