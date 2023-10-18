@@ -1,0 +1,28 @@
+cff-version: 1.2.0
+title: pywavelet
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: pywavelet
+    family-names: pywavelet
+    email: pywavelet@aut.ac.nz
+    affiliation: >-
+      Science Centre 303S, 38 Princes st,
+      Auckland, 1010, New Zealand
+    orcid: 'https://orcid.org/0000-0002-4146-1132'
+identifiers:
+  - type: url
+    value: ''
+    description: The paper describing the method behind this work.
+repository-code: 'https://github.com/avivajpeyi/pywavelet'
+url: 'http://avivajpeyi.github.io/pywavelet/'
+repository-artifact: 'https://pypi.org/project/pywavelet/'
+abstract: >-
+  Source code for the pywavelet package (for WDM wavelet analysis).
+keywords:
+  - GW
+  - Bayesian Inference
+  - WDM
+license: MIT

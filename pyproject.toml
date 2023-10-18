@@ -1,0 +1,116 @@
+[build-system]
+requires = [
+    "setuptools>=64",
+    "setuptools-scm>=8.0",
+    "wheel"
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pywavelet"
+dynamic = ["version"] # scm versioning (using tags)
+requires-python = ">=3.8"
+description = "WDM wavelet transform your timeseries!"
+readme = "README.md"
+authors = [
+    { name = "Pywavelet Team", email = "pywavelet@gmail.com" },
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.8",
+]
+dependencies = [
+    "numpy",
+    "numba",
+    "matplotlib",
+    "tqdm",
+    "loguru",
+    "bilby",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=6.0",
+    "pytest-cov>=4.1.0",
+    "pre-commit",
+    "flake8>=5.0.4",
+    "black>=22.12.0",
+    "isort",
+    "mypy",
+    "pycbc",
+    "bilby",
+    "jupyter-book",
+]
+
+[tool.setuptools_scm]
+version_file = "src/pywavelet/_version.py"
+
+
+[project.urls]  # Optional
+"Homepage" = "https://github.com/pypa/pywavelet"
+"Bug Reports" = "https://github.com/pypa/pywavelet/issues"
+"Funding" = "https://donate.pypi.org"
+"Say Thanks!" = "http://saythanks.io/to/example"
+"Source" = "https://github.com/pypa/pywavelet/"
+
+
+[tool.setuptools]
+package-data = { "pywavelet" = [""] }
+
+
+
+[tool.black]
+line-length = 79
+exclude = '''
+/(
+    \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 79
+
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.coverage.run]
+branch = true
+source = [
+    "pywavelet"
+]
+
+[tool.coverage.paths]
+source = [
+    "src/pywavelet",
+    "**/site-packages/pywavelet"
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug",
+    "raise AssertionError",
+    "raise NotImplentedError",
+    "if 0:",
+    "if __name__ == .__main__.:"
+]
+
+ignore_errors = true
+
+[tool.coverage.html]
+title = "pywavelet Coverage Test Report"

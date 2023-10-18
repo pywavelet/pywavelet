@@ -1,5 +1,9 @@
 pywavelet
 #########
+.. image:: https://coveralls.io/repos/github/avivajpeyi/pywavelet/badge.svg?branch=main
+:target: https://coveralls.io/github/avivajpeyi/pywavelet?branch=main
+
+
 
 WDM Wavelet transform
 

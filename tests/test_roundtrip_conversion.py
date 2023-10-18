@@ -1,22 +1,21 @@
 import numpy as np
-
 from utils import (
     generate_chirp_time_domain_signal,
+    plot_residuals,
     plot_time_domain_signal,
     plot_wavelet_domain_signal,
-    plot_residuals
 )
-from pywavelet.transforms import from_wavelet_to_time
-from pywavelet.transforms import from_time_to_wavelet
+
+from pywavelet.transforms import from_time_to_wavelet, from_wavelet_to_time
+
 
 def test_time_to_wavelet_to_time(make_plots, plot_dir):
-
     dt = 1 / 512
     Nt = 2**6
     Nf = 2**6
     mult = 16
 
-    freq_range = (10, 0.2 * (1 / dt) )
+    freq_range = (10, 0.2 * (1 / dt))
 
     ND = Nt * Nf
 

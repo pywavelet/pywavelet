@@ -1,9 +1,8 @@
-from ..waveform_generator import WaveformGenerator
 from ...transforms import from_time_to_wavelet
+from ..waveform_generator import WaveformGenerator
 
 
 class LookupTableWaveformGenerator(WaveformGenerator):
-
     def __init__(self, name, func, Nf=1024, Nt=1024):
         super().__init__(name)
         self.func = func

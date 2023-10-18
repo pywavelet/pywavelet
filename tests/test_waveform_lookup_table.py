@@ -1,11 +1,15 @@
-from pywavelet.waveform_generator.generators import FunctionalWaveformGenerator, LookupTableWaveformGenerator
+import matplotlib.pyplot as plt
 import numpy as np
 from utils import (
-    generate_chirp_time_domain_signal,
     cbc_waveform,
-    plot_wavelet_domain_signal
+    generate_chirp_time_domain_signal,
+    plot_wavelet_domain_signal,
 )
-import matplotlib.pyplot as plt
+
+from pywavelet.waveform_generator.generators import (
+    FunctionalWaveformGenerator,
+    LookupTableWaveformGenerator,
+)
 
 
 def test_waveform_function(plot_dir):
@@ -33,10 +37,10 @@ def test_waveform_lookup_table(plot_dir):
     mult = 16
 
     plt.plot(t, h_func(15))
-    plt.show()
-    waveform_generator = FunctionalWaveformGenerator(h_func, Nf=Nf, Nt=Nt, mult=mult)
-
-
+    plt.savefig(f"{plot_dir}/cbc_waveform.png", dpi=300)
+    waveform_generator = FunctionalWaveformGenerator(
+        h_func, Nf=Nf, Nt=Nt, mult=mult
+    )
 
     # time and frequency grids
 
@@ -44,6 +48,4 @@ def test_waveform_lookup_table(plot_dir):
         wavelet_matrix = waveform_generator(mc=mc)
         fig = plot_wavelet_domain_signal(wavelet_matrix, t, fs, (0, 64))
         fig.suptitle(f"mc={mc}")
-        fig.show()
-
-
+        fig.savefig(f"{plot_dir}/wavelet_domain_{mc}.png", dpi=300)

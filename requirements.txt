@@ -1,6 +1,0 @@
-numpy
-numba
-matplotlib
-tqdm
-loguru
-bilby

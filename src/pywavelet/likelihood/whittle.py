@@ -19,7 +19,6 @@ where
 
 from .likelihood_base import LikelihoodBase
 
+
 class WhittleLikelihood(LikelihoodBase):
     pass
-
-
