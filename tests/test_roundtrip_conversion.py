@@ -26,7 +26,7 @@ def test_time_to_wavelet_to_time(make_plots, plot_dir):
 
     # generate signal
     h_time = generate_chirp_time_domain_signal(ts, freq_range)
-    h_wavelet = from_time_to_wavelet(h_time, Nf=Nf, Nt=Nt, mult=mult)
+    h_wavelet = from_time_to_wavelet(h_time, Nt=Nt, mult=mult)
     h_reconstructed = from_wavelet_to_time(
         h_wavelet.data, Nf=Nf, Nt=Nt, mult=mult
     )

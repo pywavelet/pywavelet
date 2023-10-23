@@ -1,18 +1,25 @@
-import numpy as np
-import xarray as xr
+from typing import Union
 
-from pywavelet.transforms.types.wavelet_dataset import wavelet_dataset
+import numpy as np
+
+from pywavelet.transforms.types import (
+    FrequencySeries,
+    TimeSeries,
+    Wavelet,
+    wavelet_dataset,
+)
 
 from ... import fft_funcs as fft
 from ...logger import logger
+from ...utils.wavelet_bins import _get_bins, _preprocess_bins
 from ..common import phi_vec, phitilde_vec_norm
 from .transform_freq_funcs import transform_wavelet_freq_helper
 from .transform_time_funcs import transform_wavelet_time_helper
 
 
 def from_time_to_wavelet(
-    data: np.ndarray, Nf: int, Nt: int, nx=4.0, mult=32
-) -> xr.Dataset:
+    data: TimeSeries, Nf: int = None, Nt: int = None, nx=4.0, mult=32
+) -> Wavelet:
     """From time domain data to wavelet domain
 
     Warning: there can be significant leakage if mult is too small and the
@@ -31,6 +38,9 @@ def from_time_to_wavelet(
     mult : int, optional
         Number of time bins to use for the wavelet transform, by default 32
     """
+    Nf, Nt = _preprocess_bins(data, Nf, Nt)
+
+    t_bins, f_bins = _get_bins(data, Nf, Nt)
 
     if mult > Nt / 2:
         logger.warning(
@@ -40,18 +50,25 @@ def from_time_to_wavelet(
     mult = min(mult, Nt // 2)  # make sure K isn't bigger than ND
     phi = phi_vec(Nf, nx, mult)
     wave = transform_wavelet_time_helper(data, Nf, Nt, phi, mult)
-    return wavelet_dataset(wave, Nt=Nt, Nf=Nf)
+    return wavelet_dataset(
+        wave, Nt=Nt, Nf=Nf, time_grid=t_bins, freq_grid=f_bins
+    )
 
 
-def from_time_to_freq_to_wavelet(data, Nf, Nt, nx=4.0) -> xr.Dataset:
+def from_time_to_freq_to_wavelet(
+    data: TimeSeries, Nf=None, Nt=None, nx=4.0
+) -> Wavelet:
     """transform time domain data into wavelet domain via fft and then frequency transform"""
-    data_fft = fft.rfft(data)
+    freqseries = FrequencySeries.from_time_series(data)
+    return from_freq_to_wavelet(freqseries, Nf, Nt, nx)
 
-    return from_freq_to_wavelet(data_fft, Nf, Nt, nx)
 
-
-def from_freq_to_wavelet(data, Nf, Nt, nx=4.0) -> xr.Dataset:
+def from_freq_to_wavelet(
+    data: FrequencySeries, Nf=None, Nt=None, nx=4.0
+) -> Wavelet:
     """do the wavelet transform using the fast wavelet domain transform"""
+    Nf, Nt = _preprocess_bins(data, Nf, Nt)
+
     phif = 2 / Nf * phitilde_vec_norm(Nf, Nt, nx)
     wave = transform_wavelet_freq_helper(data, Nf, Nt, phif)
     return wavelet_dataset(wave, Nt=Nt, Nf=Nf)

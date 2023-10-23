@@ -5,6 +5,8 @@ from pycbc.waveform import get_td_waveform
 from scipy.signal import chirp, spectrogram
 from scipy.signal.windows import tukey
 
+from pywavelet.transforms.types import TimeAxis, TimeSeries
+
 
 def cbc_waveform(mc, q=1, delta_t=1.0 / 4096, f_lower=20):
     m1 = mass1_from_mchirp_q(mc, q)
@@ -16,7 +18,8 @@ def cbc_waveform(mc, q=1, delta_t=1.0 / 4096, f_lower=20):
         delta_t=delta_t,
         f_lower=f_lower,
     )
-    return hp.sample_times, hp
+    data = TimeSeries(hp.data, time=TimeAxis(hp.sample_times.data))
+    return data
 
 
 def waveform_fft(

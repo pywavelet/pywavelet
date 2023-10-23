@@ -16,6 +16,7 @@ def plot_wavelet_domain_grid(
     if ax is None:
         fig = plt.figure()
         ax = fig.gca()
+    fig = ax.get_figure()
 
     # if Nt and Nf are not provided, infer them from the shape of the wavelet data
     Nt = wavelet_data.shape[1] if Nt is None else Nt
@@ -39,13 +40,24 @@ def plot_wavelet_domain_grid(
     im = ax.imshow(
         np.rot90(wavelet_data),
         aspect="auto",
-        extent=[0, Nt, 0, Nf],
+        extent=extents,
         cmap=cmap,
         norm=norm,
     )
     cbar = plt.colorbar(im, ax=ax)
     cbar.set_label("Wavelet Amplitude")
+
+    # add a text box with the Nt and Nf values
+    ax.text(
+        0.05,
+        0.95,
+        f"{Nt}x{Nf}",
+        transform=ax.transAxes,
+        fontsize=14,
+        verticalalignment="top",
+        bbox=dict(boxstyle="round", facecolor=None, alpha=0.2),
+    )
     ax.set_xlabel(r"Time Bins [$\Delta T$=" + f"{1 / Nt:.2f}s, Nt={Nt}]")
     ax.set_ylabel(r"Freq Bins [$\Delta F$=" + f"{1 / Nf:.2f}Hz, Nf={Nf}]")
     plt.tight_layout()
-    return ax.get_figure()
+    return fig
