@@ -27,6 +27,8 @@ def get_noise_wavelet_data(t0:float)->TimeSeries:
     return noise_wavelet
 
 
+
+
 def get_wavelet_psd_from_median_noise()->Wavelet:
     """n: number of noise wavelets to take median of"""
     ifo: bilby.gw.detector.Interferometer = get_ifo()[0]
@@ -38,15 +40,17 @@ def get_wavelet_psd_from_median_noise()->Wavelet:
     )
 
 
-@pytest.mark.parametrize("distance", [10])
+@pytest.mark.parametrize("distance", [10, 1000])
 def test_snr(distance):
     h, timeseries_snr = inject_signal_in_noise(mc=30, q=1, distance=distance)
+    htrue, _ = inject_signal_in_noise(mc=30, q=1, distance=distance, noise=False)
 
     data_wavelet = from_time_to_wavelet(h, Nt=Nt)
     data_wavelet.plot()
     plt.savefig("data_wavelet.png", dpi=300)
 
-    h_wavelet = from_time_to_wavelet(h, Nt=Nt)
+    plt.close('all')
+    h_wavelet = from_time_to_wavelet(htrue, Nt=Nt)
     h_wavelet.plot()
     plt.savefig("h_wavelet.png", dpi=300)
 

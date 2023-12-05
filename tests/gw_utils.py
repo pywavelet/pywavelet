@@ -9,6 +9,7 @@ DURATION = 8
 SAMPLING_FREQUENCY = 512
 DT = 1 / SAMPLING_FREQUENCY
 MINIMUM_FREQUENCY = 20
+MAXIMUM_FREQUENCY = 256
 
 
 CBC_GENERATOR = bilby.gw.WaveformGenerator(
@@ -20,6 +21,7 @@ CBC_GENERATOR = bilby.gw.WaveformGenerator(
         waveform_approximant="IMRPhenomD",
         reference_frequency=20.0,
         minimum_frequency=MINIMUM_FREQUENCY,
+        maximum_frequency=MAXIMUM_FREQUENCY,
     ),
 )
 
@@ -42,17 +44,25 @@ GW_PARMS = dict(
 )
 
 
-def get_ifo(t0=0.0):
+def get_ifo(t0=0.0, noise=True):
     ifos = bilby.gw.detector.InterferometerList(["H1"])  # design sensitivity
-    ifos.set_strain_data_from_power_spectral_densities(
-        sampling_frequency=SAMPLING_FREQUENCY,
-        duration=DURATION,
-        start_time=t0,
-    )
+    if noise:
+        ifos.set_strain_data_from_power_spectral_densities(
+            sampling_frequency=SAMPLING_FREQUENCY,
+
+            duration=DURATION,
+            start_time=t0,
+        )
+    else:
+        ifos.set_strain_data_from_zero_noise(
+            sampling_frequency=SAMPLING_FREQUENCY,
+            duration=DURATION,
+            start_time=t0,
+        )
     return ifos
 
 
-def inject_signal_in_noise(mc, q=1, distance=1000.0) -> Tuple[TimeSeries, float]:
+def inject_signal_in_noise(mc, q=1, distance=1000.0, noise=True) -> Tuple[TimeSeries, float]:
     injection_parameters = GW_PARMS.copy()
     (
         injection_parameters["mass_1"],
@@ -62,7 +72,7 @@ def inject_signal_in_noise(mc, q=1, distance=1000.0) -> Tuple[TimeSeries, float]
     )
     injection_parameters["luminosity_distance"] = distance
 
-    ifos = get_ifo(injection_parameters["geocent_time"] + 1.5)
+    ifos = get_ifo(injection_parameters["geocent_time"] + 1.5, noise=noise)
     ifos.inject_signal(
         waveform_generator=CBC_GENERATOR, parameters=injection_parameters
     )

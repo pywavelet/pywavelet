@@ -6,6 +6,7 @@ from pywavelet.transforms.types import Wavelet
 import matplotlib.pyplot as plt
 
 Nf, Nt = 1024, 1024
+# Nf, Nt = 64, 64
 ND = Nf * Nt
 T_GRID = np.arange(0, ND) * DT
 F_GRID = np.arange(0, ND // 2 + 1) * 1 / (DURATION)
@@ -32,5 +33,13 @@ def test_wavelet_psd_from_stationary(plot_dir):
         f_grid=F_GRID,
         t_grid = T_GRID,
     )
-    psd_wavelet.plot(cmap=None)
+    psd_wavelet.data = np.log(psd_wavelet.data)
+
+    fig, axes = plt.subplots(1, 2, figsize=(10, 5))
+    axes[0].plot(np.log(psd), psd_f)
+    axes[0].set_ylim(0, 256)
+    axes[0].set_ylabel("Frequency [Hz]")
+    axes[0].set_xlabel("log PSD")
+    psd_wavelet.plot(ax=axes[1], cmap=None)
+
     plt.savefig(f"{plot_dir}/psd_wavelet.png", dpi=300)
