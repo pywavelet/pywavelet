@@ -34,7 +34,9 @@ def _get_bins(data: Union[TimeSeries, FrequencySeries], Nf=None, Nt=None):
         t_bins = np.linspace(data.time[0], data.time[-1], Nt)
         f_bins = np.linspace(0, fmax, Nf)
 
-    if isinstance(data, FrequencySeries):
+    elif isinstance(data, FrequencySeries):
         raise NotImplementedError
+    else:
+        raise ValueError(f"Data type {type(data)} not recognized")
 
     return t_bins, f_bins

@@ -1,17 +1,24 @@
 import numpy as np
-import pytest
+from scipy.interpolate import interp1d
+from .transforms.types import wavelet_dataset, Wavelet
+from typing import Tuple
 
 
-def evolutionary_psd_from_stationary_psd(psd, psd_f, delta_f, f_range, Nt):
+def evolutionary_psd_from_stationary_psd(psd: np.ndarray, psd_f: np.ndarray,
+                                         f_grid, t_grid, Nt: int=None, Nf:int=None) -> Wavelet:
     """
     PSD[ti,fi] = PSD[fi] * delta_f
     """
 
-    # now we interpolate the PSD and evaluate it on the grid
-    f_grid = np.arange(f_range[0], f_range[1], delta_f)
-    psd_grid = np.interp(f_grid, psd_f, psd)
+    if Nt is None:
+        Nt = len(t_grid)
+    if Nf is None:
+        Nf = len(f_grid)
+
+    delta_f = f_grid[1] - f_grid[0]
+    psd_grid = interp1d(psd_f, psd, kind='nearest', fill_value=np.nan, bounds_error=False)(f_grid) * delta_f
 
     # repeat the PSD for each time bin
     psd_grid = np.repeat(psd_grid[None, :], Nt, axis=0)
 
-    return psd_grid
+    return wavelet_dataset(psd_grid, time_grid=t_grid, freq_grid=f_grid)

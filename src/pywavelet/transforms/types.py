@@ -25,10 +25,10 @@ class _Wavelet(xr.DataArray):
 
     __slots__ = ()
 
-    def plot(self, ax=None) -> plt.Figure:
+    def plot(self, ax=None, cmap="bwr") -> plt.Figure:
         """Custom method."""
         return plot_wavelet_domain_grid(
-            self.data, self.time.data, self.freq.data, ax=ax
+            self.data, self.time.data, self.freq.data, ax=ax, cmap=cmap
         )
 
 

@@ -35,6 +35,10 @@ def compute_snr(h: np.ndarray, d: np.ndarray, PSD: np.ndarray) -> float:
         The SNR of the model h given data d and PSD.
 
     """
+    h = h.data
+    d = d.data
+    PSD = PSD.data
+
     h_hat = h / np.sqrt(np.tensordot(h.T, h))
     d_hat = d / PSD
 
