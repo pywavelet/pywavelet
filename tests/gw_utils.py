@@ -1,9 +1,9 @@
+from typing import Tuple
+
 import bilby
 import numpy as np
 
-from typing import Tuple
 from pywavelet.transforms.types import TimeSeries
-
 
 DURATION = 8
 SAMPLING_FREQUENCY = 512
@@ -40,7 +40,7 @@ GW_PARMS = dict(
     theta_jn=0.0,  # 7 extrinsic parameters
     psi=2.659,
     phase=1.3,
-    geocent_time=1126259642.413,
+    geocent_time=0,
 )
 
 
@@ -49,7 +49,6 @@ def get_ifo(t0=0.0, noise=True):
     if noise:
         ifos.set_strain_data_from_power_spectral_densities(
             sampling_frequency=SAMPLING_FREQUENCY,
-
             duration=DURATION,
             start_time=t0,
         )
@@ -62,7 +61,9 @@ def get_ifo(t0=0.0, noise=True):
     return ifos
 
 
-def inject_signal_in_noise(mc, q=1, distance=1000.0, noise=True) -> Tuple[TimeSeries, float]:
+def inject_signal_in_noise(
+    mc, q=1, distance=1000.0, noise=True
+) -> Tuple[TimeSeries, float]:
     injection_parameters = GW_PARMS.copy()
     (
         injection_parameters["mass_1"],
