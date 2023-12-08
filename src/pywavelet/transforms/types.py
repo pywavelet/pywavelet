@@ -152,4 +152,4 @@ def wavelet_dataset(
     if freq_grid is None:
         freq_grid = np.arange(Nf)
 
-    return Wavelet.new(wavelet_data, time=time_grid, freq=freq_grid)
+    return Wavelet.new(wavelet_data.T, time=time_grid, freq=freq_grid)

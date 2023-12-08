@@ -20,6 +20,10 @@ def _preprocess_bins(
         assert 1 <= Nt <= N, f"Nt={Nt} must be between 1 and N={N}"
         Nf = N // Nt
 
+    if Nf is not None:
+        assert 1 <= Nf <= N, f"Nf={Nf} must be between 1 and N={N}"
+        Nt = N // Nf
+
     return Nf, Nt
 
 

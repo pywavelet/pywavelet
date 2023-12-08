@@ -28,52 +28,110 @@ def get_noise_wavelet_data(t0: float) -> TimeSeries:
     return noise_wavelet
 
 
-def get_wavelet_psd_from_median_noise() -> Wavelet:
+def get_wavelet_psd_from_median_noise(f_grid=F_GRID, t_grid=T_GRID) -> Wavelet:
     """n: number of noise wavelets to take median of"""
     ifo: bilby.gw.detector.Interferometer = get_ifo()[0]
     return evolutionary_psd_from_stationary_psd(
         psd=ifo.power_spectral_density.psd_array,
         psd_f=ifo.power_spectral_density.frequency_array,
-        f_grid=F_GRID,
-        t_grid=T_GRID,
+        f_grid=f_grid,
+        t_grid=t_grid,
     )
 
 
-@pytest.mark.parametrize("distance", [10, 1000])
+@pytest.mark.parametrize("distance", [10, 100, 1000])
 def test_snr(plot_dir, distance):
-    h, timeseries_snr = inject_signal_in_noise(mc=30, q=1, distance=distance)
-    htrue, _ = inject_signal_in_noise(
+    data_time, timeseries_snr = inject_signal_in_noise(
+        mc=30, q=1, distance=distance
+    )
+    h_time, _ = inject_signal_in_noise(
         mc=30, q=1, distance=distance, noise=False
     )
 
-    data_wavelet = from_time_to_wavelet(h, Nt=Nt)
-    h_wavelet = from_time_to_wavelet(htrue, Nt=Nt)
-    psd_wavelet = get_wavelet_psd_from_median_noise()
+    data_wavelet = from_time_to_wavelet(data_time, Nt=Nt)
+    h_wavelet = from_time_to_wavelet(h_time, Nt=Nt)
+    psd_wavelet = get_wavelet_psd_from_median_noise(
+        f_grid=h_wavelet.freq.data, t_grid=h_wavelet.time.data
+    )
     wavelet_snr = compute_snr(h_wavelet, data_wavelet, psd_wavelet)
 
-    h = h_wavelet
-    d = data_wavelet
-    psd = psd_wavelet
+    h = h_wavelet.data
+    d = data_wavelet.data
+    psd = psd_wavelet.data
 
-    h_hat = h / np.sqrt(np.tensordot(h.T, h))
-    psd = psd.assign_coords(time=d.time)
+    h_hat = h / np.sqrt(np.tensordot(h, h))
     d_hat = d / psd
 
-    # plot
+    # plot WAVELET
     fig, ax = plt.subplots(2, 3, figsize=(15, 8))
     h_wavelet.plot(ax=ax[0, 0])
     ax[0, 0].set_title("h_wavelet")
     data_wavelet.plot(ax=ax[0, 1])
     ax[0, 1].set_title("data_wavelet")
-    psd_wavelet.plot(ax=ax[0, 2])
-    ax[0, 2].set_title("psd_wavelet")
-    h_hat.plot(ax=ax[1, 0])
+    cbar = ax[0, 2].imshow(
+        np.log(np.rot90(psd.T)),
+        aspect="auto",
+        cmap="bwr",
+        extent=[0, DURATION, 0, FMAX],
+    )
+    # add cbar to the right
+    cbar = plt.colorbar(ax=ax[0, 2], mappable=cbar)
+    ax[0, 2].set_title("log psd_wavelet")
+    cbar = ax[1, 0].imshow(np.rot90(h_hat.T), aspect="auto", cmap="bwr")
+    plt.colorbar(ax=ax[1, 0], mappable=cbar)
+    cbar = ax[1, 1].imshow(np.rot90(d_hat.T), aspect="auto", cmap="bwr")
+    plt.colorbar(ax=ax[1, 1], mappable=cbar)
+    cbar = ax[1, 2].imshow(
+        np.rot90((h_hat * d_hat).T), aspect="auto", cmap="bwr"
+    )
+    plt.colorbar(ax=ax[1, 2], mappable=cbar)
     ax[1, 0].set_title("h_hat")
-    d_hat.plot(ax=ax[1, 1])
     ax[1, 1].set_title("d/PSD")
-    (h_hat * d_hat).plot(ax=ax[1, 2])
     ax[1, 2].set_title("h_hat * d/PSD")
+    plt.suptitle(
+        f"Matched Filter SNR: {timeseries_snr:.2f}, Wavelet SNR: {wavelet_snr:.2E}"
+    )
+    plt.tight_layout()
     plt.savefig(f"{plot_dir}/snr_computation_d{distance}.png", dpi=300)
 
     assert isinstance(wavelet_snr, float)
     assert wavelet_snr == timeseries_snr
+
+
+def plot_spectograms(h_time, data_time):
+    # plot normal scipy SPECTOGRAM
+    plt.close("all")
+    spec = plt.specgram(
+        h_time, Fs=1 / DT, NFFT=256, mode="magnitude", scale_by_freq=False
+    )
+    plt.colorbar(spec[-1])
+    plt.show()
+
+    plt.close("all")
+    spec = plt.specgram(
+        data_time, Fs=1 / DT, NFFT=256, mode="magnitude", scale_by_freq=False
+    )
+    plt.colorbar(spec[-1])
+    plt.show()
+
+    ifo: bilby.gw.detector.Interferometer = get_ifo()[0]
+    psd = ifo.power_spectral_density.psd_array
+    psd_f = ifo.power_spectral_density.frequency_array
+    # FFT of data (get both frequencies and amplitudes)
+    data_freq = np.fft.rfft(data_time)
+    freq = np.fft.rfftfreq(len(data_time), DT)
+
+    # filter data and psd to only have the same frequencies
+    data_freq = data_freq[: len(psd_f)]
+    freq = freq[: len(psd_f)]
+    # get the psd at the frequencies of the data
+    psd = np.interp(freq, psd_f, psd)
+    # get the clean data
+
+    clean_data = np.fft.irfft(data_freq / np.sqrt(psd))
+    plt.close("all")
+    spec = plt.specgram(
+        clean_data, Fs=1 / DT, NFFT=256, mode="magnitude", scale_by_freq=False
+    )
+    plt.colorbar(spec[-1])
+    plt.show()

@@ -79,7 +79,7 @@ def inject_signal_in_noise(
     )
     ifo: bilby.gw.detector.Interferometer = ifos[0]
 
-    snr = ifo.meta_data["optimal_SNR"]
+    snr = ifo.meta_data["matched_filter_SNR"]
 
     data = TimeSeries(ifo.strain_data.time_domain_strain, ifo.time_array)
     return data, np.abs(snr)

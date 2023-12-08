@@ -1,9 +1,10 @@
-from gw_utils import DURATION, get_ifo, DT
-from pywavelet.psd import evolutionary_psd_from_stationary_psd
-import numpy as np
 import bilby
-from pywavelet.transforms.types import Wavelet
 import matplotlib.pyplot as plt
+import numpy as np
+from gw_utils import DT, DURATION, get_ifo
+
+from pywavelet.psd import evolutionary_psd_from_stationary_psd
+from pywavelet.transforms.types import Wavelet
 
 Nf, Nt = 1024, 1024
 # Nf, Nt = 64, 64
@@ -20,23 +21,22 @@ T_GRID = np.linspace(0, DURATION, Nt)
 F_GRID = np.linspace(0, fmax, Nf)
 
 
-
 def test_wavelet_psd_from_stationary(plot_dir):
     """n: number of noise wavelets to take median of"""
     ifo: bilby.gw.detector.Interferometer = get_ifo()[0]
     psd = ifo.power_spectral_density.psd_array
     psd_f = ifo.power_spectral_density.frequency_array
 
-    psd_wavelet:Wavelet = evolutionary_psd_from_stationary_psd(
+    psd_wavelet: Wavelet = evolutionary_psd_from_stationary_psd(
         psd=psd,
         psd_f=psd_f,
         f_grid=F_GRID,
-        t_grid = T_GRID,
+        t_grid=T_GRID,
     )
     psd_wavelet.data = np.log(psd_wavelet.data)
 
     fig, axes = plt.subplots(1, 2, figsize=(10, 5))
-    axes[0].plot(np.log(psd), psd_f)
+    axes[0].plot(np.log(psd.T), psd_f)
     axes[0].set_ylim(0, 256)
     axes[0].set_ylabel("Frequency [Hz]")
     axes[0].set_xlabel("log PSD")

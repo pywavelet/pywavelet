@@ -19,8 +19,8 @@ def plot_wavelet_domain_grid(
     fig = ax.get_figure()
 
     # if Nt and Nf are not provided, infer them from the shape of the wavelet data
-    Nt = wavelet_data.shape[1] if Nt is None else Nt
-    Nf = wavelet_data.shape[0] if Nf is None else Nf
+    Nt = wavelet_data.shape[0] if Nt is None else Nt
+    Nf = wavelet_data.shape[1] if Nf is None else Nf
 
     if cmap == "bwr":
         norm = TwoSlopeNorm(
@@ -38,7 +38,7 @@ def plot_wavelet_domain_grid(
         extents[3] = freq_grid[-1]
 
     im = ax.imshow(
-        np.rot90(wavelet_data),
+        np.rot90(wavelet_data.T),
         aspect="auto",
         extent=extents,
         cmap=cmap,
