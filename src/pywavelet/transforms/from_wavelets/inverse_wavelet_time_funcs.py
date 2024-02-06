@@ -5,7 +5,7 @@ from numba import njit
 from ... import fft_funcs as fft
 
 
-def inverse_wavelet_time_helper_fast(wave_in, phi, Nf, Nt, mult):
+def inverse_wavelet_time_helper_fast(wave_in: np.ndarray, phi: np.ndarray, Nf: int, Nt: int, mult: int) -> np.ndarray:
     """helper loop for fast inverse wavelet transform"""
     ND = Nf * Nt
     K = mult * 2 * Nf
@@ -23,18 +23,19 @@ def inverse_wavelet_time_helper_fast(wave_in, phi, Nf, Nt, mult):
             unpack_time_wave_helper_compact(n, Nf, Nt, K, phi, ffts_fin, res)
 
     # wrap boundary conditions
-    res[: min(K + Nf, ND)] += res[ND : min(ND + K + Nf, 2 * ND)]
+    res[: min(K + Nf, ND)] += res[ND: min(ND + K + Nf, 2 * ND)]
     if K + Nf > ND:
-        res[: K + Nf - ND] += res[2 * ND : ND + K * Nf]
+        res[: K + Nf - ND] += res[2 * ND: ND + K * Nf]
 
-    res = res[:ND]
-
-    return res
+    return res[:ND]
 
 
 @njit()
-def unpack_time_wave_helper(n, Nf, Nt, K, phis, fft_fin_real, res):
-    """helper for time domain wavelet transform to unpack wavelet domain coefficients"""
+def unpack_time_wave_helper(n: int, Nf: int, Nt: int, K: int, phis: np.ndarray, fft_fin_real, res)->None:
+    """helper for time domain wavelet transform to unpack wavelet domain coefficients
+
+
+    """
     ND = Nf * Nt
 
     idxf = (-K // 2 + n * Nf + ND) % (2 * Nf)
@@ -53,9 +54,13 @@ def unpack_time_wave_helper(n, Nf, Nt, K, phis, fft_fin_real, res):
 
 
 @njit()
-def unpack_time_wave_helper_compact(n, Nf, Nt, K, phis, fft_fin, res):
+def unpack_time_wave_helper_compact(
+        n: int, Nf: int, Nt: int, K: int, phis: np.ndarray, fft_fin: np.ndarray,
+        res: np.ndarray):
     """helper for time domain wavelet transform to unpack wavelet domain coefficients
     in compact representation where cosine and sine parts are real and imaginary parts
+
+    IN-PLACE EDITS res
     """
     ND = Nf * Nt
     fft_fin_real = np.zeros(4 * Nf)
@@ -79,8 +84,11 @@ def unpack_time_wave_helper_compact(n, Nf, Nt, K, phis, fft_fin, res):
 
 
 @njit()
-def pack_wave_time_helper(n, Nf, Nt, wave_in, afins):
-    """helper for time domain transform to pack wavelet domain coefficients"""
+def pack_wave_time_helper(n: int, Nf: int, Nt: int, wave_in: np.ndarray, afins: np.ndarray):
+    """helper for time domain transform to pack wavelet domain coefficients
+
+    IN-PLACE EDITS afins
+    """
     if n % 2 == 0:
         # assign highest and lowest bin correctly
         afins[0] = np.sqrt(2) * wave_in[n, 0]
@@ -108,9 +116,12 @@ def pack_wave_time_helper(n, Nf, Nt, wave_in, afins):
 
 
 @njit()
-def pack_wave_time_helper_compact(n, Nf, Nt, wave_in, afins):
-    """helper for time domain transform to pack wavelet domain coefficients
+def pack_wave_time_helper_compact(n: int, Nf: int, Nt: int, wave_in:np.ndarray, afins:np.ndarray)->None:
+    """
+    Helper for time domain transform to pack wavelet domain coefficients
     in packed representation with odd and even coefficients in real and imaginary pars
+
+    IN-PLACE EDITS afins
     """
     afins[0] = np.sqrt(2) * wave_in[n, 0]
     if n + 1 < Nt:
@@ -119,14 +130,14 @@ def pack_wave_time_helper_compact(n, Nf, Nt, wave_in, afins):
     for idxm in range(0, Nf - 2, 2):
         afins[idxm + 2] = wave_in[n, idxm + 2] - wave_in[n + 1, idxm + 2]
         afins[2 * Nf - idxm - 2] = (
-            wave_in[n, idxm + 2] + wave_in[n + 1, idxm + 2]
+                wave_in[n, idxm + 2] + wave_in[n + 1, idxm + 2]
         )
 
         afins[idxm + 1] = 1j * (
-            wave_in[n, idxm + 1] - wave_in[n + 1, idxm + 1]
+                wave_in[n, idxm + 1] - wave_in[n + 1, idxm + 1]
         )
         afins[2 * Nf - idxm - 1] = -1j * (
-            wave_in[n, idxm + 1] + wave_in[n + 1, idxm + 1]
+                wave_in[n, idxm + 1] + wave_in[n + 1, idxm + 1]
         )
 
     afins[Nf - 1] = 1j * (wave_in[n, Nf - 1] - wave_in[n + 1, Nf - 1])

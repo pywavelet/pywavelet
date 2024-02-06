@@ -28,7 +28,9 @@ dependencies = [
     "matplotlib",
     "tqdm",
     "loguru",
-    "bilby",
+    "astropy>=5.2.1",
+    "bilby[gw]",
+    "pycbc",
     "xarray-dataclasses"
 ]
 

@@ -6,7 +6,7 @@ from ... import fft_funcs as fft
 
 
 # @njit()
-def inverse_wavelet_freq_helper_fast(wave_in, phif, Nf, Nt):
+def inverse_wavelet_freq_helper_fast(wave_in: np.ndarray, phif: np.ndarray, Nf: int, Nt: int):
     """jit compatible loop for inverse_wavelet_freq"""
     ND = Nf * Nt
 
@@ -14,16 +14,17 @@ def inverse_wavelet_freq_helper_fast(wave_in, phif, Nf, Nt):
     res = np.zeros(ND // 2 + 1, dtype=np.complex128)
 
     for m in range(0, Nf + 1):
-        pack_wave_inverse(m, Nt, Nf, prefactor2s, wave_in)
+        __pack_wave_inverse(m, Nt, Nf, prefactor2s, wave_in)
         # with numba.objmode(fft_prefactor2s="complex128[:]"):
         fft_prefactor2s = fft.fft(prefactor2s)
-        unpack_wave_inverse(m, Nt, Nf, phif, fft_prefactor2s, res)
+        __unpack_wave_inverse(m, Nt, Nf, phif, fft_prefactor2s, res)
 
     return res
 
 
 @njit()
-def unpack_wave_inverse(m, Nt, Nf, phif, fft_prefactor2s, res):
+def __unpack_wave_inverse(
+        m: int, Nt: int, Nf: int, phif: np.ndarray, fft_prefactor2s: np.ndarray, res: np.ndarray) -> None:
     """helper for unpacking results of frequency domain inverse transform"""
 
     if m == 0 or m == Nf:
@@ -57,7 +58,7 @@ def unpack_wave_inverse(m, Nt, Nf, phif, fft_prefactor2s, res):
 
 
 @njit()
-def pack_wave_inverse(m, Nt, Nf, prefactor2s, wave_in):
+def __pack_wave_inverse(m, Nt, Nf, prefactor2s, wave_in) -> None:
     """helper for fast frequency domain inverse transform to prepare for fourier transform"""
     if m == 0:
         for n in range(0, Nt):

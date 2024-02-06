@@ -36,25 +36,4 @@ def compute_snr(h: Wavelet, d: Wavelet, PSD: Wavelet) -> float:
         The SNR of the model h given data d and PSD.
 
     """
-    # h = h.data
-    # d = d.data
-    # PSD = PSD.data
-
-    h = h.data
-    h_hat = h / np.sqrt(np.tensordot(h, h))
-    d_hat = d.data / PSD.data
-
-    # mask any nans/inf
-    mask = (
-        np.isnan(h_hat) | np.isinf(h_hat) | np.isnan(d_hat) | np.isinf(d_hat)
-    )
-    h_hat[mask] = 0
-    d_hat[mask] = 0
-
-    # if mask size > 2% of d_hat size, raise warning
-    if np.sum(mask) > 0.02 * d_hat.size:
-        logger.warning(
-            f"{np.sum(mask)} / {d_hat.size} elements masked in SNR computation"
-        )
-
-    return np.tensordot(h_hat, d_hat).item()
+    return np.power(np.nansum((h.data * h.data)/ PSD.data), 0.5)

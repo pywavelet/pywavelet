@@ -42,7 +42,7 @@ def get_wavelet_psd_from_median_noise(f_grid=F_GRID, t_grid=T_GRID) -> Wavelet:
 @pytest.mark.parametrize("distance", [10, 100, 1000])
 def test_snr(plot_dir, distance):
     data_time, timeseries_snr = inject_signal_in_noise(
-        mc=30, q=1, distance=distance
+        mc=30, q=1, distance=distance, noise=False
     )
     h_time, _ = inject_signal_in_noise(
         mc=30, q=1, distance=distance, noise=False
@@ -59,9 +59,6 @@ def test_snr(plot_dir, distance):
     d = data_wavelet.data
     psd = psd_wavelet.data
 
-    h_hat = h / np.sqrt(np.tensordot(h, h))
-    d_hat = d / psd
-
     # plot WAVELET
     fig, ax = plt.subplots(2, 3, figsize=(15, 8))
     h_wavelet.plot(ax=ax[0, 0])
@@ -77,19 +74,34 @@ def test_snr(plot_dir, distance):
     # add cbar to the right
     cbar = plt.colorbar(ax=ax[0, 2], mappable=cbar)
     ax[0, 2].set_title("log psd_wavelet")
+
+
+    h_hat = h * h
+    h_hat_psd = h_hat / psd
+    final= np.power(h_hat_psd * h_wavelet.delta_t * h_wavelet.delta_f, 0.5) * 0.5
+    wavelet_snr = np.nansum(final)
+
     cbar = ax[1, 0].imshow(np.rot90(h_hat.T), aspect="auto", cmap="bwr")
     plt.colorbar(ax=ax[1, 0], mappable=cbar)
-    cbar = ax[1, 1].imshow(np.rot90(d_hat.T), aspect="auto", cmap="bwr")
+    ax[1, 0].text(0.2, 0.95, f"Sum: {np.nansum(h_hat):.2E}", transform=ax[1, 0].transAxes)
+    ax[1, 0].set_title("h*h")
+
+    cbar = ax[1, 1].imshow(np.rot90(h_hat_psd.T), aspect="auto", cmap="bwr")
     plt.colorbar(ax=ax[1, 1], mappable=cbar)
+    # add textbox to top left
+    ax[1, 1].text(0.2, 0.95, f"Sum: {np.nansum(h_hat_psd):.2E}", transform=ax[1, 1].transAxes)
+    ax[1, 1].set_title("(h*h)/PSD")
+
     cbar = ax[1, 2].imshow(
-        np.rot90((h_hat * d_hat).T), aspect="auto", cmap="bwr"
+        np.rot90(final.T), aspect="auto", cmap="bwr"
     )
     plt.colorbar(ax=ax[1, 2], mappable=cbar)
-    ax[1, 0].set_title("h_hat")
-    ax[1, 1].set_title("d/PSD")
-    ax[1, 2].set_title("h_hat * d/PSD")
+    ax[1, 2].text(0.2, 0.95, f"Sum: {wavelet_snr:.2E}", transform=ax[1, 2].transAxes)
+    ax[1, 2].set_title("1/2 * sqrt(delta_t * delta_f * (h*h)/PSD)")
+
+
     plt.suptitle(
-        f"Matched Filter SNR: {timeseries_snr:.2f}, Wavelet SNR: {wavelet_snr:.2E}"
+        f"Matched Filter SNR: {timeseries_snr:.2f}, Wavelet SNR: {wavelet_snr:.2f}, ratio: {timeseries_snr/wavelet_snr:.2f}"
     )
     plt.tight_layout()
     plt.savefig(f"{plot_dir}/snr_computation_d{distance}.png", dpi=300)

@@ -6,7 +6,7 @@ from ... import fft_funcs as fft
 
 
 def transform_wavelet_time_helper(
-    data, Nf: int, Nt: int, phi, mult: int
+    data:np.ndarray, Nf: int, Nt: int, phi, mult: int
 ) -> np.ndarray:
     """helper function to do the wavelet transform in the time domain"""
     # the time domain data stream
@@ -22,15 +22,15 @@ def transform_wavelet_time_helper(
     data_pad = np.concatenate((data, data[:K]))
 
     for i in range(0, Nt):
-        assign_wdata(i, K, ND, Nf, wdata, data_pad, phi)
+        __assign_wdata(i, K, ND, Nf, wdata, data_pad, phi)
         wdata_trans = fft.rfft(wdata, K)
-        pack_wave(i, mult, Nf, wdata_trans, wave)
+        __pack_wave(i, mult, Nf, wdata_trans, wave)
 
     return wave
 
 
 @njit()
-def assign_wdata(
+def __assign_wdata(
     i: int,
     K: int,
     ND: int,
@@ -38,7 +38,7 @@ def assign_wdata(
     wdata: np.ndarray,
     data_pad: np.ndarray,
     phi: np.ndarray,
-):
+)->None:
     """Assign wdata to be FFT'd in a loop with K extra values on the right to loop."""
     jj = (i * Nf - K // 2) % ND  # Periodically wrap the data
     for j in range(K):
@@ -47,9 +47,9 @@ def assign_wdata(
 
 
 @njit()
-def pack_wave(
+def __pack_wave(
     i: int, mult: int, Nf: int, wdata_trans: np.ndarray, wave: np.ndarray
-):
+)->None:
     """pack fftd wdata into wave array"""
     if i % 2 == 0 and i < wave.shape[0] - 1:
         # m=0 value at even Nt and

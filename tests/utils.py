@@ -6,6 +6,7 @@ from scipy.signal import chirp, spectrogram
 from scipy.signal.windows import tukey
 
 from pywavelet.transforms.types import TimeAxis, TimeSeries
+from typing import List
 
 
 def cbc_waveform(mc, q=1, delta_t=1.0 / 4096, f_lower=20):
@@ -23,8 +24,8 @@ def cbc_waveform(mc, q=1, delta_t=1.0 / 4096, f_lower=20):
 
 
 def waveform_fft(
-    t,
-    waveform,
+        t,
+        waveform,
 ):
     N = len(waveform)
     taper = tukey(N, 0.1)
@@ -39,12 +40,14 @@ def waveform_fft(
 def zero_pad(data):
     N = len(data)
     pow_2 = np.ceil(np.log2(N))
-    return np.pad(data, (0, int((2**pow_2) - N)), "constant")
+    return np.pad(data, (0, int((2 ** pow_2) - N)), "constant")
 
 
 # plot signal
-def plot_time_domain_signal(t, h, freq_range):
-    T = max(t)
+def plot_time_domain_signal(signal:TimeSeries, freq_range: List[float]):
+    t = signal.time
+    h = signal.data
+    T = max(signal.time)
     fs = 1 / (t[1] - t[0])
     ff, tt, Sxx = spectrogram(h, fs=fs, nperseg=256, nfft=576)
     freq, h_freq = waveform_fft(t, h)
@@ -94,7 +97,8 @@ def plot_residuals(residuals):
     return fig
 
 
-def generate_chirp_time_domain_signal(t: np.ndarray, freq_range):
-    return chirp(
+def generate_chirp_time_domain_signal(t: np.ndarray, freq_range: List[float]) -> TimeSeries:
+    y = chirp(
         t, f0=freq_range[0], f1=freq_range[1], t1=t[-1], method="quadratic"
     )
+    return TimeSeries(data=y, time=TimeAxis(t))

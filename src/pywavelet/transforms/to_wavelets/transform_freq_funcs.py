@@ -6,7 +6,7 @@ from pywavelet import fft_funcs as fft
 
 
 @njit()
-def tukey(data, alpha, N):
+def tukey(data: np.ndarray, alpha: float, N: int) -> None:
     """apply tukey window function to data"""
     imin = np.int64(alpha * (N - 1) / 2)
     imax = np.int64((N - 1) * (1 - alpha / 2))
@@ -21,20 +21,20 @@ def tukey(data, alpha, N):
         data[i] *= f_mult
 
 
-def transform_wavelet_freq_helper(data, Nf, Nt, phif):
+def transform_wavelet_freq_helper(data: np.ndarray, Nf: int, Nt: int, phif: np.ndarray) -> np.ndarray:
     """helper to do the wavelet transform using the fast wavelet domain transform"""
     wave = np.zeros((Nt, Nf))  # wavelet wavepacket transform of the signal
 
     DX = np.zeros(Nt, dtype=np.complex128)
     for m in range(0, Nf + 1):
-        DX_assign_loop(m, Nt, Nf, DX, data, phif)
+        __DX_assign_loop(m, Nt, Nf, DX, data, phif)
         DX_trans = fft.ifft(DX, Nt)
-        DX_unpack_loop(m, Nt, Nf, DX_trans, wave)
+        __DX_unpack_loop(m, Nt, Nf, DX_trans, wave)
     return wave
 
 
 @njit()
-def DX_assign_loop(m, Nt, Nf, DX, data, phif):
+def __DX_assign_loop(m: int, Nt: int, Nf: int, DX: np.ndarray, data: np.ndarray, phif: np.ndarray) -> None:
     """helper for assigning DX in the main loop"""
     i_base = Nt // 2
     jj_base = m * Nt // 2
@@ -61,7 +61,7 @@ def DX_assign_loop(m, Nt, Nf, DX, data, phif):
 
 
 @njit()
-def DX_unpack_loop(m, Nt, Nf, DX_trans, wave):
+def __DX_unpack_loop(m: int, Nt: int, Nf: int, DX_trans: np.ndarray, wave: np.ndarray) -> None:
     """helper for unpacking fftd DX in main loop"""
     if m == 0:
         # half of lowest and highest frequency bin pixels are redundant, so store them in even and odd components of m=0 respectively

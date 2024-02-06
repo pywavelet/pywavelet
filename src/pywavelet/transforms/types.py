@@ -31,6 +31,23 @@ class _Wavelet(xr.DataArray):
             self.data, self.time.data, self.freq.data, ax=ax, cmap=cmap
         )
 
+    @property
+    def Nt(self):
+        return len(self.time)
+
+    @property
+    def Nf(self):
+        return len(self.freq)
+
+    @property
+    def delta_t(self):
+        return 1/self.Nt
+
+    @property
+    def delta_f(self):
+        return 1 / self.Nf
+
+
 
 @dataclass
 class TimeAxis:
@@ -66,7 +83,6 @@ class Wavelet(AsDataArray):
     name: Name[str] = "Wavelet Amplitutde"
 
     __dataoptions__ = DataOptions(_Wavelet)
-
 
 @dataclass
 class TimeSeries(AsDataArray):
