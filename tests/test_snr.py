@@ -7,7 +7,10 @@ import pytest
 from gw_utils import DT, DURATION, get_ifo, inject_signal_in_noise
 from matplotlib import colors
 
-from pywavelet.psd import evolutionary_psd_from_stationary_psd
+from pywavelet.psd import (
+    evolutionary_psd_from_stationary_psd,
+    get_noise_wavelet_from_psd,
+)
 from pywavelet.transforms import from_time_to_wavelet
 from pywavelet.transforms.types import TimeSeries, Wavelet
 from pywavelet.utils.snr import compute_snr
@@ -22,7 +25,7 @@ T_GRID = np.linspace(0, DURATION, Nt)
 F_GRID = np.linspace(0, FMAX, Nf)
 
 
-def get_noise_wavelet_data(t0: float) -> TimeSeries:
+def get_noise_wavelet_data(t0: float) -> Wavelet:
     noise = get_ifo(t0)[0].strain_data.time_domain_strain
     noise_wavelet = from_time_to_wavelet(noise, Nf, Nt)
     return noise_wavelet
@@ -75,30 +78,37 @@ def test_snr(plot_dir, distance):
     cbar = plt.colorbar(ax=ax[0, 2], mappable=cbar)
     ax[0, 2].set_title("log psd_wavelet")
 
-
     h_hat = h * h
     h_hat_psd = h_hat / psd
-    final= np.power(h_hat_psd * h_wavelet.delta_t * h_wavelet.delta_f, 0.5) * 0.5
+    final = (
+        np.power(h_hat_psd * h_wavelet.delta_t * h_wavelet.delta_f, 0.5) * 0.5
+    )
     wavelet_snr = np.nansum(final)
 
     cbar = ax[1, 0].imshow(np.rot90(h_hat.T), aspect="auto", cmap="bwr")
     plt.colorbar(ax=ax[1, 0], mappable=cbar)
-    ax[1, 0].text(0.2, 0.95, f"Sum: {np.nansum(h_hat):.2E}", transform=ax[1, 0].transAxes)
+    ax[1, 0].text(
+        0.2, 0.95, f"Sum: {np.nansum(h_hat):.2E}", transform=ax[1, 0].transAxes
+    )
     ax[1, 0].set_title("h*h")
 
     cbar = ax[1, 1].imshow(np.rot90(h_hat_psd.T), aspect="auto", cmap="bwr")
     plt.colorbar(ax=ax[1, 1], mappable=cbar)
     # add textbox to top left
-    ax[1, 1].text(0.2, 0.95, f"Sum: {np.nansum(h_hat_psd):.2E}", transform=ax[1, 1].transAxes)
+    ax[1, 1].text(
+        0.2,
+        0.95,
+        f"Sum: {np.nansum(h_hat_psd):.2E}",
+        transform=ax[1, 1].transAxes,
+    )
     ax[1, 1].set_title("(h*h)/PSD")
 
-    cbar = ax[1, 2].imshow(
-        np.rot90(final.T), aspect="auto", cmap="bwr"
-    )
+    cbar = ax[1, 2].imshow(np.rot90(final.T), aspect="auto", cmap="bwr")
     plt.colorbar(ax=ax[1, 2], mappable=cbar)
-    ax[1, 2].text(0.2, 0.95, f"Sum: {wavelet_snr:.2E}", transform=ax[1, 2].transAxes)
+    ax[1, 2].text(
+        0.2, 0.95, f"Sum: {wavelet_snr:.2E}", transform=ax[1, 2].transAxes
+    )
     ax[1, 2].set_title("1/2 * sqrt(delta_t * delta_f * (h*h)/PSD)")
-
 
     plt.suptitle(
         f"Matched Filter SNR: {timeseries_snr:.2f}, Wavelet SNR: {wavelet_snr:.2f}, ratio: {timeseries_snr/wavelet_snr:.2f}"

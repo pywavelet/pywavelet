@@ -11,6 +11,7 @@ def plot_wavelet_domain_grid(
     Nf: int = None,
     ax=None,
     cmap="bwr",
+    log=False,
 ) -> plt.Figure:
     """Plots the wavelet domain data (i.e. the wavelet amplitudes) as a 2D image."""
     if ax is None:
@@ -28,6 +29,9 @@ def plot_wavelet_domain_grid(
         )
     else:
         norm = None
+
+    if log:
+        norm = "log"
 
     extents = [0, Nt, 0, Nf]
     if time_grid is not None:
@@ -57,7 +61,7 @@ def plot_wavelet_domain_grid(
         verticalalignment="top",
         bbox=dict(boxstyle="round", facecolor=None, alpha=0.2),
     )
-    ax.set_xlabel(r"Time Bins [$\Delta T$=" + f"{1 / Nt:.2f}s, Nt={Nt}]")
-    ax.set_ylabel(r"Freq Bins [$\Delta F$=" + f"{1 / Nf:.2f}Hz, Nf={Nf}]")
+    ax.set_xlabel(r"Time Bins [$\Delta T$=" + f"{1 / Nt:.4f}s, Nt={Nt}]")
+    ax.set_ylabel(r"Freq Bins [$\Delta F$=" + f"{1 / Nf:.4f}Hz, Nf={Nf}]")
     plt.tight_layout()
     return fig

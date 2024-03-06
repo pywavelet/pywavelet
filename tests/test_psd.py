@@ -1,13 +1,18 @@
 import bilby
 import matplotlib.pyplot as plt
 import numpy as np
+import scipy
 from gw_utils import DT, DURATION, get_ifo
 
-from pywavelet.psd import evolutionary_psd_from_stationary_psd
+from pywavelet.psd import (
+    evolutionary_psd_from_stationary_psd,
+    get_noise_wavelet_from_psd,
+)
+from pywavelet.transforms import from_wavelet_to_time
 from pywavelet.transforms.types import Wavelet
 
+# Nf, Nt = 1024, 1024
 Nf, Nt = 1024, 1024
-# Nf, Nt = 64, 64
 ND = Nf * Nt
 T_GRID = np.arange(0, ND) * DT
 F_GRID = np.arange(0, ND // 2 + 1) * 1 / (DURATION)
@@ -16,16 +21,20 @@ t_binwidth = DURATION / Nt
 f_binwidth = 1 / 2 * t_binwidth
 fmax = 1 / (2 * DT)
 
-
 T_GRID = np.linspace(0, DURATION, Nt)
 F_GRID = np.linspace(0, fmax, Nf)
 
 
-def test_wavelet_psd_from_stationary(plot_dir):
-    """n: number of noise wavelets to take median of"""
+def _get_psd_freq_dom():
     ifo: bilby.gw.detector.Interferometer = get_ifo()[0]
     psd = ifo.power_spectral_density.psd_array
     psd_f = ifo.power_spectral_density.frequency_array
+    return psd, psd_f
+
+
+def test_wavelet_psd_from_stationary(plot_dir):
+    """n: number of noise wavelets to take median of"""
+    psd, psd_f = _get_psd_freq_dom()
 
     psd_wavelet: Wavelet = evolutionary_psd_from_stationary_psd(
         psd=psd,
@@ -43,3 +52,39 @@ def test_wavelet_psd_from_stationary(plot_dir):
     psd_wavelet.plot(ax=axes[1], cmap=None)
 
     plt.savefig(f"{plot_dir}/psd_wavelet.png", dpi=300)
+
+    psd_wavelet.data = np.nan_to_num(
+        psd_wavelet.data, nan=np.max(psd_wavelet.data)
+    )
+    noise_ts = from_wavelet_to_time(psd_wavelet)
+    # generate welch_psd
+    freq, welch_psd = scipy.signal.welch(noise_ts, fs=1 / DT, nperseg=1024)
+    plt.figure()
+    plt.loglog(freq, welch_psd, color="tab:blue", label="Welch PSD")
+    plt.loglog(psd_f, psd, color="tab:orange", label="PSD", alpha=0.5, ls="--")
+    plt.show()
+
+
+def test_bahgi_psd_technique(plot_dir):
+    # METHOD 1: load S(f) --> generate timeseries --> wavelet transform
+    psd, psd_f = _get_psd_freq_dom()
+    noise_wavelet = get_noise_wavelet_from_psd(
+        duration=DURATION * 2048,
+        sampling_freq=1 / DT,
+        psd_f=psd_f,
+        psd=psd,
+        Nf=Nf,
+    )
+    noise_wavelet.plot(cmap="viridis", log=True)
+    plt.savefig(f"{plot_dir}/bahgi_psd_technique.png", dpi=300)
+    # replace nans with zeros
+    noise_wavelet.data = np.nan_to_num(noise_wavelet.data)
+
+    # the following doest work as we have nans in the noise-wavelet (at the low freq)
+    noise_ts = from_wavelet_to_time(noise_wavelet)
+    # generate periodogram
+    freq, welch_psd = scipy.signal.welch(noise_ts, fs=1 / DT, nperseg=1024)
+    plt.figure()
+    plt.loglog(freq, welch_psd)
+    plt.loglog(psd_f, psd)
+    plt.show()
