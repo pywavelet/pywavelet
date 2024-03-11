@@ -7,14 +7,14 @@ import xarray as xr
 from xarray_dataclasses import (
     AsDataArray,
     Attr,
-    Coord,
     Coordof,
     Data,
     DataOptions,
     Name,
 )
 
-from pywavelet.plotting import plot_wavelet_domain_grid
+from ..logger import logger
+from ..plotting import plot_wavelet_grid
 
 TIME = Literal["time"]
 FREQ = Literal["freq"]
@@ -25,16 +25,11 @@ class _Wavelet(xr.DataArray):
 
     __slots__ = ()
 
-    def plot(self, ax=None, cmap="bwr", log=False) -> plt.Figure:
+    def plot(self, ax=None, **kwargs) -> plt.Figure:
         """Custom method."""
-        return plot_wavelet_domain_grid(
-            self.data,
-            self.time.data,
-            self.freq.data,
-            ax=ax,
-            cmap=cmap,
-            log=log,
-        )
+        kwargs["time_grid"] = kwargs.get("time_grid", self.time.data)
+        kwargs["freq_grid"] = kwargs.get("freq_grid", self.freq.data)
+        return plot_wavelet_grid(self.data, ax=ax, **kwargs)
 
     @property
     def Nt(self):
@@ -51,6 +46,10 @@ class _Wavelet(xr.DataArray):
     @property
     def delta_f(self):
         return 1 / self.Nf
+
+    @property
+    def shape(self) -> Tuple[int, ...]:
+        return self.data.shape
 
 
 @dataclass
@@ -84,7 +83,7 @@ class Wavelet(AsDataArray):
     data: Data[Tuple[FREQ, TIME], float]
     time: Coordof[TimeAxis] = 0.0
     freq: Coordof[FreqAxis] = 0.0
-    name: Name[str] = "Wavelet Amplitutde"
+    name: Name[str] = "Wavelet Amplitude"
 
     __dataoptions__ = DataOptions(_Wavelet)
 
@@ -95,13 +94,17 @@ class TimeSeries(AsDataArray):
     time: Coordof[TimeAxis] = 0.0
     name: Name[str] = "Time Series"
 
-    def plot(self, ax=None) -> plt.Figure:
+    def __post_init__(self):
+        _len_check(self.data)
+
+    def plot(self, ax=None, **kwargs) -> plt.Figure:
         """Custom method."""
         if ax == None:
             fig, ax = plt.subplots()
-        ax.plot(self.time, self.data)
+        ax.plot(self.time, self.data, **kwargs)
         ax.set_xlabel("Time")
         ax.set_ylabel("Amplitude")
+        return ax.figure
 
     def __len__(self):
         return len(self.data)
@@ -141,13 +144,17 @@ class FrequencySeries(AsDataArray):
     freq: Coordof[FreqAxis] = 0
     name: Name[str] = "Frequency Series"
 
-    def plot(self, ax=None) -> plt.Figure:
+    def __post_init__(self):
+        _len_check(self.data)
+
+    def plot(self, ax=None, **kwargs) -> plt.Figure:
         """Custom method."""
         if ax == None:
             fig, ax = plt.subplots()
-        ax.loglog(self.freq, self.data)
+        ax.loglog(self.freq, self.data, **kwargs)
         ax.set_xlabel("Frequency Bin")
         ax.set_ylabel("Amplitude")
+        return ax.figure
 
     def __len__(self):
         return len(self.data)
@@ -169,8 +176,16 @@ class FrequencySeries(AsDataArray):
         return self.freq[1] - self.freq[0]
 
     @property
+    def dt(self):
+        return 1 / self.sample_rate
+
+    @property
     def sample_rate(self):
         return self.df * len(self.freq)
+
+    @property
+    def duration(self):
+        return 1 / self.sample_rate * len(self.data)
 
 
 def wavelet_dataset(
@@ -199,3 +214,8 @@ def wavelet_dataset(
         freq_grid = np.arange(Nf)
 
     return Wavelet.new(wavelet_data.T, time=time_grid, freq=freq_grid)
+
+
+def _len_check(d):
+    if not np.log2(len(d)).is_integer():
+        logger.warning(f"Data length {len(d)} is suggested to be a power of 2")

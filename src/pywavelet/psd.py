@@ -29,7 +29,7 @@ def evolutionary_psd_from_stationary_psd(
         Nf = len(f_grid)
 
     delta_f = f_grid[1] - f_grid[0]
-    nan_val = np.max(psd)
+    nan_val = np.nan
     psd_grid = (
         interp1d(
             psd_f, psd, kind="nearest", fill_value=nan_val, bounds_error=False

@@ -28,19 +28,25 @@ def _preprocess_bins(
 
 
 def _get_bins(data: Union[TimeSeries, FrequencySeries], Nf=None, Nt=None):
-    t_binwidth, f_binwidth = None, None
+    # TODO: This was the old version
+    # t_binwidth = data.duration / Nt
+    # f_binwidth = 1 / 2 * t_binwidth
+    # fmax = 1 / (2 * data.dt)
+    #
+    # t_bins = np.linspace(data.time[0], data.time[-1], Nt)
+    # f_bins = np.linspace(0, fmax, Nf)
+
+    D = data.duration
+
+    # QUENTIN'S VERSION:
+    df = Nt / (2 * D)
+    dt = D / Nt
+
+    f_bins = np.arange(0, Nf) * df
+    f_bins[0] = f_bins[1]  # avoid division by zero
+    t_bins = np.arange(0, Nt) * dt
 
     if isinstance(data, TimeSeries):
-        t_binwidth = data.duration / Nt
-        f_binwidth = 1 / 2 * t_binwidth
-        fmax = 1 / (2 * data.dt)
-
-        t_bins = np.linspace(data.time[0], data.time[-1], Nt)
-        f_bins = np.linspace(0, fmax, Nf)
-
-    elif isinstance(data, FrequencySeries):
-        raise NotImplementedError
-    else:
-        raise ValueError(f"Data type {type(data)} not recognized")
+        t_bins += data.time[0]
 
     return t_bins, f_bins

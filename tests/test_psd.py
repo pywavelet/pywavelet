@@ -4,7 +4,9 @@ import numpy as np
 import scipy
 from gw_utils import DT, DURATION, get_ifo
 
+from pywavelet.fft_funcs import periodogram
 from pywavelet.psd import (
+    _generate_noise_from_psd,
     evolutionary_psd_from_stationary_psd,
     get_noise_wavelet_from_psd,
 )
@@ -16,6 +18,7 @@ Nf, Nt = 1024, 1024
 ND = Nf * Nt
 T_GRID = np.arange(0, ND) * DT
 F_GRID = np.arange(0, ND // 2 + 1) * 1 / (DURATION)
+F_SAMP = 1 / DT
 
 t_binwidth = DURATION / Nt
 f_binwidth = 1 / 2 * t_binwidth
@@ -50,6 +53,8 @@ def test_wavelet_psd_from_stationary(plot_dir):
     axes[0].set_ylabel("Frequency [Hz]")
     axes[0].set_xlabel("log PSD")
     psd_wavelet.plot(ax=axes[1], cmap=None)
+    # change colorbar label
+    fig.get_axes()[-1].set_ylabel("Log Wavelet Amplitude")
 
     plt.savefig(f"{plot_dir}/psd_wavelet.png", dpi=300)
 
@@ -68,6 +73,15 @@ def test_wavelet_psd_from_stationary(plot_dir):
 def test_bahgi_psd_technique(plot_dir):
     # METHOD 1: load S(f) --> generate timeseries --> wavelet transform
     psd, psd_f = _get_psd_freq_dom()
+    noise_ts = _generate_noise_from_psd(psd, psd_f, DURATION * 2048, F_SAMP)
+
+    # generate periodogram
+    noise_pdgmr = periodogram(noise_ts)
+    plt.figure()
+    plt.loglog(noise_pdgmr.freq, noise_pdgmr.data)
+    plt.loglog(psd_f, psd)
+    plt.show()
+
     noise_wavelet = get_noise_wavelet_from_psd(
         duration=DURATION * 2048,
         sampling_freq=1 / DT,
@@ -75,7 +89,8 @@ def test_bahgi_psd_technique(plot_dir):
         psd=psd,
         Nf=Nf,
     )
-    noise_wavelet.plot(cmap="viridis", log=True)
+
+    noise_wavelet.plot()
     plt.savefig(f"{plot_dir}/bahgi_psd_technique.png", dpi=300)
     # replace nans with zeros
     noise_wavelet.data = np.nan_to_num(noise_wavelet.data)
