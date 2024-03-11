@@ -6,7 +6,9 @@ from ... import fft_funcs as fft
 
 
 # @njit()
-def inverse_wavelet_freq_helper_fast(wave_in: np.ndarray, phif: np.ndarray, Nf: int, Nt: int):
+def inverse_wavelet_freq_helper_fast(
+    wave_in: np.ndarray, phif: np.ndarray, Nf: int, Nt: int
+):
     """jit compatible loop for inverse_wavelet_freq"""
     ND = Nf * Nt
 
@@ -24,7 +26,13 @@ def inverse_wavelet_freq_helper_fast(wave_in: np.ndarray, phif: np.ndarray, Nf: 
 
 @njit()
 def __unpack_wave_inverse(
-        m: int, Nt: int, Nf: int, phif: np.ndarray, fft_prefactor2s: np.ndarray, res: np.ndarray) -> None:
+    m: int,
+    Nt: int,
+    Nf: int,
+    phif: np.ndarray,
+    fft_prefactor2s: np.ndarray,
+    res: np.ndarray,
+) -> None:
     """helper for unpacking results of frequency domain inverse transform"""
 
     if m == 0 or m == Nf:

@@ -28,25 +28,25 @@ def _preprocess_bins(
 
 
 def _get_bins(data: Union[TimeSeries, FrequencySeries], Nf=None, Nt=None):
+    # TODO: This was the old version
+    # t_binwidth = data.duration / Nt
+    # f_binwidth = 1 / 2 * t_binwidth
+    # fmax = 1 / (2 * data.dt)
+    #
+    # t_bins = np.linspace(data.time[0], data.time[-1], Nt)
+    # f_bins = np.linspace(0, fmax, Nf)
+
+    D = data.duration
+
+    # QUENTIN'S VERSION:
+    df = Nt / (2 * D)
+    dt = D / Nt
+
+    f_bins = np.arange(0, Nf) * df
+    f_bins[0] = f_bins[1]  # avoid division by zero
+    t_bins = np.arange(0, Nt) * dt
+
     if isinstance(data, TimeSeries):
-        n = len(data)
-        t_binwidth = Nf * data.dt
-        f_binwidth = 1 / (2 * data.dt * Nf)
-
-        assert t_binwidth * f_binwidth == 0.5, "t_binwidth * f_binwidth must be 0.5"
-        fmax = 1 / (2 * data.dt)
-
-        # generate bins based on binwidth Nt and Nf times
-        t_bins = np.arange(0, data.duration, t_binwidth) + data.time[0]
-        f_bins = np.arange(0, fmax, f_binwidth)
-
-        assert len(t_bins) == Nt, f"len(t_bins)={len(t_bins)} must be Nt={Nt}"
-        assert len(f_bins) == Nf, f"len(f_bins)={len(f_bins)} must be Nf={Nf}"
-        # assert np.diff(t_bins)[0] * np.diff(f_bins)[0] == 0.5, "t_binwidth * f_binwidth must be 0.5"
-
-    elif isinstance(data, FrequencySeries):
-        raise NotImplementedError
-    else:
-        raise ValueError(f"Data type {type(data)} not recognized")
+        t_bins += data.time[0]
 
     return t_bins, f_bins
