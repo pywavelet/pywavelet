@@ -36,4 +36,4 @@ def compute_snr(h: Wavelet, d: Wavelet, PSD: Wavelet) -> float:
         The SNR of the model h given data d and PSD.
 
     """
-    return np.power(np.nansum((h.data * h.data)/ PSD.data), 0.5)
+    return np.power(np.nansum((h.data * h.data) / PSD.data), 0.5)

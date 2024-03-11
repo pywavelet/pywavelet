@@ -15,9 +15,9 @@ def test_time_to_wavelet_to_time(make_plots, plot_dir):
     Nf = 2**7
     mult = 16
 
-    max_f =  0.5 * (1 / dt)
+    max_f = 0.5 * (1 / dt)
 
-    freq_range = [max_f/10., max_f]
+    freq_range = [max_f / 10.0, max_f]
 
     ND = Nt * Nf
 
