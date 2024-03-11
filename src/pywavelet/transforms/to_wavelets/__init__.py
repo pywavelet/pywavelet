@@ -18,7 +18,7 @@ from .transform_time_funcs import transform_wavelet_time_helper
 
 
 def from_time_to_wavelet(
-    data: TimeSeries, Nf: int = None, Nt: int = None, nx=4.0, mult=32
+        data: TimeSeries, Nf: int = None, Nt: int = None, nx=4.0, mult=32
 ) -> Wavelet:
     """From time domain data to wavelet domain
 
@@ -50,13 +50,14 @@ def from_time_to_wavelet(
     mult = min(mult, Nt // 2)  # make sure K isn't bigger than ND
     phi = phi_vec(Nf, nx, mult)
     wave = transform_wavelet_time_helper(data, Nf, Nt, phi, mult)
-    return wavelet_dataset(
+    wavelt = wavelet_dataset(
         wave, Nt=Nt, Nf=Nf, time_grid=t_bins, freq_grid=f_bins
     )
+    return wavelt
 
 
 def from_time_to_freq_to_wavelet(
-    data: TimeSeries, Nf=None, Nt=None, nx=4.0
+        data: TimeSeries, Nf=None, Nt=None, nx=4.0
 ) -> Wavelet:
     """transform time domain data into wavelet domain via fft and then frequency transform"""
     freqseries = FrequencySeries.from_time_series(data)
@@ -64,7 +65,7 @@ def from_time_to_freq_to_wavelet(
 
 
 def from_freq_to_wavelet(
-    data: FrequencySeries, Nf=None, Nt=None, nx=4.0
+        data: FrequencySeries, Nf=None, Nt=None, nx=4.0
 ) -> Wavelet:
     """do the wavelet transform using the fast wavelet domain transform"""
     Nf, Nt = _preprocess_bins(data, Nf, Nt)

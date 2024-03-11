@@ -16,7 +16,7 @@ from pywavelet.logger import logger
 from pywavelet.transforms.types import Wavelet
 
 
-def compute_snr(h: Wavelet, d: Wavelet, PSD: Wavelet) -> float:
+def compute_snr(h: Wavelet, PSD: Wavelet) -> float:
     """Compute the SNR of a model h[ti,fi] given data d[ti,fi] and PSD[ti,fi].
 
     SNR(h) = Sum_{ti,fi} [ h_hat[ti,fi] d[ti,fi] / PSD[ti,fi]
@@ -36,4 +36,6 @@ def compute_snr(h: Wavelet, d: Wavelet, PSD: Wavelet) -> float:
         The SNR of the model h given data d and PSD.
 
     """
-    return np.power(np.nansum((h.data * h.data)/ PSD.data), 0.5)
+    snr_sqrd = np.nansum((h.data * h.data) / PSD.data)
+    snr_sqrd = snr_sqrd/(h.Nf * h.Nt * np.pi)
+    return np.sqrt(snr_sqrd)

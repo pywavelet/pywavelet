@@ -39,19 +39,12 @@ class _Wavelet(xr.DataArray):
     def Nf(self):
         return len(self.freq)
 
-    @property
-    def delta_t(self):
-        return 1/self.Nt
-
-    @property
-    def delta_f(self):
-        return 1 / self.Nf
 
 
 
 @dataclass
 class TimeAxis:
-    data: Data[TIME, int]
+    data: Data[TIME, float]
     long_name: Attr[str] = "Time"
     units: Attr[str] = "s"
 
@@ -64,7 +57,7 @@ class TimeAxis:
 
 @dataclass
 class FreqAxis:
-    data: Data[FREQ, int]
+    data: Data[FREQ, float]
     long_name: Attr[str] = "Frequency"
     units: Attr[str] = "Hz"
 
@@ -158,14 +151,5 @@ def wavelet_dataset(
     dataset : xarray.Dataset
         Dataset with wavelet coefficients.
     """
-    if Nt is None:
-        Nt = wavelet_data.shape[1]
-    if Nf is None:
-        Nf = wavelet_data.shape[0]
-
-    if time_grid is None:
-        time_grid = np.arange(Nt)
-    if freq_grid is None:
-        freq_grid = np.arange(Nf)
-
-    return Wavelet.new(wavelet_data.T, time=time_grid, freq=freq_grid)
+    w = Wavelet.new(wavelet_data.T, time=time_grid, freq=freq_grid)
+    return w

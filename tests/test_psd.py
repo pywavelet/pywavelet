@@ -43,3 +43,11 @@ def test_wavelet_psd_from_stationary(plot_dir):
     psd_wavelet.plot(ax=axes[1], cmap=None)
 
     plt.savefig(f"{plot_dir}/psd_wavelet.png", dpi=300)
+
+
+    plt.close()
+    # plot the normal PSD and the wavelet PSD (one time bin) in loglog
+    fig, ax = plt.subplots(1, 1, figsize=(5, 5))
+    plt.loglog(psd_f, psd, label="Normal PSD")
+    plt.loglog(psd_wavelet.freq.data, np.exp(psd_wavelet.data[:, 0]) , label="Wavelet PSD")
+    plt.show()
