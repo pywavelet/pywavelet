@@ -7,8 +7,6 @@ def plot_wavelet_grid(
     wavelet_data: np.ndarray,
     time_grid=None,
     freq_grid=None,
-    Nt: int = None,
-    Nf: int = None,
     ax=None,
     zscale="linear",
     freq_scale="linear",
@@ -21,9 +19,10 @@ def plot_wavelet_grid(
         ax = fig.gca()
     fig = ax.get_figure()
 
-    # if Nt and Nf are not provided, infer them from the shape of the wavelet data
-    Nt = wavelet_data.shape[0] if Nt is None else Nt
-    Nf = wavelet_data.shape[1] if Nf is None else Nf
+    Nf, Nt = wavelet_data.shape
+    assert Nf == len(freq_grid), f"Nf={Nf} != len(freq_grid)={len(freq_grid)}"
+    assert Nt == len(time_grid), f"Nt={Nt} != len(time_grid)={len(time_grid)}"
+
     z = np.rot90(wavelet_data.T)
     if absolute:
         z = np.abs(z)
@@ -37,7 +36,7 @@ def plot_wavelet_grid(
     else:
         cmap = "viridis"
     if zscale == "log":
-        norm = LogNorm(vmin=np.min(z), vmax=np.max(z))
+        norm = LogNorm(vmin=np.nanmin(z), vmax=np.nanmax(z))
 
     extents = [0, Nt, 0, Nf]
     if time_grid is not None:
@@ -48,9 +47,12 @@ def plot_wavelet_grid(
         extents[3] = freq_grid[-1]
 
     im = ax.imshow(z, aspect="auto", extent=extents, cmap=cmap, norm=norm)
-    cbar = plt.colorbar(im, ax=ax)
-    cl = "Absolute Wavelet Amplitude" if absolute else "Wavelet Amplitude"
-    cbar.set_label(cl)
+    try:
+        cbar = plt.colorbar(im, ax=ax)
+        cl = "Absolute Wavelet Amplitude" if absolute else "Wavelet Amplitude"
+        cbar.set_label(cl)
+    except Exception:
+        pass
 
     # add a text box with the Nt and Nf values
     ax.text(

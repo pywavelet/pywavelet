@@ -18,7 +18,7 @@ from .transform_time_funcs import transform_wavelet_time_helper
 
 
 def from_time_to_wavelet(
-        data: TimeSeries, Nf: int = None, Nt: int = None, nx=4.0, mult=32
+        data: TimeSeries, Nf: int = None, Nt: int = None, nx=4.0, mult=32, **kwargs
 ) -> Wavelet:
     """From time domain data to wavelet domain
 
@@ -42,6 +42,14 @@ def from_time_to_wavelet(
 
     t_bins, f_bins = _get_bins(data, Nf, Nt)
 
+    ND = Nf * Nt
+    # enusure exactly this amount of data present
+    if len(data) != ND:
+        logger.warning(
+            f"len(data)={len(data)} != Nf*Nt={ND}. Truncating or padding data."
+        )
+        data = data[:ND]
+
     if mult > Nt / 2:
         logger.warning(
             f"mult={mult} is too large for Nt={Nt}. This may lead to bogus results."
@@ -51,25 +59,25 @@ def from_time_to_wavelet(
     phi = phi_vec(Nf, nx, mult)
     wave = transform_wavelet_time_helper(data, Nf, Nt, phi, mult)
     wavelt = wavelet_dataset(
-        wave, Nt=Nt, Nf=Nf, time_grid=t_bins, freq_grid=f_bins
+        wave, Nt=Nt, Nf=Nf, time_grid=t_bins, freq_grid=f_bins, **kwargs
     )
     return wavelt
 
 
 def from_time_to_freq_to_wavelet(
-        data: TimeSeries, Nf=None, Nt=None, nx=4.0
+        data: TimeSeries, Nf=None, Nt=None, nx=4.0, **kwargs
 ) -> Wavelet:
     """transform time domain data into wavelet domain via fft and then frequency transform"""
     freqseries = FrequencySeries.from_time_series(data)
-    return from_freq_to_wavelet(freqseries, Nf, Nt, nx)
+    return from_freq_to_wavelet(freqseries, Nf, Nt, nx, **kwargs)
 
 
 def from_freq_to_wavelet(
-        data: FrequencySeries, Nf=None, Nt=None, nx=4.0
+        data: FrequencySeries, Nf=None, Nt=None, nx=4.0, **kwargs
 ) -> Wavelet:
     """do the wavelet transform using the fast wavelet domain transform"""
     Nf, Nt = _preprocess_bins(data, Nf, Nt)
 
     phif = 2 / Nf * phitilde_vec_norm(Nf, Nt, nx)
     wave = transform_wavelet_freq_helper(data, Nf, Nt, phif)
-    return wavelet_dataset(wave, Nt=Nt, Nf=Nf)
+    return wavelet_dataset(wave, Nt=Nt, Nf=Nf, **kwargs)

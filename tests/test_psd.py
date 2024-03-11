@@ -2,16 +2,13 @@ import bilby
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy
+from scipy.interpolate import interp1d
 from gw_utils import DT, DURATION, get_ifo
 
-from pywavelet.fft_funcs import periodogram
-from pywavelet.psd import (
-    _generate_noise_from_psd,
-    evolutionary_psd_from_stationary_psd,
-    get_noise_wavelet_from_psd,
-)
-from pywavelet.transforms import from_wavelet_to_time
-from pywavelet.transforms.types import Wavelet
+from pywavelet.psd import evolutionary_psd_from_stationary_psd
+from pywavelet.transforms import from_wavelet_to_time, from_time_to_wavelet
+from pywavelet.transforms.types import Wavelet, FrequencySeries
+from pywavelet.psd import generate_noise_from_psd
 
 Nf, Nt = 1024, 1024
 # Nf, Nt = 64, 64
@@ -36,38 +33,49 @@ def _get_psd_freq_dom():
     return psd, psd_f
 
 
+def _get_lvk_psd_func():
+    psd, psd_f = _get_psd_freq_dom()
+    return interp1d(psd_f, psd, bounds_error=False, fill_value=max(psd))
+
+
 def test_wavelet_psd_from_stationary(plot_dir):
     """n: number of noise wavelets to take median of"""
     psd, psd_f = _get_psd_freq_dom()
 
+     # Wavelet data from noise
+    noise_ts = generate_noise_from_psd(
+        psd_func=_get_lvk_psd_func(),
+        n_data=2**17, fs=1 / DT,
+    )
+    noise_pdgrm = FrequencySeries.from_time_series(noise_ts, min_freq=min(psd_f), max_freq=max(psd_f))
+    noise_wavelet  = from_time_to_wavelet(noise_ts, Nt=128, freq_range=(min(psd_f), max(psd_f)))
+
+
+    # plot the noise-pdgrm and the true psd
+    _ = noise_pdgrm.plot(color="tab:blue", lw=0, marker=",")
+    plt.loglog(psd_f, psd, color="tab:orange", label="PSD", alpha=0.5, zorder=1)
+    plt.show()
+
+    # plot the noise-wavelet
+    noise_wavelet.plot(absolute=True, zscale="log", freq_scale="linear", freq_range=(min(psd_f), None))
+    plt.show()
+
+    # generate and plot the true PSD --> wavelet
     psd_wavelet: Wavelet = evolutionary_psd_from_stationary_psd(
         psd=psd,
         psd_f=psd_f,
-        f_grid=F_GRID,
-        t_grid=T_GRID,
+        f_grid=noise_wavelet.freq.data,
+        t_grid=noise_wavelet.time.data,
     )
-    psd_wavelet.data = np.log(psd_wavelet.data)
+    psd_wavelet.plot(
+        absolute=True, zscale="log", freq_scale="linear", freq_range=(min(psd_f), max(F_GRID))
+     )
+    plt.show()
 
-    fig, axes = plt.subplots(1, 2, figsize=(10, 5))
-    axes[0].plot(np.log(psd.T), psd_f)
-    axes[0].set_ylim(0, 256)
-    axes[0].set_ylabel("Frequency [Hz]")
-    axes[0].set_xlabel("log PSD")
-    psd_wavelet.plot(ax=axes[1], cmap=None)
-    # change colorbar label
-    fig.get_axes()[-1].set_ylabel("Log Wavelet Amplitude")
-
-    plt.savefig(f"{plot_dir}/psd_wavelet.png", dpi=300)
-
-    psd_wavelet.data = np.nan_to_num(
-        psd_wavelet.data, nan=np.max(psd_wavelet.data)
-    )
-    noise_ts = from_wavelet_to_time(psd_wavelet)
-    # generate welch_psd
-    freq, welch_psd = scipy.signal.welch(noise_ts, fs=1 / DT, nperseg=1024)
-    plt.figure()
-    plt.loglog(freq, welch_psd, color="tab:blue", label="Welch PSD")
-    plt.loglog(psd_f, psd, color="tab:orange", label="PSD", alpha=0.5, ls="--")
+    # look at ratio of shit
+    psd_an = np.sqrt(psd_wavelet.data * psd_wavelet.sample_rate /2 )
+    ratio = (noise_wavelet.data / psd_an)
+    plt.hist(ratio.flatten(), bins=100)
     plt.show()
 
 

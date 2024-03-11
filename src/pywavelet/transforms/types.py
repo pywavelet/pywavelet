@@ -12,9 +12,12 @@ from xarray_dataclasses import (
     DataOptions,
     Name,
 )
+from ..fft_funcs import fft, irfft, fftfreq
 
 from ..logger import logger
 from ..plotting import plot_wavelet_grid
+
+
 
 TIME = Literal["time"]
 FREQ = Literal["freq"]
@@ -51,6 +54,9 @@ class _Wavelet(xr.DataArray):
     def shape(self) -> Tuple[int, ...]:
         return self.data.shape
 
+    @property
+    def sample_rate(self):
+        return 1 / self.delta_t
 
 @dataclass
 class TimeAxis:
@@ -130,7 +136,7 @@ class TimeSeries(AsDataArray):
 
     @classmethod
     def from_frequency_series(cls, frequency_series: "FrequencySeries"):
-        data = np.fft.irfft(frequency_series.data)
+        data = irfft(frequency_series.data)
         dt = 1 / frequency_series.sample_rate
         return cls(
             data=data,
@@ -163,13 +169,8 @@ class FrequencySeries(AsDataArray):
         return self.data[item]
 
     @classmethod
-    def from_time_series(cls, time_series: TimeSeries):
-        freq = np.fft.rfftfreq(len(time_series), d=time_series.dt)
-        data = np.fft.rfft(time_series)
-        return cls(
-            data=data,
-            freq=FreqAxis(freq),
-        )
+    def from_time_series(cls, time_series: TimeSeries, **kwargs):
+        return _periodogram(time_series, **kwargs)
 
     @property
     def df(self):
@@ -189,7 +190,8 @@ class FrequencySeries(AsDataArray):
 
 
 def wavelet_dataset(
-    wavelet_data: np.ndarray, time_grid=None, freq_grid=None, Nt=None, Nf=None
+    wavelet_data: np.ndarray, time_grid=None, freq_grid=None, Nt=None, Nf=None,
+    freq_range=None, time_range=None
 ) -> Wavelet:
     """Create a dataset with wavelet coefficients.
 
@@ -204,9 +206,43 @@ def wavelet_dataset(
         Dataset with wavelet coefficients.
     """
     w = Wavelet.new(wavelet_data.T, time=time_grid, freq=freq_grid)
+
+    if freq_range is not None:
+        w = w.sel(freq=slice(*freq_range))
+    if time_range is not None:
+        w = w.sel(time=slice(*time_range))
     return w
 
 
 def _len_check(d):
     if not np.log2(len(d)).is_integer():
         logger.warning(f"Data length {len(d)} is suggested to be a power of 2")
+
+
+
+def _periodogram(ts: TimeSeries, wd_func=np.blackman, min_freq=0, max_freq=None):
+    """Compute the periodogram of a time series using the
+    Blackman window
+
+    Parameters
+    ----------
+    ts : ndarray
+        intput time series
+    wd_func : callable
+        tapering window function in the time domain
+
+    Returns
+    -------
+    ndarray
+        periodogram at Fourier frequencies
+    """
+    fs = ts.sample_rate
+    wd = wd_func(ts.data.shape[0])
+    k2 = np.sum(wd**2)
+    per = np.abs(fft(ts.data * wd)) ** 2 * 2 / (k2 * fs)
+    freq = fftfreq(len(ts)) * fs
+    # filter f[f>0]
+    mask = freq >= min_freq
+    if max_freq is not None:
+        mask &= freq <= max_freq
+    return FrequencySeries(data=per[mask], freq=freq[mask])
