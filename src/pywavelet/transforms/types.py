@@ -12,8 +12,8 @@ from xarray_dataclasses import (
     DataOptions,
     Name,
 )
-from ..fft_funcs import fft, irfft, fftfreq
 
+from ..fft_funcs import fft, fftfreq, irfft
 from ..logger import logger
 from ..plotting import plot_wavelet_grid
 
@@ -51,10 +51,6 @@ class _Wavelet(xr.DataArray):
     @property
     def shape(self) -> Tuple[int, int]:
         return self.data.shape
-
-    @property
-    def sample_rate(self) -> float:
-        return 1 / self.delta_t
 
 
 @dataclass
@@ -181,7 +177,7 @@ class FrequencySeries(AsDataArray):
 
     @property
     def sample_rate(self):
-        return self.df * len(self.freq)
+        return 2 * self.df * len(self.freq)
 
     @property
     def duration(self):
@@ -189,8 +185,13 @@ class FrequencySeries(AsDataArray):
 
 
 def wavelet_dataset(
-        wavelet_data: np.ndarray, time_grid=None, freq_grid=None, Nt=None, Nf=None,
-        freq_range=None, time_range=None
+    wavelet_data: np.ndarray,
+    time_grid=None,
+    freq_grid=None,
+    Nt=None,
+    Nf=None,
+    freq_range=None,
+    time_range=None,
 ) -> Wavelet:
     """Create a dataset with wavelet coefficients.
 
@@ -218,7 +219,9 @@ def _len_check(d):
         logger.warning(f"Data length {len(d)} is suggested to be a power of 2")
 
 
-def _periodogram(ts: TimeSeries, wd_func=np.blackman, min_freq=0, max_freq=None):
+def _periodogram(
+    ts: TimeSeries, wd_func=np.blackman, min_freq=0, max_freq=None
+):
     """Compute the periodogram of a time series using the
     Blackman window
 
@@ -236,7 +239,7 @@ def _periodogram(ts: TimeSeries, wd_func=np.blackman, min_freq=0, max_freq=None)
     """
     fs = ts.sample_rate
     wd = wd_func(ts.data.shape[0])
-    k2 = np.sum(wd ** 2)
+    k2 = np.sum(wd**2)
     per = np.abs(fft(ts.data * wd)) ** 2 * 2 / (k2 * fs)
     freq = fftfreq(len(ts)) * fs
     # filter f[f>0]
