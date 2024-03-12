@@ -67,8 +67,9 @@ def test_wavelet_psd_from_stationary(plot_dir):
     )
 
     # PLOTS
+    mask = psd_f<1024
     _make_plot(
-        psd_wavelet, noise_wavelet, noise_pdgrm, psd_f, psd, f"{plot_dir}/wavelet_psd_from_stationary.png"
+        psd_wavelet, noise_wavelet, noise_pdgrm, psd_f[mask], psd[mask], f"{plot_dir}/wavelet_psd_from_stationary.png"
     )
     plt.show()
 
