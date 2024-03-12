@@ -33,7 +33,7 @@ def _lisa_poms_pacc(f):
     return PSD
 
 
-def lisa_psd(f, fmin=1e-3):
+def lisa_psd_func(f, fmin=1e-3):
     # if isinstance(f, np.ndarray):
     #     out = np.zeros_like(f)
     #     out[f>=fmin] = _lisa_poms_pacc(f[f>fmin])
@@ -47,6 +47,7 @@ def lisa_psd(f, fmin=1e-3):
     out = _lisa_poms_pacc(f) * f**4
 
     return out
+
 
 
 
@@ -80,7 +81,7 @@ def freq_PSD(waveform_t:np.ndarray, delta_t:float)-> Tuple[np.ndarray, np.ndarra
     """
     n_t = len(zero_pad(waveform_t))
     freq = np.fft.rfftfreq(n_t, delta_t)[1:]
-    PSD = lisa_psd(freq)
+    PSD = lisa_psd_func(freq)
 
     return freq, PSD
 

@@ -17,8 +17,6 @@ from ..fft_funcs import fft, irfft, fftfreq
 from ..logger import logger
 from ..plotting import plot_wavelet_grid
 
-
-
 TIME = Literal["time"]
 FREQ = Literal["freq"]
 
@@ -35,28 +33,29 @@ class _Wavelet(xr.DataArray):
         return plot_wavelet_grid(self.data, ax=ax, **kwargs)
 
     @property
-    def Nt(self):
+    def Nt(self) -> int:
         return len(self.time)
 
     @property
-    def Nf(self):
+    def Nf(self) -> int:
         return len(self.freq)
 
     @property
-    def delta_t(self):
+    def delta_t(self) -> float:
         return 1 / self.Nt
 
     @property
-    def delta_f(self):
+    def delta_f(self) -> float:
         return 1 / self.Nf
 
     @property
-    def shape(self) -> Tuple[int, ...]:
+    def shape(self) -> Tuple[int, int]:
         return self.data.shape
 
     @property
-    def sample_rate(self):
+    def sample_rate(self) -> float:
         return 1 / self.delta_t
+
 
 @dataclass
 class TimeAxis:
@@ -103,14 +102,14 @@ class TimeSeries(AsDataArray):
     def __post_init__(self):
         _len_check(self.data)
 
-    def plot(self, ax=None, **kwargs) -> plt.Figure:
+    def plot(self, ax=None, **kwargs) -> Tuple[plt.Figure, plt.Axes]:
         """Custom method."""
         if ax == None:
             fig, ax = plt.subplots()
         ax.plot(self.time, self.data, **kwargs)
         ax.set_xlabel("Time")
         ax.set_ylabel("Amplitude")
-        return ax.figure
+        return ax.figure, ax
 
     def __len__(self):
         return len(self.data)
@@ -153,14 +152,14 @@ class FrequencySeries(AsDataArray):
     def __post_init__(self):
         _len_check(self.data)
 
-    def plot(self, ax=None, **kwargs) -> plt.Figure:
+    def plot(self, ax=None, **kwargs) -> Tuple[plt.Figure, plt.Axes]:
         """Custom method."""
         if ax == None:
             fig, ax = plt.subplots()
         ax.loglog(self.freq, self.data, **kwargs)
         ax.set_xlabel("Frequency Bin")
         ax.set_ylabel("Amplitude")
-        return ax.figure
+        return ax.figure, ax
 
     def __len__(self):
         return len(self.data)
@@ -190,8 +189,8 @@ class FrequencySeries(AsDataArray):
 
 
 def wavelet_dataset(
-    wavelet_data: np.ndarray, time_grid=None, freq_grid=None, Nt=None, Nf=None,
-    freq_range=None, time_range=None
+        wavelet_data: np.ndarray, time_grid=None, freq_grid=None, Nt=None, Nf=None,
+        freq_range=None, time_range=None
 ) -> Wavelet:
     """Create a dataset with wavelet coefficients.
 
@@ -219,7 +218,6 @@ def _len_check(d):
         logger.warning(f"Data length {len(d)} is suggested to be a power of 2")
 
 
-
 def _periodogram(ts: TimeSeries, wd_func=np.blackman, min_freq=0, max_freq=None):
     """Compute the periodogram of a time series using the
     Blackman window
@@ -238,7 +236,7 @@ def _periodogram(ts: TimeSeries, wd_func=np.blackman, min_freq=0, max_freq=None)
     """
     fs = ts.sample_rate
     wd = wd_func(ts.data.shape[0])
-    k2 = np.sum(wd**2)
+    k2 = np.sum(wd ** 2)
     per = np.abs(fft(ts.data * wd)) ** 2 * 2 / (k2 * fs)
     freq = fftfreq(len(ts)) * fs
     # filter f[f>0]

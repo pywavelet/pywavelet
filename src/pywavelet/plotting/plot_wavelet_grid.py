@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.colors import LogNorm, TwoSlopeNorm
+from typing import Tuple
 
 
 def plot_wavelet_grid(
@@ -12,7 +13,7 @@ def plot_wavelet_grid(
     freq_scale="linear",
     absolute=False,
     freq_range=None,
-) -> plt.Figure:
+) -> Tuple[plt.Figure, plt.Axes]:
     """Plots the wavelet domain data (i.e. the wavelet amplitudes) as a 2D image."""
     if ax is None:
         fig = plt.figure()
@@ -70,4 +71,4 @@ def plot_wavelet_grid(
     if freq_range is not None:
         ax.set_ylim(freq_range)
     plt.tight_layout()
-    return fig
+    return fig, ax
