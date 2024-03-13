@@ -74,9 +74,8 @@ def _make_plot(psd_wavelet, noise_wavelet, noise_pdgrm, psd_f, psd, fname):
     return fig, axes
 
 
-def test_wavelet_psd_from_stationary(plot_dir):
+def test_lvk_psd(plot_dir):
     """n: number of noise wavelets to take median of"""
-    psd, psd_f = get_lvk_psd()
     psd_func = get_lvk_psd_function()
 
     fs = 4096
@@ -88,7 +87,8 @@ def test_wavelet_psd_from_stationary(plot_dir):
         n_data=2**17,
         fs=fs,
     )
-    Nt = int(np.sqrt(len(noise_ts)))
+
+    Nt = 128
     wavelet_kwgs = dict(Nt=Nt, nx=4.0, mult=32, freq_range=(fmin, fmax))
     noise_pdgrm = FrequencySeries.from_time_series(
         noise_ts, min_freq=fmin, max_freq=fmax
@@ -96,26 +96,27 @@ def test_wavelet_psd_from_stationary(plot_dir):
     noise_wavelet = from_time_to_wavelet(noise_ts, **wavelet_kwgs)
 
     # generate and plot the true PSD --> wavelet
-    psd_wavelet: Wavelet = evolutionary_psd_from_stationary_psd(
-        psd=np.sqrt(psd),
-        psd_f=psd_f,
-        f_grid=noise_wavelet.freq.data,
-        t_grid=noise_wavelet.time.data,
+    lvk_psd = psd_func(noise_wavelet.freq)
+    psd_grid = np.dot(np.ones((Nt, 1)), np.reshape(np.sqrt(lvk_psd), (1, -1)))
+    psd_wavelet: Wavelet = wavelet_dataset(
+        psd_grid,
+        time_grid=noise_wavelet.time.data,
+        freq_grid=noise_wavelet.freq.data,
     )
 
     # PLOTS
-    mask = (psd_f < fmax) & (psd_f > fmin)
+    # mask = (psd_f < fmax) & (psd_f > fmin)
     _make_plot(
         psd_wavelet,
         noise_wavelet,
         noise_pdgrm,
-        psd_f[mask],
-        psd[mask],
+        noise_pdgrm.freq,
+        psd_func(noise_pdgrm.freq),
         f"{plot_dir}/lvk_wavelet_psd.png",
     )
 
 
-def test_evolutionary_psd(plot_dir):
+def test_lisa_psd(plot_dir):
     # Analytical PSD S_LISA(f)*Amp(t) --> wavelet
     # Noise: S_LISA(f) --> timeseries * Amp(t) --> wavelet
 
