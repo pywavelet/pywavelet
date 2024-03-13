@@ -26,11 +26,70 @@ class _Wavelet(xr.DataArray):
 
     __slots__ = ()
 
+    def __post_init__(self):
+        self.__checks()
+
     def plot(self, ax=None, **kwargs) -> Tuple[plt.Figure, plt.Axes]:
         """Custom method."""
         kwargs["time_grid"] = kwargs.get("time_grid", self.time.data)
         kwargs["freq_grid"] = kwargs.get("freq_grid", self.freq.data)
         return plot_wavelet_grid(self.data, ax=ax, **kwargs)
+
+    @property
+    def Nt(self) -> int:
+        """Number of time bins."""
+        return len(self.time)
+
+    @property
+    def Nf(self) -> int:
+        """Number of frequency bins."""
+        return len(self.freq)
+
+    @property
+    def delta_t(self) -> float:
+        """Time bin width."""
+        return self.time[1] - self.time[0]
+
+    @property
+    def delta_f(self) -> float:
+        """Frequency bin width (using last 2 bins -- dont want to deal with the 0th fbin)."""
+        return self.freq[-1] - self.freq[-2]
+
+    @property
+    def shape(self) -> Tuple[int, int]:
+        """Shape of the wavelet grid."""
+        return self.data.shape
+
+    @property
+    def duration(self) -> float:
+        return self.Nt * self.delta_t
+
+    @property
+    def fmax(self):
+        return self.delta_f * self.Nf
+
+    @property
+    def sample_rate(self):
+        return 2 * self.fmax
+
+    def __checks(self):
+        assert self.shape == (
+            self.Nf,
+            self.Nt,
+        ), f"self.shape={self.shape} != (self.Nf, self.Nt)={self.Nf, self.Nt}"
+        assert (len(self.freq), len(self.time)) == self.shape
+
+        fmax1 = self.freq[-1] + self.delta_f
+        fmax2 = self.Nf / (2 * self.delta_t)
+
+        if np.abs(fmax1 - self.fmax) > 1e-3:
+            logger.warning(
+                f"fmax={self.fmax} != self.freq[-1] + self.delta_f={fmax1}"
+            )
+        assert (
+            fmax2 - self.fmax < 1e-3
+        ), f"Nf / (2 * self.delta_t)={fmax2} != fmax={self.fmax}"
+        assert self.duration == self.time[-1] - self.time[0] + self.delta_t
 
 
 @dataclass
@@ -67,61 +126,6 @@ class Wavelet(AsDataArray):
     name: Name[str] = "Wavelet Amplitude"
 
     __dataoptions__ = DataOptions(_Wavelet)
-
-    def __post_init__(self):
-        self.__checks()
-
-    @property
-    def Nt(self) -> int:
-        """Number of time bins."""
-        return len(self.time)
-
-    @property
-    def Nf(self) -> int:
-        """Number of frequency bins."""
-        return len(self.freq)
-
-    @property
-    def delta_t(self) -> float:
-        """Time bin width."""
-        return self.time[1] - self.time[0]
-
-    @property
-    def delta_f(self) -> float:
-        """Frequency bin width (using last 2 bins -- dont want to deal with the 0th fbin)."""
-        return self.freq[-1] - self.freq[-2]
-
-    @property
-    def shape(self) -> Tuple[int, int]:
-        """Shape of the wavelet grid."""
-        return self.data.shape
-
-    @property
-    def duration(self) -> float:
-        return self.Nt * self.delta_t
-
-    @property
-    def fmax(self):
-        return self.delta_f * self.Nf
-
-    def __checks(self):
-        assert self.shape == (
-            self.Nf,
-            self.Nt,
-        ), f"self.shape={self.shape} != (self.Nf, self.Nt)={self.Nf, self.Nt}"
-        assert (len(self.freq), len(self.time)) == self.shape
-
-        fmax1 = self.freq[-1] + self.delta_f
-        fmax2 = self.Nf / (2 * self.delta_t)
-
-        if np.abs(fmax1 - self.fmax) > 1e-3:
-            logger.warning(
-                f"fmax={self.fmax} != self.freq[-1] + self.delta_f={fmax1}"
-            )
-        assert (
-            fmax2 - self.fmax < 1e-3
-        ), f"Nf / (2 * self.delta_t)={fmax2} != fmax={self.fmax}"
-        assert self.duration == self.time[-1] - self.time[0] + self.delta_t
 
 
 @dataclass
@@ -223,8 +227,6 @@ def wavelet_dataset(
     wavelet_data: np.ndarray,
     time_grid=None,
     freq_grid=None,
-    Nt=None,
-    Nf=None,
     freq_range=None,
     time_range=None,
 ) -> Wavelet:
