@@ -33,10 +33,12 @@ class _Wavelet(xr.DataArray):
 
     @property
     def Nt(self) -> int:
+        """Number of time bins."""
         return len(self.time)
 
     @property
     def Nf(self) -> int:
+        """Number of frequency bins."""
         return len(self.freq)
 
     @property
@@ -49,6 +51,7 @@ class _Wavelet(xr.DataArray):
 
     @property
     def shape(self) -> Tuple[int, int]:
+        """Shape of the wavelet grid."""
         return self.data.shape
 
     @property
@@ -244,8 +247,11 @@ class FrequencySeries(AsDataArray):
 
 
 def wavelet_dataset(
-        wavelet_data: np.ndarray, time_grid=None, freq_grid=None, Nt=None, Nf=None,
-        freq_range=None, time_range=None
+    wavelet_data: np.ndarray,
+    time_grid=None,
+    freq_grid=None,
+    freq_range=None,
+    time_range=None,
 ) -> Wavelet:
     """Create a dataset with wavelet coefficients.
 
@@ -271,3 +277,5 @@ def wavelet_dataset(
 def _len_check(d):
     if not np.log2(len(d)).is_integer():
         logger.warning(f"Data length {len(d)} is suggested to be a power of 2")
+
+

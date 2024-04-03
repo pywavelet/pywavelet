@@ -6,19 +6,18 @@ import numpy as np
 import pytest
 from gw_utils import DT, DURATION, get_ifo, inject_signal_in_noise
 from matplotlib import colors
+from scipy.interpolate import interp1d
 
 from pywavelet.psd import (
     evolutionary_psd_from_stationary_psd,
+    generate_noise_from_psd,
 )
 from pywavelet.data import Data
 from pywavelet.transforms import from_time_to_wavelet
-from pywavelet.transforms.types import TimeSeries, Wavelet
-from pywavelet.utils.snr import compute_snr, compute_frequency_optimal_snr
+from pywavelet.transforms.types import TimeSeries, Wavelet, wavelet_dataset
 from pywavelet.utils.lisa import get_lisa_data
-
-import logging
-
-logging.getLogger('bilby').setLevel(logging.ERROR)
+from pywavelet.utils.lvk import get_lvk_psd, get_lvk_psd_function
+from pywavelet.utils.snr import compute_snr
 
 Nf, Nt = 64, 64
 ND = Nf * Nt
@@ -30,20 +29,25 @@ T_GRID = np.linspace(0, DURATION, Nt)
 F_GRID = np.linspace(0, FMAX, Nf)
 
 
-def __get_noise_wavelet_data(t0: float) -> Wavelet:
+def get_noise_wavelet_data(t0: float) -> Wavelet:
     noise = get_ifo(t0)[0].strain_data.time_domain_strain
     noise_wavelet = from_time_to_wavelet(noise, Nf, Nt)
     return noise_wavelet
 
 
-def __get_wavelet_psd_from_median_noise(f_grid=F_GRID, t_grid=T_GRID) -> Wavelet:
+def get_wavelet_psd_from_median_noise(f_grid=F_GRID, t_grid=T_GRID) -> Wavelet:
     """n: number of noise wavelets to take median of"""
     ifo: bilby.gw.detector.Interferometer = get_ifo()[0]
-    return evolutionary_psd_from_stationary_psd(
-        psd=ifo.power_spectral_density.psd_array,
-        psd_f=ifo.power_spectral_density.frequency_array,
-        f_grid=f_grid,
-        t_grid=t_grid,
+    psd_func = interp1d(
+        ifo.power_spectral_density.frequency_array,
+        ifo.power_spectral_density.psd_array,
+        bounds_error=False,
+        fill_value=np.max(ifo.power_spectral_density.psd_array),
+    )
+    psd = np.sqrt(psd_func(f_grid))
+    psd_grid = np.repeat(psd[None, :], Nt, axis=0)
+    return wavelet_dataset(
+        wavelet_data=psd_grid, time_grid=t_grid, freq_grid=f_grid
     )
 
 
@@ -116,7 +120,7 @@ def test_snr(plot_dir, distance):
     ax[1, 2].set_title("1/2 * sqrt(delta_t * delta_f * (h*h)/PSD)")
 
     plt.suptitle(
-        f"Matched Filter SNR: {timeseries_snr:.2f}, Wavelet SNR: {wavelet_snr:.2f}, ratio: {timeseries_snr / wavelet_snr:.2f}"
+        f"Matched Filter SNR: {timeseries_snr:.2f}, Wavelet SNR: {wavelet_snr:.2f}, ratio: {timeseries_snr/wavelet_snr:.2f}"
     )
     plt.tight_layout()
     plt.savefig(f"{plot_dir}/snr_computation_d{distance}.png", dpi=300)
@@ -176,7 +180,10 @@ def test_lisa_snr(plot_dir):
     h_time = TimeSeries(data=h_signal_t, time=t)
     h_wavelet = from_time_to_wavelet(h_time, Nt=Nt)
     psd_wavelet = evolutionary_psd_from_stationary_psd(
-        psd=psd_f, psd_f=f, f_grid=h_wavelet.freq.data, t_grid=h_wavelet.time.data
+        psd=psd_f,
+        psd_f=f,
+        f_grid=h_wavelet.freq.data,
+        t_grid=h_wavelet.time.data,
     )
     wavelet_snr = compute_snr(h_wavelet, psd_wavelet)
-    assert wavelet_snr == snr ** 2
+    assert wavelet_snr == snr**2
