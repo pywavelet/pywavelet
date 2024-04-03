@@ -2,7 +2,8 @@ import bilby
 import numpy as np
 from scipy.interpolate import interp1d
 
-from typing import Tuple, Union
+import matplotlib.pyplot as plt
+from typing import Tuple, Union, Optional
 from .transforms import from_time_to_wavelet
 from .transforms.types import (
     FrequencySeries,
@@ -11,43 +12,39 @@ from .transforms.types import (
     wavelet_dataset,
 )
 
+DATA_TYPE = Union[TimeSeries, FrequencySeries, Wavelet]
+
 
 def evolutionary_psd_from_stationary_psd(
         psd: np.ndarray,
         psd_f: np.ndarray,
         f_grid,
         t_grid,
-        Nt: int = None,
-        Nf: int = None,
 ) -> Wavelet:
     """
     PSD[ti,fi] = PSD[fi] * delta_f
     """
 
-    if Nt is None:
-        Nt = len(t_grid)
-    if Nf is None:
-        Nf = len(f_grid)
-
+    Nt = len(t_grid)
     delta_f = f_grid[1] - f_grid[0]
-    nan_val = np.nan
+    freq_data = np.sqrt(psd)
+    nan_val = np.max(freq_data)
     psd_grid = (
             interp1d(
-                psd_f, psd, kind="nearest", fill_value=nan_val, bounds_error=False
+                psd_f, freq_data, kind="nearest", fill_value=nan_val, bounds_error=False
             )(f_grid)
             * delta_f
     )
 
     # repeat the PSD for each time bin
     psd_grid = np.repeat(psd_grid[None, :], Nt, axis=0)
-
     w = wavelet_dataset(psd_grid, time_grid=t_grid, freq_grid=f_grid)
-
     return w
 
 
-def generate_noise_from_psd(psd_func, n_data, fs, freqseries=False, freq_kwargs=None) -> Union[
-    TimeSeries, FrequencySeries]:
+def generate_noise_from_psd(psd_func, n_data, fs, noise_type: Optional[DATA_TYPE] = FrequencySeries,
+                            freq_kwargs=None) -> Union[
+    TimeSeries, FrequencySeries, Wavelet]:
     """
     Noise generator from arbitrary power spectral density.
     Uses a Gaussian random generation in the frequency domain.
@@ -116,16 +113,12 @@ def generate_noise_from_psd(psd_func, n_data, fs, freqseries=False, freq_kwargs=
             (noise_tf, np.conj(noise_tf[1: n_fft + 1])[::-1])
         )
 
-    tseries = np.fft.ifft(np.sqrt(n_psd * fs / 2.0) * noise_tf, axis=0)
 
-    delta_t = 1 / fs  # Sampling interval -- largely oversampling here.
-    n_data = 2 ** int(np.log(tmax / delta_t) / np.log(2))
-    t = np.arange(0, n_data) * delta_t
-
-    # timeseries
-    ts = TimeSeries(data=tseries[0:n_data].real, time=t)
-    if freqseries:
-        fs = FrequencySeries.from_time_series(ts, **freq_kwargs)
-        return fs
-
-    return ts
+    if  noise_type==FrequencySeries:
+        return FrequencySeries(data=noise_tf, freq=f)
+    elif noise_type==TimeSeries:
+        tseries = np.fft.ifft(np.sqrt(n_psd * fs / 2.0) * noise_tf, axis=0)
+        delta_t = 1 / fs  # Sampling interval -- largely oversampling here.
+        n_data = 2 ** int(np.log(tmax / delta_t) / np.log(2))
+        t = np.arange(0, n_data) * delta_t
+        return TimeSeries(data=tseries[0:n_data].real, time=t)

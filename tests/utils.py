@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Tuple
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -25,8 +25,8 @@ def cbc_waveform(mc, q=1, delta_t=1.0 / 4096, f_lower=20):
 
 
 def waveform_fft(
-    t,
-    waveform,
+        t,
+        waveform,
 ):
     N = len(waveform)
     taper = tukey(N, 0.1)
@@ -41,67 +41,75 @@ def waveform_fft(
 def zero_pad(data):
     N = len(data)
     pow_2 = np.ceil(np.log2(N))
-    return np.pad(data, (0, int((2**pow_2) - N)), "constant")
+    return np.pad(data, (0, int((2 ** pow_2) - N)), "constant")
 
 
-# plot signal
-def plot_time_domain_signal(signal: TimeSeries, freq_range: List[float]):
-    t = signal.time
-    h = signal.data
-    T = max(signal.time)
-    fs = 1 / (t[1] - t[0])
-    ff, tt, Sxx = spectrogram(h, fs=fs, nperseg=256, nfft=576)
-    freq, h_freq = waveform_fft(t, h)
-
-    fig, axes = plt.subplots(3, 1, figsize=(4, 6))
-    axes[0].plot(t, h, lw=0.1)
-    axes[0].set_ylabel("h(t)")
-    axes[0].set_xlim(0, T)
-    axes[1].plot(freq, np.abs(h_freq))
-    axes[1].set_ylabel("|h(f)|")
-    axes[1].set_xlabel("Frequency (Hz)")
-    axes[1].set_xlim(*freq_range)
-    axes[2].set_xlim(0, T)
-    axes[2].pcolormesh(tt, ff, Sxx)
-    axes[2].set_xlabel("Time (s)")
-    axes[2].set_ylabel("Frequency (Hz)")
-    axes[2].set_xlim(0, T)
-    axes[2].set_ylim(*freq_range)
-    # add colorbar to the last axis
-    cbar = plt.colorbar(axes[2].collections[0], ax=axes[2])
-    cbar.set_label("Amplitude")
-    plt.tight_layout()
-    return fig
-
-
-def plot_wavelet_domain_signal(wavelet_data, time_grid, freq_grid, freq_range):
+def plot_wavelet_domain_signal(wavelet_data, time_grid, freq_grid, freq_range) -> Tuple[plt.Figure, plt.Axes]:
     fig = plt.figure()
-    plt.imshow(
+    ax = fig.gca()
+    ax.imshow(
         np.abs(np.rot90(wavelet_data)),
         aspect="auto",
         extent=[time_grid[0], time_grid[-1], freq_grid[0], freq_grid[-1]],
     )
     cbar = plt.colorbar()
     cbar.set_label("Wavelet Amplitude")
-    plt.xlabel("Time (s)")
-    plt.ylabel("Frequency (Hz)")
-    plt.ylim(*freq_range)
+    ax.set_xlabel("Time (s)")
+    ax.set_ylabel("Frequency (Hz)")
+    ax.set_ylim(*freq_range)
     plt.tight_layout()
-    return fig
+    return fig, ax
 
 
-def plot_residuals(residuals):
-    fig = plt.figure()
-    plt.hist(residuals, bins=100)
-    plt.xlabel("Residuals")
-    plt.ylabel("Count")
-    return fig
+def plot_residuals(residuals: TimeSeries, ax=None):
+    if ax is None:
+        fig, ax = plt.subplots(2, 1, figsize=(8, 8))
+    fig, ax = residuals.plot(ax=ax)
+    ax.set_ylabel("Residuals")
+    # horizontal line at y = 0
+    ax.axhline(0, color="k", linestyle="--")
+    ax.fill_between(
+        residuals.time.data,
+        -0.68,
+        0.68,
+        color="gray",
+        alpha=0.1,
+    )
+    # add txtbox with stats
+    mean, std = residuals.data.mean(), residuals.data.std()
+    # stats txtbox in latex
+    stats = r"err = ${:.2f} \pm {:.2f}$".format(mean, std)
+    ax.text(0.05, 0.95, stats, transform=ax.transAxes, fontsize=12, verticalalignment="top")
+    plt.tight_layout()
+    return fig, ax
 
 
 def generate_chirp_time_domain_signal(
-    t: np.ndarray, freq_range: List[float]
+        t: np.ndarray, freq_range: List[float]
 ) -> TimeSeries:
+    fs = 1 / (t[1] - t[0])
+    nyquist = fs / 2
+    fmax = max(freq_range)
+    assert fmax < nyquist, f"f_max [{fmax:.2f} Hz] must be less than f_nyquist [{nyquist:2f} Hz]."
+
     y = chirp(
         t, f0=freq_range[0], f1=freq_range[1], t1=t[-1], method="quadratic"
     )
     return TimeSeries(data=y, time=TimeAxis(t))
+
+def __zero_pad(data):
+    """
+    This function takes in a vector and zero pads it so it is a power of two.
+    We do this for the O(Nlog_{2}N) cost when we work in the frequency domain.
+    """
+    N = len(data)
+    pow_2 = np.ceil(np.log2(N))
+    return np.pad(data, (0, int((2 ** pow_2) - N)), "constant")
+
+
+
+def generate_sine_time_domain_signal(ts, n, f_true=10):
+    h_signal = np.sin(2 * np.pi * f_true * ts)
+    window = tukey(n, 0.2)
+    h_signal = __zero_pad(h_signal * window)
+    return TimeSeries(h_signal, time=ts)

@@ -13,6 +13,23 @@ from pywavelet.transforms.types import Wavelet, FrequencySeries, wavelet_dataset
 from pywavelet.psd import generate_noise_from_psd
 
 
+def test_basic(plot_dir):
+    psd, psd_f = get_lvk_psd()
+    t_grid = np.linspace(0, 1, 64)
+    f_grid = np.linspace(0, max(psd_f), 2048)
+    w = evolutionary_psd_from_stationary_psd(psd, psd_f, f_grid, t_grid)
+
+    fig, ax = plt.subplots(1, 2, figsize=(10, 5), sharey=True)
+    ax[0].loglog(psd, psd_f)
+    ax[0].set_ylabel('Freq')
+    ax[0].set_xlabel('PSD')
+    w.plot(absolute=True, zscale="log", freq_scale="log", ax=ax[1], freq_range=[min(psd_f), max(psd_f)])
+    plt.savefig(f"{plot_dir}/basic.png", dpi=300)
+
+
+
+
+
 def _make_plot(psd_wavelet, noise_wavelet, noise_pdgrm, psd_f, psd, fname):
     """Make a column of plots :
         - noise pdgrm (gray) + PSD (orange)
@@ -55,7 +72,7 @@ def test_wavelet_psd_from_stationary(plot_dir):
         n_data=2 ** 17, fs=4028,
     )
     Nt = int(np.sqrt(len(noise_ts)))
-    noise_pdgrm = FrequencySeries.from_time_series(noise_ts, min_freq=min(psd_f), max_freq=max(psd_f))
+    noise_pdgrm = FrequencySeries.from_time_series(noise_ts)
     noise_wavelet = from_time_to_wavelet(noise_ts, Nt=Nt, freq_range=(min(psd_f), max(psd_f)))
 
     # generate and plot the true PSD --> wavelet
@@ -72,6 +89,7 @@ def test_wavelet_psd_from_stationary(plot_dir):
         psd_wavelet, noise_wavelet, noise_pdgrm, psd_f[mask], psd[mask], f"{plot_dir}/wavelet_psd_from_stationary.png"
     )
     plt.show()
+
 
 
 def test_evolutionary_psd(plot_dir):

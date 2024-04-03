@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from typing import Literal, Tuple
-
+from scipy.signal import spectrogram
 import matplotlib.pyplot as plt
 import numpy as np
 import xarray as xr
@@ -12,7 +12,6 @@ from xarray_dataclasses import (
     DataOptions,
     Name,
 )
-from ..fft_funcs import fft, irfft, fftfreq
 
 from ..logger import logger
 from ..plotting import plot_wavelet_grid
@@ -26,11 +25,11 @@ class _Wavelet(xr.DataArray):
 
     __slots__ = ()
 
-    def plot(self, ax=None, **kwargs) -> plt.Figure:
+    def plot(self, ax=None, *args, **kwargs) -> plt.Figure:
         """Custom method."""
         kwargs["time_grid"] = kwargs.get("time_grid", self.time.data)
         kwargs["freq_grid"] = kwargs.get("freq_grid", self.freq.data)
-        return plot_wavelet_grid(self.data, ax=ax, **kwargs)
+        return plot_wavelet_grid(self.data, ax=ax, *args, **kwargs)
 
     @property
     def Nt(self) -> int:
@@ -55,6 +54,18 @@ class _Wavelet(xr.DataArray):
     @property
     def sample_rate(self) -> float:
         return 1 / self.delta_t
+
+    @property
+    def fs(self):
+        return self.sample_rate
+
+    @property
+    def duration(self) -> float:
+        return self.Nt * self.delta_t
+
+    @property
+    def nyquist_frequency(self) -> float:
+        return self.sample_rate / 2
 
 
 @dataclass
@@ -102,13 +113,30 @@ class TimeSeries(AsDataArray):
     def __post_init__(self):
         _len_check(self.data)
 
-    def plot(self, ax=None, **kwargs) -> Tuple[plt.Figure, plt.Axes]:
+    def plot(self, ax=None, *args, **kwargs) -> Tuple[plt.Figure, plt.Axes]:
         """Custom method."""
         if ax == None:
             fig, ax = plt.subplots()
         ax.plot(self.time, self.data, **kwargs)
         ax.set_xlabel("Time")
         ax.set_ylabel("Amplitude")
+        ax.set_xlim(left=self.time[0], right=self.time[-1])
+        return ax.figure, ax
+
+    def plot_spectrogram(self, ax=None, spec_kwargs={}, plot_kwargs={}, *args, **kwargs) -> Tuple[plt.Figure, plt.Axes]:
+        f, t, Sxx = spectrogram(self.data, fs=self.fs, **spec_kwargs)
+        if ax == None:
+            fig, ax = plt.subplots()
+
+        if 'cmap' not in plot_kwargs:
+            plot_kwargs['cmap'] = 'Reds'
+
+        cm = ax.pcolormesh(t, f, Sxx, shading='nearest', **plot_kwargs)
+        ax.set_xlabel("Time")
+        ax.set_ylabel("Frequency")
+        ax.set_ylim(top=self.nyquist_frequency)
+        cbar = plt.colorbar(cm, ax=ax)
+        cbar.set_label("Spec Amplitude")
         return ax.figure, ax
 
     def __len__(self):
@@ -122,8 +150,12 @@ class TimeSeries(AsDataArray):
         return 1 / self.dt
 
     @property
+    def fs(self):
+        return self.sample_rate
+
+    @property
     def duration(self):
-        return self.time[-1] - self.time[0]
+        return self.dt * len(self)
 
     @property
     def dt(self):
@@ -131,16 +163,21 @@ class TimeSeries(AsDataArray):
 
     @property
     def nyquist_frequency(self):
-        return 1 / (2 * self.dt)
+        return self.fs / 2
 
-    @classmethod
-    def from_frequency_series(cls, frequency_series: "FrequencySeries"):
-        data = irfft(frequency_series.data)
-        dt = 1 / frequency_series.sample_rate
-        return cls(
-            data=data,
-            time=TimeAxis(np.arange(len(data)) * dt),
-        )
+    @property
+    def t0(self):
+        return self.time[0]
+
+    @property
+    def tend(self):
+        return self.time[-1]
+
+    def __sub__(self, other):
+        return TimeSeries(data=self.data - other.data, time=self.time)
+
+    def __repr__(self):
+        return f"TimeSeries(n={len(self)}, trange=[{self.time[0]:.2f}, {self.time[-1]:.2f}] s, T={self.duration:.2f}s, fs={self.fs:.2f} Hz)"
 
 
 @dataclass
@@ -149,16 +186,23 @@ class FrequencySeries(AsDataArray):
     freq: Coordof[FreqAxis] = 0
     name: Name[str] = "Frequency Series"
 
-    def __post_init__(self):
-        _len_check(self.data)
-
-    def plot(self, ax=None, **kwargs) -> Tuple[plt.Figure, plt.Axes]:
-        """Custom method."""
+    def plot(self, ax=None, *args, **kwargs) -> Tuple[plt.Figure, plt.Axes]:
         if ax == None:
             fig, ax = plt.subplots()
-        ax.loglog(self.freq, self.data, **kwargs)
+        ax.plot(self.freq, self.data, **kwargs)
         ax.set_xlabel("Frequency Bin")
         ax.set_ylabel("Amplitude")
+        ax.set_xlim(-self.nyquist_frequency, self.nyquist_frequency)
+        return ax.figure, ax
+
+    def plot_periodogram(self, ax=None, *args, **kwargs) -> Tuple[plt.Figure, plt.Axes]:
+        if ax == None:
+            fig, ax = plt.subplots()
+        ax.loglog(self.freq, np.abs(self.data) ** 2, **kwargs)
+        flow = np.min(np.abs(self.freq))
+        ax.set_xlabel("Frequency (Hz)")
+        ax.set_ylabel("Power Spectral Density")
+        ax.set_xlim(left=flow, right=self.nyquist_frequency)
         return ax.figure, ax
 
     def __len__(self):
@@ -167,25 +211,36 @@ class FrequencySeries(AsDataArray):
     def __getitem__(self, item):
         return self.data[item]
 
-    @classmethod
-    def from_time_series(cls, time_series: TimeSeries, **kwargs):
-        return _periodogram(time_series, **kwargs)
-
     @property
     def df(self):
         return self.freq[1] - self.freq[0]
 
     @property
     def dt(self):
-        return 1 / self.sample_rate
+        return 1 / self.fs
 
     @property
     def sample_rate(self):
-        return self.df * len(self.freq)
+        return self.nyquist_frequency * 2
+
+    @property
+    def fs(self):
+        return self.sample_rate
+
+    @property
+    def nyquist_frequency(self):
+        return self.freq[-1]
 
     @property
     def duration(self):
-        return 1 / self.sample_rate * len(self.data)
+        return 2 * self.dt * (len(self) - 1)
+
+    @property
+    def freq_range(self) -> Tuple[float, float]:
+        return (min(self.freq), max(self.freq))
+
+    def __repr__(self):
+        return f"FrequencySeries(n={len(self)}, frange=[{min(self.freq):.2f}, {max(self.freq):.2f}] Hz, T={self.duration:.2f}s, fs={self.fs:.2f} Hz)"
 
 
 def wavelet_dataset(
@@ -216,31 +271,3 @@ def wavelet_dataset(
 def _len_check(d):
     if not np.log2(len(d)).is_integer():
         logger.warning(f"Data length {len(d)} is suggested to be a power of 2")
-
-
-def _periodogram(ts: TimeSeries, wd_func=np.blackman, min_freq=0, max_freq=None):
-    """Compute the periodogram of a time series using the
-    Blackman window
-
-    Parameters
-    ----------
-    ts : ndarray
-        intput time series
-    wd_func : callable
-        tapering window function in the time domain
-
-    Returns
-    -------
-    ndarray
-        periodogram at Fourier frequencies
-    """
-    fs = ts.sample_rate
-    wd = wd_func(ts.data.shape[0])
-    k2 = np.sum(wd ** 2)
-    per = np.abs(fft(ts.data * wd)) ** 2 * 2 / (k2 * fs)
-    freq = fftfreq(len(ts)) * fs
-    # filter f[f>0]
-    mask = freq >= min_freq
-    if max_freq is not None:
-        mask &= freq <= max_freq
-    return FrequencySeries(data=per[mask], freq=freq[mask])

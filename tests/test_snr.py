@@ -9,15 +9,16 @@ from matplotlib import colors
 
 from pywavelet.psd import (
     evolutionary_psd_from_stationary_psd,
-    get_noise_wavelet_from_psd,
 )
+from pywavelet.data import Data
 from pywavelet.transforms import from_time_to_wavelet
 from pywavelet.transforms.types import TimeSeries, Wavelet
-from pywavelet.utils.snr import compute_snr
+from pywavelet.utils.snr import compute_snr, compute_frequency_optimal_snr
 from pywavelet.utils.lisa import get_lisa_data
 
+import logging
 
-
+logging.getLogger('bilby').setLevel(logging.ERROR)
 
 Nf, Nt = 64, 64
 ND = Nf * Nt
@@ -28,13 +29,14 @@ FMAX = 1 / (2 * DT)
 T_GRID = np.linspace(0, DURATION, Nt)
 F_GRID = np.linspace(0, FMAX, Nf)
 
-def get_noise_wavelet_data(t0: float) -> Wavelet:
+
+def __get_noise_wavelet_data(t0: float) -> Wavelet:
     noise = get_ifo(t0)[0].strain_data.time_domain_strain
     noise_wavelet = from_time_to_wavelet(noise, Nf, Nt)
     return noise_wavelet
 
 
-def get_wavelet_psd_from_median_noise(f_grid=F_GRID, t_grid=T_GRID) -> Wavelet:
+def __get_wavelet_psd_from_median_noise(f_grid=F_GRID, t_grid=T_GRID) -> Wavelet:
     """n: number of noise wavelets to take median of"""
     ifo: bilby.gw.detector.Interferometer = get_ifo()[0]
     return evolutionary_psd_from_stationary_psd(
@@ -56,10 +58,10 @@ def test_snr(plot_dir, distance):
 
     data_wavelet = from_time_to_wavelet(data_time, Nt=Nt)
     h_wavelet = from_time_to_wavelet(h_time, Nt=Nt)
-    psd_wavelet = get_wavelet_psd_from_median_noise(
+    psd_wavelet = __get_wavelet_psd_from_median_noise(
         f_grid=h_wavelet.freq.data, t_grid=h_wavelet.time.data
     )
-    wavelet_snr = compute_snr(h_wavelet, data_wavelet, psd_wavelet)
+    wavelet_snr = compute_snr(h_wavelet, psd_wavelet)
 
     h = h_wavelet.data
     d = data_wavelet.data
@@ -84,7 +86,7 @@ def test_snr(plot_dir, distance):
     h_hat = h * h
     h_hat_psd = h_hat / psd
     final = (
-        np.power(h_hat_psd * h_wavelet.delta_t * h_wavelet.delta_f, 0.5) * 0.5
+            np.power(h_hat_psd * h_wavelet.delta_t * h_wavelet.delta_f, 0.5) * 0.5
     )
     wavelet_snr = np.nansum(final)
 
@@ -114,7 +116,7 @@ def test_snr(plot_dir, distance):
     ax[1, 2].set_title("1/2 * sqrt(delta_t * delta_f * (h*h)/PSD)")
 
     plt.suptitle(
-        f"Matched Filter SNR: {timeseries_snr:.2f}, Wavelet SNR: {wavelet_snr:.2f}, ratio: {timeseries_snr/wavelet_snr:.2f}"
+        f"Matched Filter SNR: {timeseries_snr:.2f}, Wavelet SNR: {wavelet_snr:.2f}, ratio: {timeseries_snr / wavelet_snr:.2f}"
     )
     plt.tight_layout()
     plt.savefig(f"{plot_dir}/snr_computation_d{distance}.png", dpi=300)
@@ -123,62 +125,44 @@ def test_snr(plot_dir, distance):
     assert wavelet_snr == timeseries_snr
 
 
-def plot_spectograms(h_time, data_time):
-    # plot normal scipy SPECTOGRAM
-    plt.close("all")
-    spec = plt.specgram(
-        h_time, Fs=1 / DT, NFFT=256, mode="magnitude", scale_by_freq=False
+def __make_plots(data, psd_wavelet, fname):
+    fig, axes = plt.subplots(5, 1, figsize=(5, 15))
+    data.plot_all(
+        axes=axes,
+        spectrogram_kwgs=dict(plot_kwargs=dict(norm='log'))
     )
-    plt.colorbar(spec[-1])
-    plt.show()
-
-    plt.close("all")
-    spec = plt.specgram(
-        data_time, Fs=1 / DT, NFFT=256, mode="magnitude", scale_by_freq=False
-    )
-    plt.colorbar(spec[-1])
-    plt.show()
-
-    ifo: bilby.gw.detector.Interferometer = get_ifo()[0]
-    psd = ifo.power_spectral_density.psd_array
-    psd_f = ifo.power_spectral_density.frequency_array
-    # FFT of data (get both frequencies and amplitudes)
-    data_freq = np.fft.rfft(data_time)
-    freq = np.fft.rfftfreq(len(data_time), DT)
-
-    # filter data and psd to only have the same frequencies
-    data_freq = data_freq[: len(psd_f)]
-    freq = freq[: len(psd_f)]
-    # get the psd at the frequencies of the data
-    psd = np.interp(freq, psd_f, psd)
-    # get the clean data
-
-    clean_data = np.fft.irfft(data_freq / np.sqrt(psd))
-    plt.close("all")
-    spec = plt.specgram(
-        clean_data, Fs=1 / DT, NFFT=256, mode="magnitude", scale_by_freq=False
-    )
-    plt.colorbar(spec[-1])
-    plt.show()
-
-
-
+    psd_wavelet.plot(ax=axes[-1], absolute=True, zscale="log", freq_scale="log")
+    plt.tight_layout()
+    fig.savefig(fname, dpi=300)
 
 
 def test_snr_lvk(plot_dir):
     distance = 10
-    h_time, timeseries_snr = inject_signal_in_noise(
+    h_time, timeseries_snr, ifo = inject_signal_in_noise(
         mc=30, q=1, distance=distance, noise=False
     )
-    h_wavelet = from_time_to_wavelet(h_time, Nt=Nt)
-    ifo: bilby.gw.detector.Interferometer = get_ifo()[0]
-    psd_wavelet = evolutionary_psd_from_stationary_psd(
-        psd=ifo.power_spectral_density.psd_array,
-        psd_f=ifo.power_spectral_density.frequency_array,
-        f_grid=h_wavelet.freq.data,
-        t_grid=h_wavelet.time.data,
+    data = Data.from_timeseries(
+        h_time, minimum_frequency=ifo.minimum_frequency, maximum_frequency=ifo.maximum_frequency,
+        Nt=Nt, Nf=Nf, mult=16
     )
-    wavelet_snr = compute_snr(h_wavelet, psd_wavelet)
+    mask = ifo.strain_data.frequency_mask
+    custom_timeseries_snr = compute_frequency_optimal_snr(
+        h_freq=ifo.frequency_domain_strain[mask],
+        psd=ifo.power_spectral_density_array[mask],
+        duration=ifo.duration,
+    )
+    assert timeseries_snr == custom_timeseries_snr
+
+    psd_wavelet = evolutionary_psd_from_stationary_psd(
+        psd=ifo.power_spectral_density_array[mask],
+        psd_f=ifo.frequency_array[mask],
+        f_grid=data.wavelet.freq.data,
+        t_grid=data.wavelet.time.data,
+    )
+
+    __make_plots(data, psd_wavelet, f"{plot_dir}/snr_lvk.png")
+
+    wavelet_snr = compute_snr(data.wavelet, psd_wavelet)
     assert wavelet_snr == timeseries_snr
 
 
@@ -195,4 +179,4 @@ def test_lisa_snr(plot_dir):
         psd=psd_f, psd_f=f, f_grid=h_wavelet.freq.data, t_grid=h_wavelet.time.data
     )
     wavelet_snr = compute_snr(h_wavelet, psd_wavelet)
-    assert wavelet_snr  == snr ** 2
+    assert wavelet_snr == snr ** 2

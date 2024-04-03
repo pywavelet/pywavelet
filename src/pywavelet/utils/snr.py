@@ -36,6 +36,39 @@ def compute_snr(h: Wavelet, PSD: Wavelet) -> float:
         The SNR of the model h given data d and PSD.
 
     """
-    snr_sqrd = np.nansum((h.data * h.data) / PSD.data)
-    snr_sqrd = snr_sqrd/(h.Nf * h.Nt * np.pi)
+    snr_sqrd = np.nansum((h * h) / PSD)
+    snr_sqrd = snr_sqrd / (h.Nf * h.Nt * np.pi)
     return np.sqrt(snr_sqrd)
+
+
+def compute_frequency_optimal_snr(h_freq, psd, duration):
+    snr_sqrd = __noise_weighted_inner_product(
+        aa=h_freq,
+        bb=h_freq,
+        power_spectral_density=psd,
+        duration=duration
+    ).real
+    return np.sqrt(snr_sqrd)
+
+
+def __noise_weighted_inner_product(aa, bb, power_spectral_density, duration):
+    """
+    Calculate the noise weighted inner product between two arrays.
+
+    Parameters
+    ==========
+    aa: array_like
+        Array to be complex conjugated
+    bb: array_like
+        Array not to be complex conjugated
+    power_spectral_density: array_like
+        Power spectral density of the noise
+    duration: float
+        duration of the data
+
+    Returns
+    =======
+    Noise-weighted inner product.
+    """
+    integrand = np.conj(aa) * bb / power_spectral_density
+    return 4 / duration * np.sum(integrand)
