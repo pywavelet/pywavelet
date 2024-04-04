@@ -110,6 +110,8 @@ def test_snr_lvk(plot_dir):
 
 
 def test_lisa_snr(plot_dir):
+    np.random.seed(1234)
+
     h_signal_t, t, h_signal_f, f, psd_f, snr = get_lisa_data()
     Nf = 256
 
@@ -118,6 +120,8 @@ def test_lisa_snr(plot_dir):
         timeseries=h_time,
         Nf=Nf,
         mult=16,
+        minimum_frequency=9**-4,
+        maximum_frequency=0.02,
     )
     h_wavelet = from_time_to_wavelet(h_time, Nt=Nt)
     psd_wavelet = evolutionary_psd_from_stationary_psd(
@@ -141,13 +145,3 @@ def test_lisa_snr(plot_dir):
         labels=[f"snr={snr:.0f}", f"wavelet-snr={wavelet_snr:.0f}"],
     )
     assert np.isclose(snr, wavelet_snr, atol=10)
-
-
-def test_plot():
-    h_signal_t, t, h_signal_f, f_signal, psd_f, snr = get_lisa_data()
-    plt.loglog(f_signal, psd_f * f_signal)
-    plt.loglog(f_signal, np.abs(f_signal * h_signal_f) ** 2)
-    plt.title(f"SNR: {snr:.2f}")
-    plt.ylabel("PSD (Hz)")
-    plt.xlabel("Frequency (Hz)")
-    plt.show()

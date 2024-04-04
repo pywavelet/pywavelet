@@ -111,8 +111,9 @@ def get_lisa_data():
     )  # Sampling interval -- largely oversampling here.
     tmax = 120 * 60 * 60
     t = np.arange(0, tmax, delta_t)
-    N_t = len(t)
-
+    N_t = int(
+        2 ** (np.ceil(np.log2(len(t))))
+    )  # Round length of time series to a power of two.
     h_signal_t = waveform(a_true, f_true, fdot_true, t)
     f_signal, psd_f = freq_PSD(h_signal_t, delta_t)
     h_signal_f = FFT(h_signal_t)
