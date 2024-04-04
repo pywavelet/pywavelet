@@ -6,7 +6,7 @@ import numpy as np
 from pywavelet.transforms.types import TimeSeries
 
 DURATION = 8
-SAMPLING_FREQUENCY = 512
+SAMPLING_FREQUENCY = 4098
 DT = 1 / SAMPLING_FREQUENCY
 MINIMUM_FREQUENCY = 20
 MAXIMUM_FREQUENCY = 256

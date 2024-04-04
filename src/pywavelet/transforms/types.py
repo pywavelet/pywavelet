@@ -1,9 +1,10 @@
 from dataclasses import dataclass
 from typing import Literal, Tuple
-from scipy.signal import spectrogram
+
 import matplotlib.pyplot as plt
 import numpy as np
 import xarray as xr
+from scipy.signal import spectrogram
 from xarray_dataclasses import (
     AsDataArray,
     Attr,
@@ -126,20 +127,22 @@ class TimeSeries(AsDataArray):
         ax.set_xlim(left=self.time[0], right=self.time[-1])
         return ax.figure, ax
 
-    def plot_spectrogram(self, ax=None, spec_kwargs={}, plot_kwargs={}, *args, **kwargs) -> Tuple[plt.Figure, plt.Axes]:
+    def plot_spectrogram(
+        self, ax=None, spec_kwargs={}, plot_kwargs={}, *args, **kwargs
+    ) -> Tuple[plt.Figure, plt.Axes]:
         f, t, Sxx = spectrogram(self.data, fs=self.fs, **spec_kwargs)
         if ax == None:
             fig, ax = plt.subplots()
 
-        if 'cmap' not in plot_kwargs:
-            plot_kwargs['cmap'] = 'Reds'
+        if "cmap" not in plot_kwargs:
+            plot_kwargs["cmap"] = "Reds"
 
-        cm = ax.pcolormesh(t, f, Sxx, shading='nearest', **plot_kwargs)
+        cm = ax.pcolormesh(t, f, Sxx, shading="nearest", **plot_kwargs)
         ax.set_xlabel("Time")
         ax.set_ylabel("Frequency")
         ax.set_ylim(top=self.nyquist_frequency)
         cbar = plt.colorbar(cm, ax=ax)
-        cbar.set_label("Spec Amplitude")
+        cbar.set_label("Spectrogram Amplitude")
         return ax.figure, ax
 
     def __len__(self):
@@ -149,8 +152,8 @@ class TimeSeries(AsDataArray):
         return self.data[item]
 
     @property
-    def sample_rate(self):
-        return 1 / self.dt
+    def sample_rate(self) -> float:
+        return np.round(1.0 / self.dt, decimals=14)
 
     @property
     def fs(self):
@@ -158,7 +161,7 @@ class TimeSeries(AsDataArray):
 
     @property
     def duration(self):
-        return self.dt * len(self)
+        return len(self) / self.fs
 
     @property
     def dt(self):
@@ -198,9 +201,12 @@ class FrequencySeries(AsDataArray):
         ax.set_xlim(-self.nyquist_frequency, self.nyquist_frequency)
         return ax.figure, ax
 
-    def plot_periodogram(self, ax=None, *args, **kwargs) -> Tuple[plt.Figure, plt.Axes]:
+    def plot_periodogram(
+        self, ax=None, *args, **kwargs
+    ) -> Tuple[plt.Figure, plt.Axes]:
         if ax == None:
             fig, ax = plt.subplots()
+
         ax.loglog(self.freq, np.abs(self.data) ** 2, **kwargs)
         flow = np.min(np.abs(self.freq))
         ax.set_xlabel("Frequency (Hz)")
@@ -277,5 +283,3 @@ def wavelet_dataset(
 def _len_check(d):
     if not np.log2(len(d)).is_integer():
         logger.warning(f"Data length {len(d)} is suggested to be a power of 2")
-
-

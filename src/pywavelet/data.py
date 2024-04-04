@@ -1,29 +1,34 @@
-from bilby.gw.detector.strain_data import InterferometerStrainData
-from .transforms.types import TimeSeries, Wavelet, FrequencySeries
 import matplotlib.pyplot as plt
-
 import numpy as np
 from bilby.core.utils import PropertyAccessor
-from .transforms import (
-    from_time_to_wavelet, from_wavelet_to_time,
-    from_freq_to_wavelet
-)
+from bilby.gw.detector.strain_data import InterferometerStrainData
+
+from .transforms import from_time_to_wavelet, from_wavelet_to_time
+from .transforms.types import FrequencySeries, TimeSeries, Wavelet
 
 
 class Data(object):
     """A class to hold strain data and convert between time, frequency, wavelet domains"""
 
-    duration = PropertyAccessor('_strain', 'duration')
-    sampling_frequency = PropertyAccessor('_strain', 'sampling_frequency')
-    start_time = PropertyAccessor('_strain', 'start_time')
-    _frequency_array = PropertyAccessor('_strain', 'frequency_array')
-    _time_array = PropertyAccessor('_strain', 'time_array')
-    minimum_frequency = PropertyAccessor('_strain', 'minimum_frequency')
-    maximum_frequency = PropertyAccessor('_strain', 'maximum_frequency')
+    duration = PropertyAccessor("_strain", "duration")
+    sampling_frequency = PropertyAccessor("_strain", "sampling_frequency")
+    start_time = PropertyAccessor("_strain", "start_time")
+    _frequency_array = PropertyAccessor("_strain", "frequency_array")
+    _time_array = PropertyAccessor("_strain", "time_array")
+    minimum_frequency = PropertyAccessor("_strain", "minimum_frequency")
+    maximum_frequency = PropertyAccessor("_strain", "maximum_frequency")
 
-    def __init__(self, minimum_frequency=0, maximum_frequency=np.inf,
-                 roll_off=0.2, Nt=None, Nf=None, nx=4.0, mult=32):
-        """ Initiate an InterferometerStrainData object
+    def __init__(
+        self,
+        minimum_frequency=0,
+        maximum_frequency=np.inf,
+        roll_off=0.2,
+        Nt=None,
+        Nf=None,
+        nx=4.0,
+        mult=32,
+    ):
+        """Initiate an InterferometerStrainData object
 
         The initialised object contains no data, this should be added using one
         of the `set_from..` methods.
@@ -39,7 +44,9 @@ class Data(object):
             This corresponds to alpha * duration / 2 for scipy tukey window.
 
         """
-        self._strain = InterferometerStrainData(minimum_frequency, maximum_frequency, roll_off)
+        self._strain = InterferometerStrainData(
+            minimum_frequency, maximum_frequency, roll_off
+        )
         # wavelet stuff
         self.Nf = Nf
         self.Nt = Nt
@@ -57,46 +64,110 @@ class Data(object):
 
     @property
     def frequencyseries(self) -> FrequencySeries:
-        return FrequencySeries(self._strain.frequency_domain_strain, self._frequency_array)
+        return FrequencySeries(
+            self._strain.frequency_domain_strain, self._frequency_array
+        )
 
     @property
     def wavelet(self) -> Wavelet:
         return self._wavelet
 
     @classmethod
-    def from_timeseries(cls, timeseries: TimeSeries, minimum_frequency=0, maximum_frequency=np.inf, roll_off=0.2,
-                        Nt=None, Nf=None, nx=4.0, mult=32):
-        strain_data = cls(minimum_frequency=minimum_frequency, maximum_frequency=maximum_frequency, roll_off=roll_off,
-                          Nt=Nt, Nf=Nf, nx=nx, mult=mult)
+    def from_timeseries(
+        cls,
+        timeseries: TimeSeries,
+        minimum_frequency=0,
+        maximum_frequency=np.inf,
+        roll_off=0.2,
+        Nt=None,
+        Nf=None,
+        nx=4.0,
+        mult=32,
+    ):
+        strain_data = cls(
+            minimum_frequency=minimum_frequency,
+            maximum_frequency=maximum_frequency,
+            roll_off=roll_off,
+            Nt=Nt,
+            Nf=Nf,
+            nx=nx,
+            mult=mult,
+        )
         strain_data._strain.set_from_time_domain_strain(
-            timeseries.data, sampling_frequency=timeseries.fs,
-            duration=timeseries.duration, start_time=timeseries.t0)
+            timeseries.data,
+            sampling_frequency=timeseries.fs,
+            duration=timeseries.duration,
+            start_time=timeseries.t0,
+        )
 
         strain_data._wavelet = from_time_to_wavelet(
-            timeseries, Nf=strain_data.Nf, Nt=strain_data.Nt, nx=strain_data.nx, mult=strain_data.mult
+            timeseries,
+            Nf=strain_data.Nf,
+            Nt=strain_data.Nt,
+            nx=strain_data.nx,
+            mult=strain_data.mult,
         )
         return strain_data
 
     @classmethod
     def from_frequencyseries(
-            cls, frequencyseries: FrequencySeries, start_time=0, roll_off=0.2, Nt=None, Nf=None, nx=4.0, mult=32
+        cls,
+        frequencyseries: FrequencySeries,
+        start_time=0,
+        roll_off=0.2,
+        Nt=None,
+        Nf=None,
+        nx=4.0,
+        mult=32,
     ):
+        """
+        freqseries: Single-sided FFT of time domain strain normalised to units of strain / Hz
+        """
         min_f, max_f = frequencyseries.freq_range
-        strain_data = cls(minimum_frequency=min_f, maximum_frequency=max_f, roll_off=roll_off, Nt=Nt, Nf=Nf, nx=nx,
-                          mult=mult)
+        strain_data = cls(
+            minimum_frequency=min_f,
+            maximum_frequency=max_f,
+            roll_off=roll_off,
+            Nt=Nt,
+            Nf=Nf,
+            nx=nx,
+            mult=mult,
+        )
         strain_data._strain.set_from_frequency_domain_strain(
-            frequencyseries.data, sampling_frequency=frequencyseries.fs,
-            duration=frequencyseries.duration, start_time=start_time)
+            frequencyseries.data,
+            sampling_frequency=frequencyseries.fs,
+            duration=frequencyseries.duration,
+            start_time=start_time,
+        )
         strain_data._wavelet = from_time_to_wavelet(
-            strain_data.timeseries, Nf=strain_data.Nf, Nt=strain_data.Nt, nx=strain_data.nx, mult=mult
+            strain_data.timeseries,
+            Nf=strain_data.Nf,
+            Nt=strain_data.Nt,
+            nx=strain_data.nx,
+            mult=mult,
         )
         return strain_data
 
     @classmethod
-    def from_wavelet(cls, wavelet: Wavelet, minimum_frequency=0, maximum_frequency=np.inf,
-                     roll_off=0.2, nx=4.0, mult=32.0, dt=None):
-        strain_data = cls(minimum_frequency=minimum_frequency, maximum_frequency=maximum_frequency, roll_off=roll_off,
-                          Nt=wavelet.Nt, Nf=wavelet.Nf, nx=wavelet.nx, mult=wavelet.mult)
+    def from_wavelet(
+        cls,
+        wavelet: Wavelet,
+        minimum_frequency=0,
+        maximum_frequency=np.inf,
+        roll_off=0.2,
+        nx=4.0,
+        mult=32.0,
+        dt=None,
+    ):
+        strain_data = cls(
+            minimum_frequency=minimum_frequency,
+            maximum_frequency=maximum_frequency,
+            roll_off=roll_off,
+            Nt=wavelet.Nt,
+            Nf=wavelet.Nf,
+            nx=wavelet.nx,
+            mult=wavelet.mult,
+        )
 
         strain_data._wavelet = wavelet
         ts = from_wavelet_to_time(wavelet, nx=nx, mult=mult, dt=dt)
@@ -122,7 +193,14 @@ class Data(object):
         ax.set_ylim(self.minimum_frequency, self.maximum_frequency)
         return fig, ax
 
-    def plot_all(self, axes=None, timeseries_kwgs={}, periodogram_kwgs={}, spectrogram_kwgs={}, wavelet_kwgs={}):
+    def plot_all(
+        self,
+        axes=None,
+        timeseries_kwgs={},
+        periodogram_kwgs={},
+        spectrogram_kwgs={},
+        wavelet_kwgs={},
+    ):
         if axes is None:
             fig, axes = plt.subplots(4, 1, figsize=(4, 14))
         fig = axes[0].get_figure()

@@ -1,12 +1,12 @@
-import numpy as np
-
-from ..transforms.types import FrequencySeries, TimeSeries, Wavelet
-from scipy.signal.windows import tukey
 from typing import Tuple
 
+import numpy as np
+from scipy.signal.windows import tukey
+
+from ..transforms.types import FrequencySeries, TimeSeries, Wavelet
 
 
-def _lisa_poms_pacc(f):
+def lisa_psd_func(f):
     """
     PSD obtained from: https://arxiv.org/pdf/1803.01944.pdf
     Removed galactic confusion noise. Non stationary effect.
@@ -33,26 +33,6 @@ def _lisa_poms_pacc(f):
     return PSD
 
 
-def lisa_psd_func(f, fmin=1e-3):
-    # if isinstance(f, np.ndarray):
-    #     out = np.zeros_like(f)
-    #     out[f>=fmin] = _lisa_poms_pacc(f[f>fmin])
-    #     out[f<fmin] = _lisa_poms_pacc(fmin)
-    # elif isinstance(f, float):
-    #     if f < fmin:
-    #         out = _lisa_poms_pacc(fmin)
-    #     else:
-    #         out = _lisa_poms_pacc(f)
-
-    out = _lisa_poms_pacc(f) * f**4
-
-    return out
-
-
-
-
-
-
 def zero_pad(data):
     """
     This function takes in a vector and zero pads it so it is a power of two.
@@ -60,10 +40,10 @@ def zero_pad(data):
     """
     N = len(data)
     pow_2 = np.ceil(np.log2(N))
-    return np.pad(data, (0, int((2 ** pow_2) - N)), "constant")
+    return np.pad(data, (0, int((2**pow_2) - N)), "constant")
 
 
-def FFT(waveform: np.ndarray)-> np.ndarray:
+def FFT(waveform: np.ndarray) -> np.ndarray:
     """
     Here we taper the signal, pad and then compute the FFT. We remove the zeroth frequency bin because
     the PSD (for which the frequency domain waveform is used with) is undefined at f = 0.
@@ -74,7 +54,9 @@ def FFT(waveform: np.ndarray)-> np.ndarray:
     return np.fft.rfft(waveform_w_pad)[1:]
 
 
-def freq_PSD(waveform_t:np.ndarray, delta_t:float)-> Tuple[np.ndarray, np.ndarray]:
+def freq_PSD(
+    waveform_t: np.ndarray, delta_t: float
+) -> Tuple[np.ndarray, np.ndarray]:
     """
     Here we take in a waveform and sample the correct fourier frequencies and output the PSD. There is no
     f = 0 frequency bin because the PSD is undefined there.
@@ -93,7 +75,7 @@ def inner_prod(sig1_f, sig2_f, PSD, delta_t, N_t):
     )
 
 
-def waveform(a:float, f:float, fdot:float, t:np.ndarray, eps=0):
+def waveform(a: float, f: float, fdot: float, t: np.ndarray, eps=0):
     """
     This is a function. It takes in a value of the amplitude $a$, frequency $f$ and frequency derivative $\dot{f}
     and a time vector $t$ and spits out whatever is in the return function. Modify amplitude to improve SNR.
@@ -101,13 +83,15 @@ def waveform(a:float, f:float, fdot:float, t:np.ndarray, eps=0):
     for the windowing method. We aim to estimate the parameters $a$, $f$ and $\dot{f}$.
     """
 
-    return a * (np.sin((2 * np.pi) * (f * t + 0.5 * fdot * t ** 2)))
+    return a * (np.sin((2 * np.pi) * (f * t + 0.5 * fdot * t**2)))
 
 
-def optimal_snr(h_signal_f:np.ndarray, psd_f:np.ndarray, delta_t:float, N_t:int)-> float:
-    return np.sqrt(inner_prod(
-        h_signal_f, h_signal_f, psd_f, delta_t, N_t
-    ))  # Compute optimal matched filtering SNR
+def optimal_snr(
+    h_signal_f: np.ndarray, psd_f: np.ndarray, delta_t: float, N_t: int
+) -> float:
+    return np.sqrt(
+        inner_prod(h_signal_f, h_signal_f, psd_f, delta_t, N_t)
+    )  # Compute optimal matched filtering SNR
 
 
 def get_lisa_data():
@@ -125,10 +109,9 @@ def get_lisa_data():
     delta_t = np.floor(
         0.01 / fs
     )  # Sampling interval -- largely oversampling here.
-
-    # make t of 2**16 in len
-    N_t = 2 ** 17
-    t = np.arange(0, N_t * delta_t, delta_t)
+    tmax = 120 * 60 * 60
+    t = np.arange(0, tmax, delta_t)
+    N_t = len(t)
 
     h_signal_t = waveform(a_true, f_true, fdot_true, t)
     f_signal, psd_f = freq_PSD(h_signal_t, delta_t)

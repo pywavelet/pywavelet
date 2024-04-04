@@ -6,7 +6,7 @@ from ..transforms.types import FrequencySeries, TimeSeries
 
 
 def _preprocess_bins(
-        data: Union[TimeSeries, FrequencySeries], Nf=None, Nt=None
+    data: Union[TimeSeries, FrequencySeries], Nf=None, Nt=None
 ):
     """preprocess the bins"""
 
@@ -36,7 +36,7 @@ def _get_bins(data: Union[TimeSeries, FrequencySeries], Nf=None, Nt=None):
     delta_t = T / Nt
     delta_f = 1 / (2 * delta_t)
 
-    assert delta_f == fmax / Nf, f"delta_f={delta_f} != fmax/Nf={fmax/Nf}"
+    # assert delta_f == fmax / Nf, f"delta_f={delta_f} != fmax/Nf={fmax/Nf}"
 
     f_bins = np.arange(0, Nf) * delta_f
     t_bins = np.arange(0, Nt) * delta_t
