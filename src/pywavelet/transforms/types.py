@@ -43,12 +43,29 @@ class _Wavelet(xr.DataArray):
         return len(self.freq)
 
     @property
+    def ND(self) -> int:
+        return self.Nt * self.Nf
+
+    @property
+    def delta_T(self):
+        # TODO: call these TIME BINs not time --> reserve time for the 'time-domain' time axis
+        return self.time[1] - self.time[0]
+
+    @property
+    def delta_F(self):
+        return 1 / (2 * self.delta_T)
+
+    @property
+    def duration(self) -> float:
+        return self.Nt * self.delta_T
+
+    @property
     def delta_t(self) -> float:
-        return 1 / self.Nt
+        return self.duration / self.ND
 
     @property
     def delta_f(self) -> float:
-        return 1 / self.Nf
+        return 1 / (2 * self.delta_t)
 
     @property
     def shape(self) -> Tuple[int, int]:
@@ -62,10 +79,6 @@ class _Wavelet(xr.DataArray):
     @property
     def fs(self):
         return self.sample_rate
-
-    @property
-    def duration(self) -> float:
-        return self.Nt * self.delta_t
 
     @property
     def nyquist_frequency(self) -> float:

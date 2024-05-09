@@ -37,7 +37,7 @@ def compute_snr(h: Wavelet, PSD: Wavelet) -> float:
 
     """
     snr_sqrd = np.nansum((h * h) / PSD)
-    return np.sqrt(snr_sqrd / h.Nf)
+    return np.sqrt(snr_sqrd)
 
 
 def compute_frequency_optimal_snr(h_freq, psd, duration):
@@ -67,4 +67,4 @@ def __noise_weighted_inner_product(aa, bb, power_spectral_density, duration):
     Noise-weighted inner product.
     """
     integrand = np.conj(aa) * bb / power_spectral_density
-    return 4 / duration * np.sum(integrand)
+    return (4 / duration) * np.sum(integrand)

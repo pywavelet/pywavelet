@@ -27,7 +27,9 @@ def evolutionary_psd_from_stationary_psd(
     """
 
     Nt = len(t_grid)
-    delta_f = f_grid[1] - f_grid[0]
+    delta_F = f_grid[1] - f_grid[0]
+    delta_T = t_grid[1] - t_grid[0]
+
     freq_data = psd
     nan_val = np.max(freq_data)
     psd_grid = (
@@ -38,7 +40,7 @@ def evolutionary_psd_from_stationary_psd(
             fill_value=nan_val,
             bounds_error=False,
         )(f_grid)
-        * delta_f
+        * delta_T
     )
 
     # repeat the PSD for each time bin
@@ -52,7 +54,6 @@ def generate_noise_from_psd(
     n_data,
     fs,
     noise_type: Optional[DATA_TYPE] = FrequencySeries,
-    freq_kwargs=None,
 ) -> Union[TimeSeries, FrequencySeries, Wavelet]:
     """
     Noise generator from arbitrary power spectral density.

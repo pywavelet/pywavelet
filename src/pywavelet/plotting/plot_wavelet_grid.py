@@ -1,7 +1,8 @@
+from typing import Tuple
+
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.colors import LogNorm, TwoSlopeNorm
-from typing import Tuple
 
 
 def plot_wavelet_grid(
@@ -68,6 +69,7 @@ def plot_wavelet_grid(
     ax.set_yscale(freq_scale)
     ax.set_xlabel(r"Time Bins [$\Delta T$=" + f"{1 / Nt:.4f}s, Nt={Nt}]")
     ax.set_ylabel(r"Freq Bins [$\Delta F$=" + f"{1 / Nf:.4f}Hz, Nf={Nf}]")
+
     if freq_range is not None:
         ax.set_ylim(freq_range)
     plt.tight_layout()

@@ -5,6 +5,7 @@ import scipy
 from scipy.interpolate import interp1d
 from scipy.stats import norm
 
+from pywavelet.data import Data
 from pywavelet.psd import (
     evolutionary_psd_from_stationary_psd,
     generate_noise_from_psd,
@@ -28,13 +29,16 @@ def test_basic(plot_dir):
 
     fig, ax = plt.subplots(1, 2, figsize=(10, 5), sharey=True)
     ax[0].loglog(psd, psd_f)
-    ax[0].set_ylabel('Freq')
-    ax[0].set_xlabel('PSD')
-    w.plot(absolute=True, zscale="log", freq_scale="log", ax=ax[1], freq_range=[min(psd_f), max(psd_f)])
+    ax[0].set_ylabel("Freq")
+    ax[0].set_xlabel("PSD")
+    w.plot(
+        absolute=True,
+        zscale="log",
+        freq_scale="log",
+        ax=ax[1],
+        freq_range=[min(psd_f), max(psd_f)],
+    )
     plt.savefig(f"{plot_dir}/basic.png", dpi=300)
-
-
-
 
 
 def _make_plot(psd_wavelet, noise_wavelet, noise_pdgrm, psd_f, psd, fname):
@@ -104,32 +108,36 @@ def test_lvk_psd(plot_dir):
         psd_func=psd_func,
         n_data=2**17,
         fs=fs,
+        noise_type=TimeSeries,
     )
 
     Nt = 128
-    wavelet_kwgs = dict(Nt=Nt, nx=4.0, mult=32, freq_range=(fmin, fmax))
-    noise_pdgrm = FrequencySeries.from_time_series(
-        noise_ts, min_freq=fmin, max_freq=fmax
+
+    wavelet_kwgs = dict(Nt=Nt, nx=4.0, mult=32)
+    data = Data.from_timeseries(
+        noise_ts,
+        **wavelet_kwgs,
+        minimum_frequency=fmin,
+        maximum_frequency=fmax,
     )
-    noise_wavelet = from_time_to_wavelet(noise_ts, **wavelet_kwgs)
 
     # generate and plot the true PSD --> wavelet
-    lvk_psd = psd_func(noise_wavelet.freq)
-    psd_grid = np.dot(np.ones((Nt, 1)), np.reshape(np.sqrt(lvk_psd), (1, -1)))
+    lvk_psd = psd_func(data.frequencyseries.freq)
+    psd_grid = np.dot(np.ones((Nt, 1)), np.reshape(lvk_psd, (1, -1)))
     psd_wavelet: Wavelet = wavelet_dataset(
         psd_grid,
-        time_grid=noise_wavelet.time.data,
-        freq_grid=noise_wavelet.freq.data,
+        time_grid=data.wavelet.time.data,
+        freq_grid=data.wavelet.freq.data,
     )
 
     # PLOTS
     # mask = (psd_f < fmax) & (psd_f > fmin)
     _make_plot(
         psd_wavelet,
-        noise_wavelet,
-        noise_pdgrm,
-        noise_pdgrm.freq,
-        psd_func(noise_pdgrm.freq),
+        data.wavelet,
+        data.frequencyseries,
+        data.frequencyseries.freq,
+        psd_func(data.frequencyseries.freq),
         f"{plot_dir}/lvk_wavelet_psd.png",
     )
     plt.show()
