@@ -6,7 +6,7 @@ from .. import fft_funcs as fft
 PI = np.pi
 
 
-def phitilde_vec(om: np.ndarray, Nf: int, nx=4.0) -> np.ndarray:
+def phitilde_vec(ω: np.ndarray, Nf: int, d=4.0) -> np.ndarray:
     """Compute phi_tilde(omega_i) array, nx is filter steepness, defaults to 4.
 
     Eq 11 of https://arxiv.org/pdf/2009.00043.pdf (Cornish et al. 2020)
@@ -18,13 +18,14 @@ def phitilde_vec(om: np.ndarray, Nf: int, nx=4.0) -> np.ndarray:
     Where nu_d = normalized incomplete beta function
 
 
+
     Parameters
     ----------
-    om : np.ndarray
+    ω : np.ndarray
         Array of angular frequencies
     Nf : int
         Number of frequency bins
-    nx : float, optional
+    d : float, optional
         Number of standard deviations for the gaussian wavelet, by default 4.
 
     Returns
@@ -33,24 +34,52 @@ def phitilde_vec(om: np.ndarray, Nf: int, nx=4.0) -> np.ndarray:
         Array of phi_tilde(omega_i) values
 
     """
+    ΔF = 1.0 / (2 * Nf)  # TODO: missing 1/dt, EQ 7 in Cornish paper
+    ΔΩ = 2 * PI * ΔF  # Near Eq 10 # 2 pi times DF
+    inverse_sqrt_ΔΩ = 1.0 / np.sqrt(ΔΩ)
 
-    DOM = PI / Nf  # 2 pi times DF
-    insDOM = 1.0 / np.sqrt(DOM)
-    B = PI / (2 * Nf)
-    A = (DOM - B) / 2
-    z = np.zeros(om.size)
+    B = ΔΩ / 2
+    A = (ΔΩ - B) / 2
+    assert 2 * A + B == ΔΩ
 
-    mask = (np.abs(om) >= A) & (np.abs(om) < A + B)
-
-    x = (np.abs(om[mask]) - A) / B
-    y = scipy.special.betainc(nx, nx, x)
-    z[mask] = insDOM * np.cos(PI / 2.0 * y)
-
-    z[np.abs(om) < A] = insDOM
-    return z
+    phi = np.zeros(ω.size)
+    mask = (np.abs(ω) >= A) & (np.abs(ω) < A + B)
+    vd = (PI / 2.0) * __νd(ω[mask], A, B, d=d)
+    phi[mask] = inverse_sqrt_ΔΩ * np.cos(vd)
+    phi[np.abs(ω) < A] = inverse_sqrt_ΔΩ
+    return phi
 
 
-def phitilde_vec_norm(Nf: int, Nt: int, nx: int) -> np.ndarray:
+def __νd(ω, A, B, d=4.0):
+    """Compute the normalized incomplete beta function.
+
+    Parameters
+    ----------
+    ω : np.ndarray
+        Array of angular frequencies
+    A : float
+        Lower bound for the beta function
+    B : float
+        Upper bound for the beta function
+    d : float, optional
+        Number of standard deviations for the gaussian wavelet, by default 4.
+
+    Returns
+    -------
+    np.ndarray
+        Array of ν_d values
+
+    scipy.special.betainc
+    https://docs.scipy.org/doc/scipy-1.7.1/reference/reference/generated/scipy.special.betainc.html
+
+    """
+    x = (np.abs(ω) - A) / B
+    numerator = scipy.special.betainc(d, d, x)
+    denominator = scipy.special.betainc(d, d, 1)
+    return numerator / denominator
+
+
+def phitilde_vec_norm(Nf: int, Nt: int, d: int) -> np.ndarray:
     """Normalize phitilde for inverse frequency domain transform."""
 
     # Calculate the frequency values
@@ -58,7 +87,7 @@ def phitilde_vec_norm(Nf: int, Nt: int, nx: int) -> np.ndarray:
     omegas = 2 * np.pi / ND * np.arange(0, Nt // 2 + 1)
 
     # Calculate the unnormalized phitilde (u_phit)
-    u_phit = phitilde_vec(omegas, Nf, nx)
+    u_phit = phitilde_vec(omegas, Nf, d)
 
     # Normalize the phitilde
     nrm_fctor = np.sqrt(
@@ -69,11 +98,11 @@ def phitilde_vec_norm(Nf: int, Nt: int, nx: int) -> np.ndarray:
     return u_phit / nrm_fctor
 
 
-def phi_vec(Nf: int, nx: float = 4.0, mult: int = 16) -> np.ndarray:
+def phi_vec(Nf: int, d: float = 4.0, q: int = 16) -> np.ndarray:
     """get time domain phi as fourier transform of phitilde_vec"""
     insDOM = 1.0 / np.sqrt(PI / Nf)
-    K = mult * 2 * Nf
-    half_K = mult * Nf  # np.int64(K/2)
+    K = q * 2 * Nf
+    half_K = q * Nf  # np.int64(K/2)
 
     dom = 2 * PI / K  # max frequency is K/2*dom = pi/dt = OM
 
@@ -84,11 +113,9 @@ def phi_vec(Nf: int, nx: float = 4.0, mult: int = 16) -> np.ndarray:
 
     DX = DX.copy()
     # postive frequencies
-    DX[1 : half_K + 1] = phitilde_vec(dom * np.arange(1, half_K + 1), Nf, nx)
+    DX[1 : half_K + 1] = phitilde_vec(dom * np.arange(1, half_K + 1), Nf, d)
     # negative frequencies
-    DX[half_K + 1 :] = phitilde_vec(
-        -dom * np.arange(half_K - 1, 0, -1), Nf, nx
-    )
+    DX[half_K + 1 :] = phitilde_vec(-dom * np.arange(half_K - 1, 0, -1), Nf, d)
     DX = K * fft.ifft(DX, K)
 
     phi = np.zeros(K)

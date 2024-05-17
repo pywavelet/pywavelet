@@ -41,6 +41,10 @@ def compute_snr(h: Wavelet, PSD: Wavelet) -> float:
 
 
 def compute_frequency_optimal_snr(h_freq, psd, duration):
+    """
+    A18 from Veitch et al. 2009
+    https://arxiv.org/abs/0911.3820
+    """
     snr_sqrd = __noise_weighted_inner_product(
         aa=h_freq, bb=h_freq, power_spectral_density=psd, duration=duration
     ).real

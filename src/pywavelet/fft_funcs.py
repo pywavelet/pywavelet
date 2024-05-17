@@ -1,5 +1,5 @@
 """helper to make sure available fft functions are consistent across modules depending on install
-mkl-fft is faster so it is the default, but numpy fft is probably more commonly installed to it is the fallback"""
+mkl-fft is faster so it is the default, but numpy fft is probably more phi_computerly installed to it is the fallback"""
 # try:
 #     import mkl_fft
 #
@@ -13,9 +13,9 @@ mkl-fft is faster so it is the default, but numpy fft is probably more commonly 
 #     import numpy
 
 import numpy
+
 rfft = numpy.fft.rfft
 irfft = numpy.fft.irfft
 fft = numpy.fft.fft
 ifft = numpy.fft.ifft
 fftfreq = numpy.fft.fftfreq
-

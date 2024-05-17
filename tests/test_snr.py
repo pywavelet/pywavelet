@@ -163,12 +163,16 @@ def test_sine_snr():
         time=time,
     )
 
-    # analytical SNR for flat white noise:
+    # analytical SNR for flat white noise in time domain:
     # sin**2 ~ 0.5
     sigma_sqr = 0.5 * dt
-    analytical_snr = np.sum(signal_t.data**2 / sigma_sqr)
+    analytical_snr = np.sqrt(np.sum(signal_t.data**2 / sigma_sqr))
 
-    signal_wavelet = from_time_to_wavelet(signal_t, Nf=64) * np.sqrt(2) * dt
+    assert np.isclose(
+        analytical_snr - snr, 0, atol=1e-2
+    ), f"{analytical_snr} != {snr}"
+
+    signal_wavelet = from_time_to_wavelet(signal_t, Nf=64)
 
     signal_t.plot()
     plt.show()
@@ -182,6 +186,9 @@ def test_sine_snr():
         f_grid=signal_wavelet.freq.data,
         t_grid=signal_wavelet.time.data,
     )
+    # psd_wavelet.plot()
+    # plt.show()
+
     wavelet_snr = compute_snr(signal_wavelet, psd_wavelet)
 
     assert np.isclose(
