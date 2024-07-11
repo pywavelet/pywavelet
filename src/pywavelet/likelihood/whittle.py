@@ -16,9 +16,9 @@ where
 
 
 """
+from ..transforms.types import Wavelet
+import numpy as np
 
-from .likelihood_base import LikelihoodBase
 
-
-class WhittleLikelihood(LikelihoodBase):
-    pass
+def whittle_likelihood(d: Wavelet, h: Wavelet, psd: Wavelet) -> float:
+    return -0.5 * np.nansum(np.log(2 * np.pi * psd) + ((d - h) ** 2) / psd)

@@ -8,9 +8,9 @@ def test_phi(plot_dir):
     d, q = 4.0, 16
     Nf, Nt = 64, 64
 
-    phi = phi_vec(Nf=Nf, d=d, q=q)
+    phi = phi_vec(Nf=Nf, dt=0.1, d=d, q=q)
     t = np.linspace(-q, q, len(phi))
-    phitilde = phitilde_vec_norm(Nf=Nf, Nt=Nt, d=d)
+    phitilde = phitilde_vec_norm(Nf=Nf, Nt=Nt, d=d, dt=0.1)
     f = np.linspace(0, 1, len(phitilde))
     fig, ax = plt.subplots(
         2,

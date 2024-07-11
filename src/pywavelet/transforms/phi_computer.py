@@ -6,7 +6,7 @@ from .. import fft_funcs as fft
 PI = np.pi
 
 
-def phitilde_vec(ω: np.ndarray, Nf: int, d=4.0) -> np.ndarray:
+def phitilde_vec(ω: np.ndarray, Nf: int, dt:float, d=4.0) -> np.ndarray:
     """Compute phi_tilde(omega_i) array, nx is filter steepness, defaults to 4.
 
     Eq 11 of https://arxiv.org/pdf/2009.00043.pdf (Cornish et al. 2020)
@@ -34,7 +34,7 @@ def phitilde_vec(ω: np.ndarray, Nf: int, d=4.0) -> np.ndarray:
         Array of phi_tilde(omega_i) values
 
     """
-    ΔF = 1.0 / (2 * Nf)  # TODO: missing 1/dt, EQ 7 in Cornish paper
+    ΔF = 1.0 / (2 * Nf)  # NOTE: added missing 1/dt, EQ 7 in Cornish paper?
     ΔΩ = 2 * PI * ΔF  # Near Eq 10 # 2 pi times DF
     inverse_sqrt_ΔΩ = 1.0 / np.sqrt(ΔΩ)
 
@@ -79,7 +79,7 @@ def __νd(ω, A, B, d=4.0):
     return numerator / denominator
 
 
-def phitilde_vec_norm(Nf: int, Nt: int, d: int) -> np.ndarray:
+def phitilde_vec_norm(Nf: int, Nt: int, dt:float, d: int) -> np.ndarray:
     """Normalize phitilde for inverse frequency domain transform."""
 
     # Calculate the frequency values
@@ -87,7 +87,7 @@ def phitilde_vec_norm(Nf: int, Nt: int, d: int) -> np.ndarray:
     omegas = 2 * np.pi / ND * np.arange(0, Nt // 2 + 1)
 
     # Calculate the unnormalized phitilde (u_phit)
-    u_phit = phitilde_vec(omegas, Nf, d)
+    u_phit = phitilde_vec(omegas, Nf, dt, d)
 
     # Normalize the phitilde
     nrm_fctor = np.sqrt(
@@ -98,7 +98,7 @@ def phitilde_vec_norm(Nf: int, Nt: int, d: int) -> np.ndarray:
     return u_phit / nrm_fctor
 
 
-def phi_vec(Nf: int, d: float = 4.0, q: int = 16) -> np.ndarray:
+def phi_vec(Nf: int, dt, d: float = 4.0, q: int = 16) -> np.ndarray:
     """get time domain phi as fourier transform of phitilde_vec"""
     insDOM = 1.0 / np.sqrt(PI / Nf)
     K = q * 2 * Nf
@@ -113,9 +113,9 @@ def phi_vec(Nf: int, d: float = 4.0, q: int = 16) -> np.ndarray:
 
     DX = DX.copy()
     # postive frequencies
-    DX[1 : half_K + 1] = phitilde_vec(dom * np.arange(1, half_K + 1), Nf, d)
+    DX[1 : half_K + 1] = phitilde_vec(dom * np.arange(1, half_K + 1), Nf, dt, d)
     # negative frequencies
-    DX[half_K + 1 :] = phitilde_vec(-dom * np.arange(half_K - 1, 0, -1), Nf, d)
+    DX[half_K + 1 :] = phitilde_vec(-dom * np.arange(half_K - 1, 0, -1), Nf,  dt, d)
     DX = K * fft.ifft(DX, K)
 
     phi = np.zeros(K)

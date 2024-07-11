@@ -17,41 +17,37 @@ DATA_TYPE = Union[TimeSeries, FrequencySeries, Wavelet]
 
 
 def evolutionary_psd_from_stationary_psd(
-    psd: np.ndarray,
-    psd_f: np.ndarray,
-    f_grid: np.ndarray,
-    t_grid: np.ndarray,
-    dt: float,
+        psd: np.ndarray,
+        psd_f: np.ndarray,
+        f_grid: np.ndarray,
+        t_grid: np.ndarray,
+        dt: float,
 ) -> Wavelet:
     """
     PSD[ti,fi] = PSD[fi] * delta_f
     """
     Nt = len(t_grid)
     delta_f = f_grid[1] - f_grid[0]
-    freq_data = psd
-    nan_val = np.max(freq_data)
-    psd_grid = (
-        interp1d(
-            psd_f,
-            freq_data,
-            kind="nearest",
-            fill_value=nan_val,
-            bounds_error=False,
-        )(f_grid)
-        * dt
-    )
+    nan_val = np.max(psd)
+    psd_grid = interp1d(
+        psd_f,
+        psd,
+        kind="nearest",
+        fill_value=nan_val,
+        bounds_error=False,
+    )(f_grid)
 
     # repeat the PSD for each time bin
-    psd_grid = np.repeat(psd_grid[None, :], Nt, axis=0)
+    psd_grid = np.repeat(psd_grid[None, :], Nt, axis=0) * dt
     w = wavelet_dataset(psd_grid, time_grid=t_grid, freq_grid=f_grid)
     return w
 
 
 def generate_noise_from_psd(
-    psd_func,
-    n_data,
-    fs,
-    noise_type: Optional[DATA_TYPE] = FrequencySeries,
+        psd_func,
+        n_data,
+        fs,
+        noise_type: Optional[DATA_TYPE] = FrequencySeries,
 ) -> Union[TimeSeries, FrequencySeries, Wavelet]:
     """
     Noise generator from arbitrary power spectral density.
@@ -91,15 +87,15 @@ def generate_noise_from_psd(
         psd_sqrt = np.sqrt(psd_f)
         # Real part of the Noise fft : it is a gaussian random variable
         noise_tf_real = (
-            np.sqrt(0.5)
-            * psd_sqrt[0 : n_fft + 1]
-            * np.random.normal(loc=0.0, scale=1.0, size=n_fft + 1)
+                np.sqrt(0.5)
+                * psd_sqrt[0: n_fft + 1]
+                * np.random.normal(loc=0.0, scale=1.0, size=n_fft + 1)
         )
         # Imaginary part of the Noise fft :
         noise_tf_im = (
-            np.sqrt(0.5)
-            * psd_sqrt[0 : n_fft + 1]
-            * np.random.normal(loc=0.0, scale=1.0, size=n_fft + 1)
+                np.sqrt(0.5)
+                * psd_sqrt[0: n_fft + 1]
+                * np.random.normal(loc=0.0, scale=1.0, size=n_fft + 1)
         )
         # The Fourier transform must be real in f = 0
         noise_tf_im[0] = 0.0
@@ -114,11 +110,11 @@ def generate_noise_from_psd(
         noise_sym0 = np.array([psd_sqrt[n_fft + 1] * np.random.normal(0, 1)])
         # Add the symmetric part corresponding to negative frequencies
         noise_tf = np.hstack(
-            (noise_tf, noise_sym0, np.conj(noise_tf[1 : n_fft + 1])[::-1])
+            (noise_tf, noise_sym0, np.conj(noise_tf[1: n_fft + 1])[::-1])
         )
     elif (n_psd % 2 != 0) & (psd_f.ndim == 1):
         noise_tf = np.hstack(
-            (noise_tf, np.conj(noise_tf[1 : n_fft + 1])[::-1])
+            (noise_tf, np.conj(noise_tf[1: n_fft + 1])[::-1])
         )
 
     if noise_type == FrequencySeries:

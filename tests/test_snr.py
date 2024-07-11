@@ -14,6 +14,8 @@ def test_lisa_snr(plot_dir):
     np.random.seed(1234)
     h_t, h_f, psd, snr = get_lisa_data()
     Nf = 256
+
+    # FROM TIMESERIES
     data = Data.from_timeseries(
         timeseries=h_t,
         Nf=Nf,
@@ -29,9 +31,23 @@ def test_lisa_snr(plot_dir):
         dt=h_t.dt,
     )
     wavelet_snr = compute_snr(data.wavelet, psd_wavelet)
+
+    # FROM FREQ_SERIES
+    data = Data.from_frequencyseries(
+        frequencyseries=h_f,
+        Nf=Nf,
+        mult=16,
+    )
+    wavelet_snr_frq = compute_snr(data.wavelet, psd_wavelet)
+
+
     assert np.isclose(
-        snr, wavelet_snr, atol=10
+        snr, wavelet_snr, atol=1
     ), f"{snr} != {wavelet_snr}, wavelet/freq snr = {snr / wavelet_snr:.2f}"
+    assert np.isclose(
+        snr, wavelet_snr_frq, atol=1
+    ), f"{snr} != {wavelet_snr_frq}, wavelet/freq snr = {snr / wavelet_snr_frq:.2f}"
+
 
 
 def test_snr_lvk(plot_dir):
@@ -115,4 +131,4 @@ def test_toy_model_snr(f0, T, A, PSD_AMP, Nf):
     wavelet_snr2 = compute_snr(signal_wavelet, psd_wavelet) ** 2
     assert np.isclose(
         wavelet_snr2, SNR2_t_analytical, atol=1e-2
-    ), "SNR in time domain and wavelet domain should be the same"
+    ), f"SNRs dont match {wavelet_snr2:.2f}!={SNR2_t_analytical:.2f} (factor:{SNR2_t_analytical/wavelet_snr2:.2f})"

@@ -53,15 +53,18 @@ def zero_pad(data):
     return np.pad(data, (0, int((2**pow_2) - N)), "constant")
 
 
-def FFT(waveform: np.ndarray) -> np.ndarray:
+def FFT(waveform: np.ndarray, taper=False) -> np.ndarray:
     """
     Here we taper the signal, pad and then compute the FFT. We remove the zeroth frequency bin because
     the PSD (for which the frequency domain waveform is used with) is undefined at f = 0.
     """
     N = len(waveform)
-    taper = tukey(N, 0.1)
-    waveform_w_pad = zero_pad(waveform * taper)
-    return np.fft.rfft(waveform_w_pad)[1:]
+    if taper:
+        taper = tukey(N, 0.1)
+        waveform = zero_pad(waveform * taper)
+    else:
+        waveform = zero_pad(waveform)
+    return np.fft.rfft(waveform)[1:]
 
 
 def freq_PSD(waveform_t: np.ndarray, delta_t: float) -> FrequencySeries:
@@ -103,7 +106,7 @@ def optimal_snr(
     )  # Compute optimal matched filtering SNR
 
 
-def get_lisa_data() -> Tuple[
+def get_lisa_data(a_true=5e-21, f_true=1e-3, fdot_true=1e-8, samp_interval=0.01) -> Tuple[
     TimeSeries, FrequencySeries, FrequencySeries, float
 ]:
     """
@@ -111,20 +114,16 @@ def get_lisa_data() -> Tuple[
     the signal and then use the freq_PSD function to generate the PSD. We then use the FFT function to generate
     the frequency domain waveform. We then compute the optimal SNR.
     """
-
-    a_true = 5e-21
-    f_true = 1e-3
-    fdot_true = 1e-8
-
     fs = 2 * f_true  # Sampling rate
     delta_t = np.floor(
-        0.01 / fs
+        samp_interval / fs
     )  # Sampling interval -- largely oversampling here.
     tmax = 120 * 60 * 60
     t = np.arange(0, tmax, delta_t)
     n = int(
         2 ** (np.ceil(np.log2(len(t))))
     )  # Round length of time series to a power of two.
+    t = t[:n]
     h_t = TimeSeries(waveform(a_true, f_true, fdot_true, t), t)
     psd = freq_PSD(h_t.data, delta_t)
     h_f = FrequencySeries(FFT(h_t.data), psd.freq)
