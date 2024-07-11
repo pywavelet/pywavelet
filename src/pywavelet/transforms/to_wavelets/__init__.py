@@ -12,7 +12,7 @@ from pywavelet.transforms.types import (
 from ... import fft_funcs as fft
 from ...logger import logger
 from ...utils.wavelet_bins import _get_bins, _preprocess_bins
-from ..common import phi_vec, phitilde_vec_norm
+from ..phi_computer import phi_vec, phitilde_vec_norm
 from .transform_freq_funcs import transform_wavelet_freq_helper
 from .transform_time_funcs import transform_wavelet_time_helper
 

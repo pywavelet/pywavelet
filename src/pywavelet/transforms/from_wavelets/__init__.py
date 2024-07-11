@@ -3,7 +3,7 @@ from typing import Optional
 import numpy as np
 
 from ... import fft_funcs as fft
-from ...transforms.common import phi_vec, phitilde_vec_norm
+from ...transforms.phi_computer import phi_vec, phitilde_vec_norm
 from ..types import TimeSeries, Wavelet
 from .inverse_wavelet_freq_funcs import inverse_wavelet_freq_helper_fast
 from .inverse_wavelet_time_funcs import inverse_wavelet_time_helper_fast
@@ -14,7 +14,7 @@ def from_wavelet_to_time(
 ) -> TimeSeries:
     """fast inverse wavelet transform to time domain"""
     mult = min(mult, wave_in.Nt // 2)  # make sure K isn't bigger than ND
-    phi = phi_vec(wave_in.Nf, nx=nx, mult=mult) / 2
+    phi = phi_vec(wave_in.Nf, d=nx, q=mult) / 2
     h_t = inverse_wavelet_time_helper_fast(
         wave_in.data, phi, wave_in.Nf, wave_in.Nt, mult
     )

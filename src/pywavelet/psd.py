@@ -52,7 +52,6 @@ def generate_noise_from_psd(
     n_data,
     fs,
     noise_type: Optional[DATA_TYPE] = FrequencySeries,
-    freq_kwargs=None,
 ) -> Union[TimeSeries, FrequencySeries, Wavelet]:
     """
     Noise generator from arbitrary power spectral density.

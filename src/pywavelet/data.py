@@ -210,3 +210,7 @@ class Data(object):
         self.plot_wavelet(ax=axes[3], **wavelet_kwgs)
         plt.tight_layout()
         return fig, axes
+
+    @property
+    def freq_range(self):
+        return (self.minimum_frequency, self.maximum_frequency)
