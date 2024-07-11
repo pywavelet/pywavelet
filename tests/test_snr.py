@@ -1,147 +1,112 @@
-from typing import Tuple
+from pywavelet.utils.lvk import inject_signal_in_noise
 
-import bilby
-import matplotlib.pyplot as plt
-import numpy as np
 import pytest
-from gw_utils import DT, DURATION, get_ifo, inject_signal_in_noise
-from matplotlib import colors
-from scipy.interpolate import interp1d
+
+from pywavelet.transforms.to_wavelets import from_time_to_wavelet
+from pywavelet.transforms.types import TimeSeries
+
+import numpy as np
 
 from pywavelet.data import Data
-from pywavelet.psd import (
-    evolutionary_psd_from_stationary_psd,
-    generate_noise_from_psd,
-)
-from pywavelet.transforms import from_time_to_wavelet
-from pywavelet.transforms.types import TimeSeries, Wavelet, wavelet_dataset
+from pywavelet.psd import evolutionary_psd_from_stationary_psd
+
 from pywavelet.utils.lisa import get_lisa_data
-from pywavelet.utils.lvk import get_lvk_psd, get_lvk_psd_function
-from pywavelet.utils.snr import compute_frequency_optimal_snr, compute_snr
-
-Nf, Nt = 512, 256
-ND = Nf * Nt
-T_BINWIDTH = DURATION / Nt
-F_BINWIDTH = 1 / 2 * T_BINWIDTH
-FMAX = 1 / (2 * DT)
-
-T_GRID = np.linspace(0, DURATION, Nt)
-F_GRID = np.linspace(0, FMAX, Nf)
-
-
-def __make_plots(data, psd_wavelet, psd, psd_f, fname, log=True, labels=[]):
-    fig, axes = plt.subplots(5, 1, figsize=(5, 15))
-    data.plot_all(
-        axes=axes,
-        # spectrogram_kwgs=dict(plot_kwargs=dict(norm='log'))
-    )
-    axes[1].plot(psd_f, psd, label="PSD")
-    axes[1].set_ylim(bottom=min(psd) * 0.1)
-    psd_wavelet.plot(
-        ax=axes[-1], absolute=True, zscale="log", freq_scale="log"
-    )
-    axes[-1].set_ylim(data.minimum_frequency, data.maximum_frequency)
-    if log:
-        axes[2].set_yscale("log")
-        axes[3].set_yscale("log")
-
-    lblkwg = dict(
-        fontsize=12,
-        verticalalignment="top",
-        bbox=dict(boxstyle="round", facecolor="wheat", alpha=0.1),
-    )
-    if labels:
-        # top right corner label with frame
-        axes[1].text(
-            0.05, 0.1, labels[0], transform=axes[1].transAxes, **lblkwg
-        )
-        axes[3].text(
-            0.05, 0.1, labels[1], transform=axes[3].transAxes, **lblkwg
-        )
-    plt.tight_layout()
-    fig.savefig(fname, dpi=300)
-
-
-def test_snr_lvk(plot_dir):
-    distance = 100
-    h_time, timeseries_snr, ifo = inject_signal_in_noise(
-        mc=30, q=1, distance=distance, noise=False
-    )
-    data = Data.from_timeseries(
-        h_time,
-        minimum_frequency=ifo.minimum_frequency,
-        maximum_frequency=ifo.maximum_frequency,
-        Nf=Nf,
-        mult=32,
-    )
-    mask = ifo.strain_data.frequency_mask
-
-    psd, psd_f = (
-        ifo.power_spectral_density_array[mask],
-        ifo.frequency_array[mask],
-    )
-
-    custom_timeseries_snr = compute_frequency_optimal_snr(
-        h_freq=ifo.frequency_domain_strain[mask],
-        psd=ifo.power_spectral_density_array[mask],
-        duration=ifo.duration,
-    )
-    assert timeseries_snr == custom_timeseries_snr
-
-    psd_wavelet = evolutionary_psd_from_stationary_psd(
-        psd=ifo.power_spectral_density_array[mask],
-        psd_f=ifo.frequency_array[mask],
-        f_grid=data.wavelet.freq.data,
-        t_grid=data.wavelet.time.data,
-    )
-
-    wavelet_snr = compute_snr(data.wavelet, psd_wavelet)
-    # assert within +/- 10 of each other
-    assert np.isclose(timeseries_snr, wavelet_snr, atol=10)
-
-    __make_plots(
-        data,
-        psd_wavelet,
-        psd,
-        psd_f,
-        f"{plot_dir}/snr_lvk.png",
-        labels=[f"snr={timeseries_snr:.2f}", f"wavelet-snr={wavelet_snr:.2f}"],
-    )
+from pywavelet.utils.snr import compute_snr
 
 
 def test_lisa_snr(plot_dir):
     np.random.seed(1234)
-
-    h_signal_t, t, h_signal_f, f, psd_f, snr = get_lisa_data()
+    h_t, h_f, psd, snr = get_lisa_data()
     Nf = 256
-
-    h_time = TimeSeries(data=h_signal_t, time=t)
     data = Data.from_timeseries(
-        timeseries=h_time,
+        timeseries=h_t,
         Nf=Nf,
         mult=16,
-        minimum_frequency=9**-4,
+        minimum_frequency=9 ** -4,
         maximum_frequency=0.02,
     )
-    h_wavelet = from_time_to_wavelet(h_time, Nt=Nt)
     psd_wavelet = evolutionary_psd_from_stationary_psd(
-        psd=psd_f,
-        psd_f=f,
-        f_grid=h_wavelet.freq.data,
-        t_grid=h_wavelet.time.data,
+        psd=psd.data,
+        psd_f=psd.freq,
+        f_grid=data.wavelet.freq,
+        t_grid=data.wavelet.time,
+        dt=h_t.dt
+    )
+    wavelet_snr = compute_snr(data.wavelet, psd_wavelet)
+    assert np.isclose(
+        snr, wavelet_snr, atol=10
+    ), f"{snr} != {wavelet_snr}, wavelet/freq snr = {snr / wavelet_snr:.2f}"
+
+
+def test_snr_lvk(plot_dir):
+    Nf = 128
+    signal_t, psd, snr = inject_signal_in_noise(mc=30, noise=False)
+    data = Data.from_timeseries(
+        signal_t,
+        minimum_frequency=psd.minimum_frequency,
+        maximum_frequency=psd.maximum_frequency,
+        Nf=Nf,
+        mult=32,
     )
 
-    compute_frequency_optimal_snr(
-        h_freq=h_signal_f, psd=psd_f, duration=h_time.duration
+    psd_wavelet = evolutionary_psd_from_stationary_psd(
+        psd=psd.data,
+        psd_f=psd.freq,
+        f_grid=data.wavelet.freq.data,
+        t_grid=data.wavelet.time.data,
+        dt=signal_t.dt
     )
-    wavelet_snr = compute_snr(h_wavelet, psd_wavelet)
-    __make_plots(
-        data,
-        psd_wavelet,
-        psd_f,
-        f,
-        f"{plot_dir}/snr_lisa.png",
-        log=False,
-        labels=[f"snr={snr:.0f}", f"wavelet-snr={wavelet_snr:.0f}"],
+
+    wavelet_snr = compute_snr(data.wavelet, psd_wavelet)
+    assert np.isclose(snr, wavelet_snr, atol=1)
+
+
+# pytest parameterize decorator
+@pytest.mark.parametrize(
+    "f0, T, A, PSD_AMP, Nf",
+    [
+        (20, 1000, 1e-3, 1e-2, 16),
+        (10, 1000, 1e-3, 1e-2, 32),
+        (20, 1000, 1e-3, 1e-2, 16),
+    ])
+def test_toy_model_snr(f0, T, A, PSD_AMP, Nf):
+    ########################################
+    # Part1: Analytical SNR calculation
+    ########################################
+    dt = 0.5 / (2 * f0)  # Shannon's sampling theorem, set dt < 1/2*highest_freq
+    t = np.arange(0, T, dt)  # Time array
+    # round len(t) to the nearest power of 2
+    t = t[:2 ** int(np.log2(len(t)))]
+    T = len(t) * dt
+
+    y = A * np.sin(2 * np.pi * f0 * t)  # Signal waveform we wish to test
+    freq = np.fft.fftshift(np.fft.fftfreq(len(y), dt))  # Frequencies
+    df = abs(freq[1] - freq[0])  # Sample spacing in frequency
+    y_fft = dt * np.fft.fftshift(np.fft.fft(y))  # continuous time fourier transform [seconds]
+
+    PSD = PSD_AMP * np.ones(len(freq))  # PSD of the noise
+
+    # Compute the SNRs
+    SNR2_f = 2 * np.sum(abs(y_fft) ** 2 / PSD) * df
+    SNR2_t = 2 * dt * np.sum(abs(y) ** 2 / PSD)
+    SNR2_t_analytical = (A ** 2) * T / PSD[0]
+    assert np.isclose(SNR2_t, SNR2_t_analytical, atol=0.01), f"{SNR2_t}!={SNR2_t_analytical}"
+    assert np.isclose(SNR2_f, SNR2_t_analytical, atol=0.01), f"{SNR2_f}!={SNR2_t_analytical}"
+
+    ########################################
+    # Part2: Wavelet domain
+    ########################################
+    ND = len(y)
+    Nt = ND // Nf
+    signal_timeseries = TimeSeries(y, t)
+    signal_wavelet = from_time_to_wavelet(signal_timeseries, Nf=Nf, Nt=Nt)
+    psd_wavelet = evolutionary_psd_from_stationary_psd(
+        psd=PSD,
+        psd_f=freq,
+        f_grid=signal_wavelet.freq,
+        t_grid=signal_wavelet.time,
+        dt=dt
     )
-    assert np.isclose(snr, wavelet_snr, atol=10)
+    wavelet_snr2 = compute_snr(signal_wavelet, psd_wavelet) ** 2
+    assert np.isclose(wavelet_snr2, SNR2_t_analytical,
+                      atol=1e-2), "SNR in time domain and wavelet domain should be the same"

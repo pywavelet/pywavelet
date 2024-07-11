@@ -12,7 +12,6 @@ NOTE: to maximize over masses and spins we require some additional steps....
 
 import numpy as np
 
-from pywavelet.logger import logger
 from pywavelet.transforms.types import Wavelet
 
 
@@ -37,7 +36,7 @@ def compute_snr(h: Wavelet, PSD: Wavelet) -> float:
 
     """
     snr_sqrd = np.nansum((h * h) / PSD)
-    return np.sqrt(snr_sqrd / h.Nf)
+    return np.sqrt(snr_sqrd)
 
 
 def compute_frequency_optimal_snr(h_freq, psd, duration):

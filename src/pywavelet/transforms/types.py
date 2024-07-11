@@ -245,8 +245,16 @@ class FrequencySeries(AsDataArray):
         return 2 * self.dt * (len(self) - 1)
 
     @property
+    def minimum_frequency(self):
+        return min(self.freq)
+
+    @property
+    def maximum_frequency(self):
+        return max(self.freq)
+
+    @property
     def freq_range(self) -> Tuple[float, float]:
-        return (min(self.freq), max(self.freq))
+        return (self.minimum_frequency, self.maximum_frequency)
 
     def __repr__(self):
         return f"FrequencySeries(n={len(self)}, frange=[{min(self.freq):.2f}, {max(self.freq):.2f}] Hz, T={self.duration:.2f}s, fs={self.fs:.2f} Hz)"

@@ -3,7 +3,7 @@ from typing import Tuple
 import bilby
 import numpy as np
 
-from pywavelet.transforms.types import TimeSeries
+from pywavelet.transforms.types import TimeSeries, FrequencySeries
 from scipy.interpolate import interp1d
 
 DURATION = 8
@@ -63,7 +63,7 @@ def _get_ifo(t0=0.0, noise=True):
 
 def inject_signal_in_noise(
         mc, q=1, distance=1000.0, noise=True
-) -> Tuple[TimeSeries, float]:
+) -> Tuple[TimeSeries, FrequencySeries, float]:
     injection_parameters = GW_PARMS.copy()
     (
         injection_parameters["mass_1"],
@@ -81,8 +81,12 @@ def inject_signal_in_noise(
 
     snr = ifo.meta_data["matched_filter_SNR"]
 
+    fmask = ifo.frequency_mask
+    freq = ifo.strain_data.frequency_array[fmask]
+    psd = ifo.power_spectral_density_array[fmask]
+    psd = FrequencySeries(psd, freq)
     data = TimeSeries(ifo.strain_data.time_domain_strain, ifo.time_array)
-    return data, np.abs(snr)
+    return data, psd, np.abs(snr)
 
 
 def get_lvk_psd():

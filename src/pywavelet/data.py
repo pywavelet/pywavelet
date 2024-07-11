@@ -101,7 +101,7 @@ class Data(object):
         )
 
         strain_data._wavelet = from_time_to_wavelet(
-            timeseries,
+            data=timeseries,
             Nf=strain_data.Nf,
             Nt=strain_data.Nt,
             nx=strain_data.nx,

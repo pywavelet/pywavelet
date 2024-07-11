@@ -39,7 +39,7 @@ def from_time_to_wavelet(
         Number of time bins to use for the wavelet transform, by default 32
     """
     Nf, Nt = _preprocess_bins(data, Nf, Nt)
-
+    dt = data.dt
     t_bins, f_bins = _get_bins(data, Nf, Nt)
 
     ND = Nf * Nt
@@ -58,6 +58,7 @@ def from_time_to_wavelet(
     mult = min(mult, Nt // 2)  # make sure K isn't bigger than ND
     phi = phi_vec(Nf, nx, mult)
     wave = transform_wavelet_time_helper(data, Nf, Nt, phi, mult)
+    wave = wave * np.sqrt(2) * dt
     return wavelet_dataset(wave, time_grid=t_bins, freq_grid=f_bins, **kwargs)
 
 
@@ -78,4 +79,5 @@ def from_freq_to_wavelet(
 
     phif = 2 / Nf * phitilde_vec_norm(Nf, Nt, nx)
     wave = transform_wavelet_freq_helper(data, Nf, Nt, phif)
+    wave = wave * np.sqrt(2) * data.dt
     return wavelet_dataset(wave, time_grid=t_bins, freq_grid=f_bins, **kwargs)

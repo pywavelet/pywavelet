@@ -19,13 +19,13 @@ DATA_TYPE = Union[TimeSeries, FrequencySeries, Wavelet]
 def evolutionary_psd_from_stationary_psd(
     psd: np.ndarray,
     psd_f: np.ndarray,
-    f_grid,
-    t_grid,
+    f_grid: np.ndarray,
+    t_grid: np.ndarray,
+    dt:float,
 ) -> Wavelet:
     """
     PSD[ti,fi] = PSD[fi] * delta_f
     """
-
     Nt = len(t_grid)
     delta_f = f_grid[1] - f_grid[0]
     freq_data = psd
@@ -38,7 +38,7 @@ def evolutionary_psd_from_stationary_psd(
             fill_value=nan_val,
             bounds_error=False,
         )(f_grid)
-        * delta_f
+        * dt
     )
 
     # repeat the PSD for each time bin

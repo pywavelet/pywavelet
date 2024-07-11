@@ -12,25 +12,25 @@ def lisa_psd_func(f):
     Removed galactic confusion noise. Non stationary effect.
     """
 
-    L = 2.5 * 10**9  # Length of LISA arm
-    f0 = 19.09 * 10**-3
+    L = 2.5 * 10 ** 9  # Length of LISA arm
+    f0 = 19.09 * 10 ** -3
 
-    Poms = ((1.5 * 10**-11) ** 2) * (
-        1 + ((2 * 10**-3) / f) ** 4
+    Poms = ((1.5 * 10 ** -11) ** 2) * (
+            1 + ((2 * 10 ** -3) / f) ** 4
     )  # Optical Metrology Sensor
     Pacc = (
-        (3 * 10**-15) ** 2
-        * (1 + (4 * 10**-3 / (10 * f)) ** 2)
-        * (1 + (f / (8 * 10**-3)) ** 4)
+            (3 * 10 ** -15) ** 2
+            * (1 + (4 * 10 ** -3 / (10 * f)) ** 2)
+            * (1 + (f / (8 * 10 ** -3)) ** 4)
     )  # Acceleration Noise
 
     PSD = (
-        (10 / (3 * L**2))
-        * (Poms + (4 * Pacc) / ((2 * np.pi * f)) ** 4)
-        * (1 + 0.6 * (f / f0) ** 2)
+            (10 / (3 * L ** 2))
+            * (Poms + (4 * Pacc) / ((2 * np.pi * f)) ** 4)
+            * (1 + 0.6 * (f / f0) ** 2)
     )  # PSD
 
-    return PSD
+    return FrequencySeries(PSD, f)
 
 
 def zero_pad(data):
@@ -40,7 +40,7 @@ def zero_pad(data):
     """
     N = len(data)
     pow_2 = np.ceil(np.log2(N))
-    return np.pad(data, (0, int((2**pow_2) - N)), "constant")
+    return np.pad(data, (0, int((2 ** pow_2) - N)), "constant")
 
 
 def FFT(waveform: np.ndarray) -> np.ndarray:
@@ -55,17 +55,15 @@ def FFT(waveform: np.ndarray) -> np.ndarray:
 
 
 def freq_PSD(
-    waveform_t: np.ndarray, delta_t: float
-) -> Tuple[np.ndarray, np.ndarray]:
+        waveform_t: np.ndarray, delta_t: float
+) -> FrequencySeries:
     """
     Here we take in a waveform and sample the correct fourier frequencies and output the PSD. There is no
     f = 0 frequency bin because the PSD is undefined there.
     """
     n_t = len(zero_pad(waveform_t))
     freq = np.fft.rfftfreq(n_t, delta_t)[1:]
-    PSD = lisa_psd_func(freq)
-
-    return freq, PSD
+    return lisa_psd_func(freq)
 
 
 def inner_prod(sig1_f, sig2_f, PSD, delta_t, N_t):
@@ -82,19 +80,18 @@ def waveform(a: float, f: float, fdot: float, t: np.ndarray, eps=0):
     Modify frequency range to also affect SNR but also to see if frequencies of the signal are important
     for the windowing method. We aim to estimate the parameters $a$, $f$ and $\dot{f}$.
     """
-
-    return a * (np.sin((2 * np.pi) * (f * t + 0.5 * fdot * t**2)))
+    return a * (np.sin((2 * np.pi) * (f * t + 0.5 * fdot * t ** 2)))
 
 
 def optimal_snr(
-    h_signal_f: np.ndarray, psd_f: np.ndarray, delta_t: float, N_t: int
+        h_signal_f: np.ndarray, psd_f: np.ndarray, delta_t: float, N_t: int
 ) -> float:
     return np.sqrt(
         inner_prod(h_signal_f, h_signal_f, psd_f, delta_t, N_t)
     )  # Compute optimal matched filtering SNR
 
 
-def get_lisa_data():
+def get_lisa_data()-> Tuple[TimeSeries, FrequencySeries, FrequencySeries, float]:
     """
     This function is used to generate the data for the LISA detector. We use the waveform function to generate
     the signal and then use the freq_PSD function to generate the PSD. We then use the FFT function to generate
@@ -111,11 +108,18 @@ def get_lisa_data():
     )  # Sampling interval -- largely oversampling here.
     tmax = 120 * 60 * 60
     t = np.arange(0, tmax, delta_t)
-    N_t = int(
+    n = int(
         2 ** (np.ceil(np.log2(len(t))))
     )  # Round length of time series to a power of two.
-    h_signal_t = waveform(a_true, f_true, fdot_true, t)
-    f_signal, psd_f = freq_PSD(h_signal_t, delta_t)
-    h_signal_f = FFT(h_signal_t)
-    snr = optimal_snr(h_signal_f, psd_f, delta_t, N_t)
-    return h_signal_t, t, h_signal_f, f_signal, psd_f, snr
+    h_t = TimeSeries(
+        waveform(a_true, f_true, fdot_true, t),
+        t
+    )
+    psd = freq_PSD(h_t.data, delta_t)
+    h_f = FrequencySeries(
+        FFT(h_t.data),
+        psd.freq
+    )
+    snr = optimal_snr(h_f.data, psd.data, delta_t, n)
+
+    return h_t, h_f, psd, snr
