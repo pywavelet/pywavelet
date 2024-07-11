@@ -21,7 +21,7 @@ def evolutionary_psd_from_stationary_psd(
     psd_f: np.ndarray,
     f_grid: np.ndarray,
     t_grid: np.ndarray,
-    dt:float,
+    dt: float,
 ) -> Wavelet:
     """
     PSD[ti,fi] = PSD[fi] * delta_f

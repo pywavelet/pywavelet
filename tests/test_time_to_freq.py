@@ -1,9 +1,14 @@
+import os
+
+import matplotlib.pyplot as plt
 import numpy as np
+from utils import (
+    generate_chirp_time_domain_signal,
+    generate_sine_time_domain_signal,
+    plot_residuals,
+)
 
 from pywavelet.data import Data, TimeSeries
-import os
-from utils import generate_chirp_time_domain_signal, plot_residuals, generate_sine_time_domain_signal
-import matplotlib.pyplot as plt
 
 dt = 1 / 512
 Nt = 64
@@ -19,11 +24,21 @@ def test_ts_plots(plot_dir):
     frange = [20, 50]
     htime = generate_chirp_time_domain_signal(t=ts, freq_range=frange)
     data_chirp = Data.from_timeseries(
-        htime, minimum_frequency=frange[0], maximum_frequency=frange[1], Nt=Nt, Nf=Nf, mult=mult
+        htime,
+        minimum_frequency=frange[0],
+        maximum_frequency=frange[1],
+        Nt=Nt,
+        Nf=Nf,
+        mult=mult,
     )
     hsine = generate_sine_time_domain_signal(ts, ND, f_true=25)
     data_sine = Data.from_timeseries(
-        hsine, minimum_frequency=frange[0], maximum_frequency=frange[1], Nt=Nt, Nf=Nf, mult=mult
+        hsine,
+        minimum_frequency=frange[0],
+        maximum_frequency=frange[1],
+        Nt=Nt,
+        Nf=Nf,
+        mult=mult,
     )
 
     __roundtrip(data_chirp, f"{plt_dir}/chirp_series.png")
@@ -33,7 +48,11 @@ def test_ts_plots(plot_dir):
 def __roundtrip(data: Data, fname: str, **kwargs):
     assert data.frequencyseries.duration == data.timeseries.duration
     data_reconstructed = Data.from_frequencyseries(
-        data.frequencyseries, start_time=data.start_time, Nt=data.Nt, Nf=data.Nf, mult=data.mult,
+        data.frequencyseries,
+        start_time=data.start_time,
+        Nt=data.Nt,
+        Nf=data.Nf,
+        mult=data.mult,
     )
     residuals = data.timeseries - data_reconstructed.timeseries
     fig, axes = plt.subplots(5, 1, figsize=(4, 15))

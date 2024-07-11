@@ -2,9 +2,9 @@ from typing import Tuple
 
 import bilby
 import numpy as np
-
-from pywavelet.transforms.types import TimeSeries, FrequencySeries
 from scipy.interpolate import interp1d
+
+from pywavelet.transforms.types import FrequencySeries, TimeSeries
 
 DURATION = 8
 SAMPLING_FREQUENCY = 512
@@ -62,7 +62,7 @@ def _get_ifo(t0=0.0, noise=True):
 
 
 def inject_signal_in_noise(
-        mc, q=1, distance=1000.0, noise=True
+    mc, q=1, distance=1000.0, noise=True
 ) -> Tuple[TimeSeries, FrequencySeries, float]:
     injection_parameters = GW_PARMS.copy()
     (

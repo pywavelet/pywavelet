@@ -18,24 +18,26 @@ def lisa_psd_func(f):
 
     """
 
-    L = 2.5 * 10 ** 9  # Length of LISA arm
-    f0 = 19.09 * 10 ** -3
+    L = 2.5 * 10**9  # Length of LISA arm
+    f0 = 19.09 * 10**-3
 
     # Eq 10
-    Poms = ((1.5 * 10 ** -11) ** 2) * (1 + ((2 * 10 ** -3) / f) ** 4)  # Optical Metrology Sensor
+    Poms = ((1.5 * 10**-11) ** 2) * (
+        1 + ((2 * 10**-3) / f) ** 4
+    )  # Optical Metrology Sensor
 
     # Eq 11
     Pacc = (
-            (3 * 10 ** -15) ** 2
-            * (1 + (4 * 10 ** -3 / (10 * f)) ** 2)
-            * (1 + (f / (8 * 10 ** -3)) ** 4)
+        (3 * 10**-15) ** 2
+        * (1 + (4 * 10**-3 / (10 * f)) ** 2)
+        * (1 + (f / (8 * 10**-3)) ** 4)
     )  # Acceleration Noise
 
     # Eq 13
     PSD = (
-            (10 / (3 * L ** 2))
-            * (Poms + (4 * Pacc) / ((2 * np.pi * f)) ** 4)
-            * (1 + 0.6 * (f / f0) ** 2)
+        (10 / (3 * L**2))
+        * (Poms + (4 * Pacc) / ((2 * np.pi * f)) ** 4)
+        * (1 + 0.6 * (f / f0) ** 2)
     )  # PSD
 
     return FrequencySeries(PSD, f)
@@ -48,7 +50,7 @@ def zero_pad(data):
     """
     N = len(data)
     pow_2 = np.ceil(np.log2(N))
-    return np.pad(data, (0, int((2 ** pow_2) - N)), "constant")
+    return np.pad(data, (0, int((2**pow_2) - N)), "constant")
 
 
 def FFT(waveform: np.ndarray) -> np.ndarray:
@@ -62,9 +64,7 @@ def FFT(waveform: np.ndarray) -> np.ndarray:
     return np.fft.rfft(waveform_w_pad)[1:]
 
 
-def freq_PSD(
-        waveform_t: np.ndarray, delta_t: float
-) -> FrequencySeries:
+def freq_PSD(waveform_t: np.ndarray, delta_t: float) -> FrequencySeries:
     """
     Here we take in a waveform and sample the correct fourier frequencies and output the PSD. There is no
     f = 0 frequency bin because the PSD is undefined there.
@@ -92,18 +92,20 @@ def waveform(a: float, f: float, fdot: float, t: np.ndarray, eps=0):
     Quadratic chirp signal.
 
     """
-    return a * (np.sin((2 * np.pi) * (f * t + 0.5 * fdot * t ** 2)))
+    return a * (np.sin((2 * np.pi) * (f * t + 0.5 * fdot * t**2)))
 
 
 def optimal_snr(
-        h_signal_f: np.ndarray, psd_f: np.ndarray, delta_t: float, N_t: int
+    h_signal_f: np.ndarray, psd_f: np.ndarray, delta_t: float, N_t: int
 ) -> float:
     return np.sqrt(
         inner_prod(h_signal_f, h_signal_f, psd_f, delta_t, N_t)
     )  # Compute optimal matched filtering SNR
 
 
-def get_lisa_data() -> Tuple[TimeSeries, FrequencySeries, FrequencySeries, float]:
+def get_lisa_data() -> Tuple[
+    TimeSeries, FrequencySeries, FrequencySeries, float
+]:
     """
     This function is used to generate the data for the LISA detector. We use the waveform function to generate
     the signal and then use the freq_PSD function to generate the PSD. We then use the FFT function to generate
@@ -123,15 +125,9 @@ def get_lisa_data() -> Tuple[TimeSeries, FrequencySeries, FrequencySeries, float
     n = int(
         2 ** (np.ceil(np.log2(len(t))))
     )  # Round length of time series to a power of two.
-    h_t = TimeSeries(
-        waveform(a_true, f_true, fdot_true, t),
-        t
-    )
+    h_t = TimeSeries(waveform(a_true, f_true, fdot_true, t), t)
     psd = freq_PSD(h_t.data, delta_t)
-    h_f = FrequencySeries(
-        FFT(h_t.data),
-        psd.freq
-    )
+    h_f = FrequencySeries(FFT(h_t.data), psd.freq)
     snr = optimal_snr(h_f.data, psd.data, delta_t, n)
 
     return h_t, h_f, psd, snr
