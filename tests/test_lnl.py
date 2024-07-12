@@ -56,21 +56,17 @@ def test_lisa_lnl(plot_dir):
         h = Data.from_frequencyseries(hf, **kwgs).wavelet
         return -0.5 * np.nansum(((d - h) ** 2) / psd_wavelet)
 
-    breakpoint()
     # Compute SNR, wavelets
     ht = waveform(a_true, f_true, fdot_true, t)
     hf_discrete = FrequencySeries(FFT(ht), h_f.freq)    
-    hf_continuous = FrequencySeries(FFT(ht), h_f.freq)    
-    h = Data.from_frequencyseries(hf_continuous, **kwgs).wavelet
+    
+    h = Data.from_frequencyseries(hf_discrete, **kwgs).wavelet
 
-    # SNR2_wavelet = h_t.dt**2 * np.nansum((h)**2 / psd_wavelet)
-    # SNR2_freq = 4*h_t.dt * np.sum(abs(hf.data)**2 / (n*psd.data))
     SNR2_wavelet = np.nansum((h)**2 / psd_wavelet)
     SNR2_freq = 4*h_t.dt * np.sum(abs(hf_discrete.data)**2 / (n*psd.data))
 
     print("SNR wavelet  = ",SNR2_wavelet**(1/2))
     print("SNR freq = ", SNR2_freq**(1/2))
-    breakpoint() 
     lnl =  [lnl_func(a) for a in a_vals]
     lnl_wavelets = [wavelet_lnl_func(a) for a in a_vals]
     # lnl_wavelets = np.zeros(len(a_vals))
