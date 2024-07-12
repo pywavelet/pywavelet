@@ -39,7 +39,7 @@ def test_lisa_lnl(plot_dir):
     )
 
     FM_estimate = a_true / SNR
-    a_vals = np.linspace(a_true-5*FM_estimate, a_true+5*FM_estimate, 25)
+    a_vals = np.linspace(a_true-5*FM_estimate, a_true+5*FM_estimate, 100)
 
 
     n = len(zero_pad(waveform(a_true, f_true, fdot_true, t)))
@@ -56,6 +56,21 @@ def test_lisa_lnl(plot_dir):
         h = Data.from_frequencyseries(hf, **kwgs).wavelet
         return -0.5 * np.nansum(((d - h) ** 2) / psd_wavelet)
 
+    breakpoint()
+    # Compute SNR, wavelets
+    ht = waveform(a_true, f_true, fdot_true, t)
+    hf_discrete = FrequencySeries(FFT(ht), h_f.freq)    
+    hf_continuous = FrequencySeries(FFT(ht), h_f.freq)    
+    h = Data.from_frequencyseries(hf_continuous, **kwgs).wavelet
+
+    # SNR2_wavelet = h_t.dt**2 * np.nansum((h)**2 / psd_wavelet)
+    # SNR2_freq = 4*h_t.dt * np.sum(abs(hf.data)**2 / (n*psd.data))
+    SNR2_wavelet = np.nansum((h)**2 / psd_wavelet)
+    SNR2_freq = 4*h_t.dt * np.sum(abs(hf_discrete.data)**2 / (n*psd.data))
+
+    print("SNR wavelet  = ",SNR2_wavelet**(1/2))
+    print("SNR freq = ", SNR2_freq**(1/2))
+    breakpoint() 
     lnl =  [lnl_func(a) for a in a_vals]
     lnl_wavelets = [wavelet_lnl_func(a) for a in a_vals]
     # lnl_wavelets = np.zeros(len(a_vals))
@@ -76,8 +91,8 @@ def test_lisa_lnl(plot_dir):
     A = a_true
     plt.figure()
     plt.plot(a_vals, np.exp(np.array(lnl_wavelets)), label = 'WDM domain')
-    plt.axvline(x = A - FM_estimate, label = 'FM')
-    plt.axvline(x = A + FM_estimate, label = 'FM')
+    plt.axvline(x = A - FM_estimate, label = 'FM', c = 'black')
+    plt.axvline(x = A + FM_estimate, label = 'FM', c = 'black')
     # twin axes
     ax = plt.gca()
     ax2 = ax.twinx()

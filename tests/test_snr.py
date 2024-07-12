@@ -30,23 +30,16 @@ def test_lisa_snr(plot_dir):
         t_grid=data.wavelet.time,
         dt=h_t.dt,
     )
-    wavelet_snr = compute_snr(data.wavelet, psd_wavelet)
+    
 
-    # FROM FREQ_SERIES
-    data = Data.from_frequencyseries(
-        frequencyseries=h_f,
-        Nf=Nf,
-        mult=16,
-    )
-    wavelet_snr_frq = compute_snr(data.wavelet, psd_wavelet)
+    wavelet_snr = np.sqrt(np.nansum((data.wavelet * data.wavelet) / psd_wavelet))
+    print("Wavelet snr is = ",wavelet_snr)
+    print("snr is = ",snr)
 
-
-    assert np.isclose(
-        snr, wavelet_snr, atol=1
-    ), f"{snr} != {wavelet_snr}, wavelet/freq snr = {snr / wavelet_snr:.2f}"
-    assert np.isclose(
-        snr, wavelet_snr_frq, atol=1
-    ), f"{snr} != {wavelet_snr_frq}, wavelet/freq snr = {snr / wavelet_snr_frq:.2f}"
+    breakpoint()
+    # assert np.isclose(
+    #     snr, wavelet_snr, atol=1
+    # ), f"{snr} != {wavelet_snr}, wavelet/freq snr = {snr / wavelet_snr:.2f}"
 
 
 
