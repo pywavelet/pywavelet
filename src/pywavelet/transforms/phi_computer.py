@@ -34,7 +34,7 @@ def phitilde_vec(ω: np.ndarray, Nf: int, dt:float, d=4.0) -> np.ndarray:
         Array of phi_tilde(omega_i) values
 
     """
-    ΔF = 1.0 / (2 * Nf)  # NOTE: added missing 1/dt, EQ 7 in Cornish paper?
+    ΔF = 1.0 / (2 * Nf)  # TODO: missing 1/dt, EQ 7 in Cornish paper?
     ΔΩ = 2 * PI * ΔF  # Near Eq 10 # 2 pi times DF
     inverse_sqrt_ΔΩ = 1.0 / np.sqrt(ΔΩ)
 
@@ -52,6 +52,7 @@ def phitilde_vec(ω: np.ndarray, Nf: int, dt:float, d=4.0) -> np.ndarray:
 
 def __νd(ω, A, B, d=4.0):
     """Compute the normalized incomplete beta function.
+    Eq 12
 
     Parameters
     ----------
