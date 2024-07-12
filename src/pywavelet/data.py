@@ -3,7 +3,7 @@ import numpy as np
 from bilby.core.utils import PropertyAccessor
 from bilby.gw.detector.strain_data import InterferometerStrainData
 
-from .transforms import from_time_to_wavelet, from_wavelet_to_time
+from .transforms import from_time_to_wavelet, from_wavelet_to_time, from_freq_to_wavelet
 from .transforms.types import FrequencySeries, TimeSeries, Wavelet
 
 
@@ -139,12 +139,11 @@ class Data(object):
             duration=frequencyseries.duration,
             start_time=start_time,
         )
-        strain_data._wavelet = from_time_to_wavelet(
-            strain_data.timeseries,
+        strain_data._wavelet = from_freq_to_wavelet(
+            strain_data.frequencyseries,
             Nf=strain_data.Nf,
             Nt=strain_data.Nt,
             nx=strain_data.nx,
-            mult=mult,
         )
         return strain_data
 

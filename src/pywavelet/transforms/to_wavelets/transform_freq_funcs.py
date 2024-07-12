@@ -34,8 +34,6 @@ def transform_wavelet_freq_helper(
         __DX_unpack_loop(m, Nt, Nf, DX_trans, wave)
     return wave
 
-
-@njit()
 def __DX_assign_loop(
     m: int,
     Nt: int,

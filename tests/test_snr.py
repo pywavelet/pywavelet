@@ -3,7 +3,7 @@ import pytest
 
 from pywavelet.data import Data
 from pywavelet.psd import evolutionary_psd_from_stationary_psd
-from pywavelet.transforms.to_wavelets import from_time_to_wavelet
+from pywavelet.transforms.to_wavelets import from_time_to_wavelet, from_freq_to_wavelet
 from pywavelet.transforms.types import TimeSeries
 from pywavelet.utils.lisa import get_lisa_data
 from pywavelet.utils.lvk import inject_signal_in_noise
@@ -14,6 +14,7 @@ def test_lisa_snr(plot_dir):
     np.random.seed(1234)
     h_t, h_f, psd, snr = get_lisa_data()
     Nf = 256
+    Nt = len(h_t) // Nf
 
     # FROM TIMESERIES
     data = Data.from_timeseries(
@@ -36,7 +37,6 @@ def test_lisa_snr(plot_dir):
     print("Wavelet snr is = ",wavelet_snr)
     print("snr is = ",snr)
 
-    breakpoint()
     # assert np.isclose(
     #     snr, wavelet_snr, atol=1
     # ), f"{snr} != {wavelet_snr}, wavelet/freq snr = {snr / wavelet_snr:.2f}"

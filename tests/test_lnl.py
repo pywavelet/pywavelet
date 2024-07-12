@@ -4,13 +4,66 @@ import pytest
 
 from pywavelet.data import Data
 from pywavelet.psd import evolutionary_psd_from_stationary_psd
-from pywavelet.transforms.types import FrequencySeries
+from pywavelet.transforms.types import FrequencySeries, TimeSeries
 from pywavelet.utils.lisa import get_lisa_data, waveform, FFT, zero_pad
 
+from pywavelet.transforms.to_wavelets import from_time_to_wavelet
 from pywavelet.utils.lvk import inject_signal_in_noise
 from pywavelet.utils.snr import compute_snr
 
+
 def test_lisa_lnl(plot_dir):
+    np.random.seed(1234)
+    a_true = 5e-21
+    f_true = 1e-3
+    fdot_true = 1e-8
+    h_t, h_f, psd, snr_freq = get_lisa_data(a_true, f_true, fdot_true, 0.033)
+    t = h_t.time
+    n = len(h_t)
+    nf = len(psd)
+    variance_noise_f = n * psd.data / (4 * h_t.dt)
+    var = np.sqrt(variance_noise_f)
+    noise_f = normal(0, var, nf) + 1j * normal(0, var, nf)
+    template_f = h_f.data
+    data_f = template_f + 0 * noise_f  # Construct data stream
+    data_f = FrequencySeries(data=data_f, freq=h_f.freq)
+    kwgs = dict(
+        Nf=256,
+        mult=16,
+    )
+    d = Data.from_frequencyseries(data_f, **kwgs).wavelet
+    psd_wavelet = evolutionary_psd_from_stationary_psd(
+        psd=psd.data,
+        psd_f=psd.freq,
+        f_grid=d.freq,
+        t_grid=d.time,
+        dt=h_t.dt,
+    )
+
+    n = len(zero_pad(waveform(a_true, f_true, fdot_true, t)))
+    variance_noise_f = n * psd.data / (4 * h_t.dt)
+
+    def lnl_func(a):
+        ht = waveform(a, f_true, fdot_true, t)
+        hf = FFT(ht, taper=False)
+        return -0.5 * sum((abs(data_f - hf) ** 2) / variance_noise_f)
+
+    def wavelet_lnl_func(a):
+        ht = waveform(a, f_true, fdot_true, t)
+        ht = TimeSeries(ht, t)
+        h = from_time_to_wavelet(ht, **kwgs)
+        return -0.5 * np.nansum(((d - h) ** 2) / psd_wavelet)
+
+    lnl_freq = lnl_func(a_true + 0.01)
+    lnl_wavelet = wavelet_lnl_func(a_true + 0.01)
+    snr_wavelet = compute_snr(d, psd_wavelet)
+
+    assert np.isclose(snr_freq, snr_wavelet, atol=1e-2), f"snrs dont match {snr_freq:.2f}!={snr_wavelet:.2f}"
+    assert np.isclose(lnl_freq, lnl_wavelet, atol=1e-2), f"lnls dont match {lnl_wavelet:.2f}!={lnl_freq:.2f}"
+
+
+
+def test_lisa_lnl_0(plot_dir):
     np.random.seed(1234)
     a_true = 5e-21
     f_true = 1e-3
@@ -56,6 +109,7 @@ def test_lisa_lnl(plot_dir):
         h = Data.from_frequencyseries(hf, **kwgs).wavelet
         return -0.5 * np.nansum(((d - h) ** 2) / psd_wavelet)
 
+
     breakpoint()
     # Compute SNR, wavelets
     ht = waveform(a_true, f_true, fdot_true, t)
@@ -72,11 +126,12 @@ def test_lisa_lnl(plot_dir):
     print("SNR freq = ", SNR2_freq**(1/2))
     breakpoint() 
     lnl =  [lnl_func(a) for a in a_vals]
+
     lnl_wavelets = [wavelet_lnl_func(a) for a in a_vals]
     # lnl_wavelets = np.zeros(len(a_vals))
 
     import matplotlib.pyplot as plt
-    fig, axes = plt.subplots(2,1, sharex=True)
+    fig, axes = plt.subplots(2, 1, sharex=True)
     axes[0].plot(a_vals, lnl)
     axes[1].plot(a_vals, lnl_wavelets)
     axes[0].set_ylabel("LnL (freq domain)")
@@ -93,6 +148,7 @@ def test_lisa_lnl(plot_dir):
     plt.plot(a_vals, np.exp(np.array(lnl_wavelets)), label = 'WDM domain')
     plt.axvline(x = A - FM_estimate, label = 'FM', c = 'black')
     plt.axvline(x = A + FM_estimate, label = 'FM', c = 'black')
+
     # twin axes
     ax = plt.gca()
     ax2 = ax.twinx()
