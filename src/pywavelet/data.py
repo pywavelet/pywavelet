@@ -99,7 +99,6 @@ class Data(object):
             duration=timeseries.duration,
             start_time=timeseries.t0,
         )
-
         strain_data._wavelet = from_time_to_wavelet(
             data=timeseries,
             Nf=strain_data.Nf,

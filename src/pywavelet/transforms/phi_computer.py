@@ -39,12 +39,11 @@ def phitilde_vec(ω: np.ndarray, Nf: int, dt:float, d=4.0) -> np.ndarray:
     inverse_sqrt_ΔΩ = 1.0 / np.sqrt(ΔΩ)
 
     B = ΔΩ / 2
-    A = (ΔΩ - B) / 2
-    assert 2 * A + B == ΔΩ
+    A = ΔΩ / 4
 
     phi = np.zeros(ω.size)
-    mask = (np.abs(ω) >= A) & (np.abs(ω) < A + B)
-    vd = (PI / 2.0) * __νd(ω[mask], A, B, d=d)
+    mask = (A <= np.abs(ω)) & (np.abs(ω) < A + B)
+    vd = (PI / 2.0) * __νd(ω[mask], A, B, d=d) # different from paper
     phi[mask] = inverse_sqrt_ΔΩ * np.cos(vd)
     phi[np.abs(ω) < A] = inverse_sqrt_ΔΩ
     return phi

@@ -4,10 +4,11 @@ import bilby
 import numpy as np
 from scipy.interpolate import interp1d
 
+from pywavelet.utils.snr import compute_frequency_optimal_snr
 from pywavelet.transforms.types import FrequencySeries, TimeSeries
 
 DURATION = 8
-SAMPLING_FREQUENCY = 512
+SAMPLING_FREQUENCY = 16384
 DT = 1 / SAMPLING_FREQUENCY
 MINIMUM_FREQUENCY = 20
 MAXIMUM_FREQUENCY = 256
@@ -62,8 +63,8 @@ def _get_ifo(t0=0.0, noise=True):
 
 
 def inject_signal_in_noise(
-    mc, q=1, distance=1000.0, noise=True
-) -> Tuple[TimeSeries, FrequencySeries, float]:
+    mc, q=1, distance=1000.0, noise=True,
+) -> Tuple[FrequencySeries, FrequencySeries, float]:
     injection_parameters = GW_PARMS.copy()
     (
         injection_parameters["mass_1"],
@@ -79,14 +80,15 @@ def inject_signal_in_noise(
     )
     ifo: bilby.gw.detector.Interferometer = ifos[0]
 
-    snr = ifo.meta_data["matched_filter_SNR"]
 
     fmask = ifo.frequency_mask
     freq = ifo.strain_data.frequency_array[fmask]
     psd = ifo.power_spectral_density_array[fmask]
     psd = FrequencySeries(psd, freq)
-    data = TimeSeries(ifo.strain_data.time_domain_strain, ifo.time_array)
-    return data, psd, np.abs(snr)
+    h_f = FrequencySeries(ifo.frequency_domain_strain[fmask], freq)
+    snr = compute_frequency_optimal_snr(h_f.data, psd, DURATION)
+
+    return h_f, psd, np.abs(snr)
 
 
 def get_lvk_psd():

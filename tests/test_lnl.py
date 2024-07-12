@@ -120,5 +120,6 @@ def test_lvk_lnl(plot_dir):
         t_grid=data.wavelet.time.data,
         dt=signal_t.dt,
     )
+    data.plot_wavelet()
     wavelet_snr = compute_snr(data.wavelet, psd_wavelet)
     assert np.isclose(snr, wavelet_snr, atol=1)
