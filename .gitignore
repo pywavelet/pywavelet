@@ -6,6 +6,8 @@ __pycache__/
 *.dat
 *.idea
 *.DS_Store
+#python stuff
+*.npy
 # C extensions
 *.so
 out_*
