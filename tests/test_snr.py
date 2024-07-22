@@ -3,7 +3,7 @@ import pytest
 
 from pywavelet.data import Data
 from pywavelet.psd import evolutionary_psd_from_stationary_psd
-from pywavelet.transforms.to_wavelets import from_time_to_wavelet
+from pywavelet.transforms.to_wavelets import from_time_to_wavelet, from_freq_to_wavelet
 from pywavelet.transforms.types import TimeSeries
 from pywavelet.utils.lisa import get_lisa_data
 from pywavelet.utils.lvk import inject_signal_in_noise
@@ -16,27 +16,43 @@ def test_lisa_snr(plot_dir):
     Nf = 256
 
     # FROM TIMESERIES
-    data = Data.from_timeseries(
+    data_from_timeseries = Data.from_timeseries(
         timeseries=h_t,
         Nf=Nf,
         mult=16,
         minimum_frequency=9**-4,
         maximum_frequency=0.02,
     )
-    psd_wavelet = evolutionary_psd_from_stationary_psd(
+ 
+    data_from_freqseries = Data.from_frequencyseries(
+        frequencyseries=h_f,
+        Nf=Nf
+    )
+
+    psd_wavelet_time = evolutionary_psd_from_stationary_psd(
         psd=psd.data,
         psd_f=psd.freq,
-        f_grid=data.wavelet.freq,
-        t_grid=data.wavelet.time,
+        f_grid=data_from_timeseries.wavelet.freq,
+        t_grid=data_from_timeseries.wavelet.time,
         dt=h_t.dt,
     )
-    
 
-    wavelet_snr = np.sqrt(np.nansum((data.wavelet * data.wavelet) / psd_wavelet))
-    print("Wavelet snr is = ",wavelet_snr)
+    psd_wavelet_freq = evolutionary_psd_from_stationary_psd(
+            psd=psd.data,
+            psd_f=psd.freq,
+            f_grid=data_from_freqseries.wavelet.freq,
+            t_grid=data_from_freqseries.wavelet.time,
+            dt=h_t.dt,
+        )
+
+    wavelet_snr_from_timeseries = np.sqrt(np.nansum((data_from_timeseries.wavelet * data_from_timeseries.wavelet) / psd_wavelet_time))
+    wavelet_snr_from_freqseries = np.sqrt(np.nansum((data_from_freqseries.wavelet * data_from_freqseries.wavelet) / psd_wavelet_freq))
+
+    print("Wavelet snr using timeseries = ",wavelet_snr_from_timeseries)
+    print("Wavelet snr using freqseries = ",wavelet_snr_from_freqseries)
     print("snr is = ",snr)
-
     breakpoint()
+
     # assert np.isclose(
     #     snr, wavelet_snr, atol=1
     # ), f"{snr} != {wavelet_snr}, wavelet/freq snr = {snr / wavelet_snr:.2f}"
