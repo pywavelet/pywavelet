@@ -1,10 +1,12 @@
+import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 
 from pywavelet.data import Data
 from pywavelet.psd import evolutionary_psd_from_stationary_psd
-from pywavelet.transforms.to_wavelets import from_time_to_wavelet, from_freq_to_wavelet
-from pywavelet.transforms.types import TimeSeries
+from pywavelet.transforms.to_wavelets import from_time_to_wavelet 
+
+from pywavelet.transforms.types import TimeSeries,FrequencySeries
 from pywavelet.utils.lisa import get_lisa_data
 from pywavelet.utils.lvk import inject_signal_in_noise
 from pywavelet.utils.snr import compute_snr
@@ -20,8 +22,6 @@ def test_lisa_snr(plot_dir):
         timeseries=h_t,
         Nf=Nf,
         mult=16,
-        minimum_frequency=9**-4,
-        maximum_frequency=0.02,
     )
  
     data_from_freqseries = Data.from_frequencyseries(
@@ -36,7 +36,6 @@ def test_lisa_snr(plot_dir):
         t_grid=data_from_timeseries.wavelet.time,
         dt=h_t.dt,
     )
-
     psd_wavelet_freq = evolutionary_psd_from_stationary_psd(
             psd=psd.data,
             psd_f=psd.freq,
@@ -58,26 +57,25 @@ def test_lisa_snr(plot_dir):
     # ), f"{snr} != {wavelet_snr}, wavelet/freq snr = {snr / wavelet_snr:.2f}"
 
 
-
 def test_snr_lvk(plot_dir):
     Nf = 128
-    signal_t, psd, snr = inject_signal_in_noise(mc=30, noise=False)
-    data = Data.from_timeseries(
-        signal_t,
-        minimum_frequency=psd.minimum_frequency,
-        maximum_frequency=psd.maximum_frequency,
+    h_f, psd, snr = inject_signal_in_noise(mc=30, noise=False, )
+    h_f = FrequencySeries(data=h_f/h_f.dt, freq=h_f.freq)
+    data = Data.from_frequencyseries(
+        h_f,
         Nf=Nf,
         mult=32,
     )
-
+    fig, ax = data.plot_wavelet()
+    fig.show()
     psd_wavelet = evolutionary_psd_from_stationary_psd(
         psd=psd.data,
         psd_f=psd.freq,
         f_grid=data.wavelet.freq.data,
         t_grid=data.wavelet.time.data,
-        dt=signal_t.dt,
+        dt=h_f.dt,
     )
-
+    
     SNR2_wavelet = np.nansum((data.wavelet * data.wavelet) / psd_wavelet)
     print("wavelet_SNR is", SNR2_wavelet**(1/2))
     breakpoint()
