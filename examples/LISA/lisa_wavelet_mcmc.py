@@ -326,6 +326,7 @@ psd_wavelet = evolutionary_psd_from_stationary_psd(
 
 SNR2_wavelet = np.nansum((h_wavelet*h_wavelet) / psd_wavelet)
 print("SNR in wavelet domain is", SNR2_wavelet**(1/2))
+breakpoint()
 variance_noise_f = (
     N_t * PSD / (4 * delta_t)
 )  # Calculate variance of noise, real and imaginary.

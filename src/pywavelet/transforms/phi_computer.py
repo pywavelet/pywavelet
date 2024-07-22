@@ -95,7 +95,7 @@ def phitilde_vec_norm(Nf: int, Nt: int, dt:float, d: int) -> np.ndarray:
     )
     nrm_fctor /= PI ** (3 / 2) / PI
 
-    return u_phit / nrm_fctor
+    return u_phit / (nrm_fctor)
 
 
 def phi_vec(Nf: int, dt, d: float = 4.0, q: int = 16) -> np.ndarray:
@@ -116,7 +116,7 @@ def phi_vec(Nf: int, dt, d: float = 4.0, q: int = 16) -> np.ndarray:
     DX[1 : half_K + 1] = phitilde_vec(dom * np.arange(1, half_K + 1), Nf, dt, d)
     # negative frequencies
     DX[half_K + 1 :] = phitilde_vec(-dom * np.arange(half_K - 1, 0, -1), Nf,  dt, d)
-    DX = K * fft.ifft(DX, K)
+    DX = K * fft.ifft(DX, K) 
 
     phi = np.zeros(K)
     phi[0:half_K] = np.real(DX[half_K:K])

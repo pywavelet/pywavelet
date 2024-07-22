@@ -28,8 +28,9 @@ def transform_wavelet_freq_helper(
     wave = np.zeros((Nt, Nf))  # wavelet wavepacket transform of the signal
 
     DX = np.zeros(Nt, dtype=np.complex128)
+    freq_strain = data.data # Convert 
     for m in range(0, Nf + 1):
-        __DX_assign_loop(m, Nt, Nf, DX, data, phif)
+        __DX_assign_loop(m, Nt, Nf, DX, freq_strain, phif)
         DX_trans = fft.ifft(DX, Nt)
         __DX_unpack_loop(m, Nt, Nf, DX_trans, wave)
     return wave
