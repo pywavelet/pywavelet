@@ -29,68 +29,54 @@ def transform_wavelet_freq_helper(
 
     DX = np.zeros(Nt, dtype=np.complex128)
     freq_strain = data.data # Convert 
-    for m in range(0, Nf + 1):
-        __DX_assign_loop(m, Nt, Nf, DX, freq_strain, phif)
-        DX_trans = fft.ifft(DX, Nt)
-        __DX_unpack_loop(m, Nt, Nf, DX_trans, wave)
+    for freq_bin in range(0, Nf + 1):
+        __DX_assign_and_unpack_loop(freq_bin, Nt, Nf, DX, freq_strain, phif, wave)
     return wave
 
-
-@njit()
-def __DX_assign_loop(
-    m: int,
-    Nt: int,
-    Nf: int,
-    DX: np.ndarray,
-    data: np.ndarray,
-    phif: np.ndarray,
+@njit
+def __DX_assign_and_unpack_loop(
+    freq_bin: int, Nt: int, Nf: int, DX: np.ndarray, data: np.ndarray, phif: np.ndarray, wave: np.ndarray
 ) -> None:
-    """helper for assigning DX in the main loop"""
+    """Helper for assigning DX and unpacking in the main loop"""
     i_base = Nt // 2
-    jj_base = m * Nt // 2
+    jj_base = freq_bin * Nt // 2
+    t_midpoint_bin = Nt // 2 
 
-    if m == 0 or m == Nf:
-        # NOTE this term appears to be needed to recover correct constant (at least for m=0), but was previously missing
-        DX[Nt // 2] = phif[0] * data[m * Nt // 2] / 2.0
-        DX[Nt // 2] = phif[0] * data[m * Nt // 2] / 2.0
+    if freq_bin == 0 or freq_bin == Nf:
+        # first and last freq has special 'time-bin' midpoint
+        DX[t_midpoint_bin] = phif[0] * data[freq_bin * t_midpoint_bin] / 2.0
     else:
-        DX[Nt // 2] = phif[0] * data[m * Nt // 2]
-        DX[Nt // 2] = phif[0] * data[m * Nt // 2]
+        DX[t_midpoint_bin] = phif[0] * data[freq_bin * t_midpoint_bin]
 
     for jj in range(jj_base + 1 - Nt // 2, jj_base + Nt // 2):
         j = np.abs(jj - jj_base)
         i = i_base - jj_base + jj
-        if m == Nf and jj > jj_base:
+        if freq_bin == Nf and jj > jj_base:
             DX[i] = 0.0
-        elif m == 0 and jj < jj_base:
+        elif freq_bin == 0 and jj < jj_base:
             DX[i] = 0.0
         elif j == 0:
             continue
         else:
             DX[i] = phif[j] * data[jj]
 
+    DX_trans = ifft(DX, Nt)
 
-@njit()
-def __DX_unpack_loop(
-    m: int, Nt: int, Nf: int, DX_trans: np.ndarray, wave: np.ndarray
-) -> None:
-    """helper for unpacking fftd DX in main loop"""
-    if m == 0:
-        # half of lowest and highest frequency bin pixels are redundant, so store them in even and odd components of m=0 respectively
+    if freq_bin == 0:
         for n in range(0, Nt, 2):
             wave[n, 0] = np.real(DX_trans[n] * np.sqrt(2))
-    elif m == Nf:
+    elif freq_bin == Nf:
         for n in range(0, Nt, 2):
             wave[n + 1, 0] = np.real(DX_trans[n] * np.sqrt(2))
     else:
         for n in range(0, Nt):
-            if m % 2:
-                if (n + m) % 2:
-                    wave[n, m] = -np.imag(DX_trans[n])
+            if freq_bin % 2:
+                if (n + freq_bin) % 2:
+                    wave[n, freq_bin] = -np.imag(DX_trans[n])
                 else:
-                    wave[n, m] = np.real(DX_trans[n])
+                    wave[n, freq_bin] = np.real(DX_trans[n])
             else:
-                if (n + m) % 2:
-                    wave[n, m] = np.imag(DX_trans[n])
+                if (n + freq_bin) % 2:
+                    wave[n, freq_bin] = np.imag(DX_trans[n])
                 else:
-                    wave[n, m] = np.real(DX_trans[n])
+                    wave[n, freq_bin] = np.real(DX_trans[n])
