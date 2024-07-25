@@ -13,8 +13,8 @@ from pywavelet.data import Data, TimeSeries
 from pywavelet.transforms import from_time_to_wavelet, from_wavelet_to_time
 
 dt = 1 / 512
-Nt = 64
-Nf = 64
+Nt = 2**7
+Nf = 2**8
 mult = 16
 ND = Nt * Nf
 ts = np.arange(0, ND) * dt
@@ -65,8 +65,8 @@ def __run_checks(h_time, Nt, mult, dt, freq_range, make_plots, fname):
 
     residuals = h_time.data - h_reconstructed.data
     mean, std = residuals.mean(), residuals.std()
-    assert np.abs(mean) < 0.1
-    assert np.abs(std) < 1
+    assert np.abs(mean) < 0.1, f"Roundtrip residual mean is {mean} > 0.1"
+    assert np.abs(std) < 1, f"Roundtrip residual std is {std} > 1"
 
 
 def __make_plots(h_time, h_reconstructed, data, fname):
