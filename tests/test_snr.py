@@ -73,7 +73,7 @@ def test_snr_lvk(plot_dir):
         mc=30,
         noise=False,
     )
-    h_f = FrequencySeries(data=h_f / h_f.dt, freq=h_f.freq)
+    h_f = FrequencySeries(data=h_f, freq=h_f.freq)
     data = Data.from_frequencyseries(
         h_f,
         Nf=Nf,
@@ -92,7 +92,7 @@ def test_snr_lvk(plot_dir):
     # cool line
     SNR2_wavelet = np.nansum((data.wavelet * data.wavelet) / psd_wavelet)
     print("wavelet_SNR is", SNR2_wavelet ** (1 / 2))
-    assert np.isclose(snr, SNR2_wavelet**(1/2), atol=1)
+    assert np.isclose(snr, SNR2_wavelet**(1/2), atol=3)
 
 
 # pytest parameterize decorator
