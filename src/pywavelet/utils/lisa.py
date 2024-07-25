@@ -104,9 +104,9 @@ def optimal_snr(
     )  # Compute optimal matched filtering SNR
 
 
-def get_lisa_data(a_true=5e-21, f_true=1e-3, fdot_true=1e-8, samp_interval=0.01) -> Tuple[
-    TimeSeries, FrequencySeries, FrequencySeries, float
-]:
+def get_lisa_data(
+    a_true=5e-21, f_true=1e-3, fdot_true=1e-8, samp_interval=0.01
+) -> Tuple[TimeSeries, FrequencySeries, FrequencySeries, float]:
     """
     This function is used to generate the data for the LISA detector. We use the waveform function to generate
     the signal and then use the freq_PSD function to generate the PSD. We then use the FFT function to generate

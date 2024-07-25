@@ -4,8 +4,8 @@ import bilby
 import numpy as np
 from scipy.interpolate import interp1d
 
-from pywavelet.utils.snr import compute_frequency_optimal_snr
 from pywavelet.transforms.types import FrequencySeries, TimeSeries
+from pywavelet.utils.snr import compute_frequency_optimal_snr
 
 DURATION = 8
 SAMPLING_FREQUENCY = 16384
@@ -63,7 +63,10 @@ def _get_ifo(t0=0.0, noise=True):
 
 
 def inject_signal_in_noise(
-    mc, q=1, distance=1000.0, noise=True,
+    mc,
+    q=1,
+    distance=1000.0,
+    noise=True,
 ) -> Tuple[FrequencySeries, FrequencySeries, float]:
     injection_parameters = GW_PARMS.copy()
     (
@@ -79,7 +82,6 @@ def inject_signal_in_noise(
         waveform_generator=CBC_GENERATOR, parameters=injection_parameters
     )
     ifo: bilby.gw.detector.Interferometer = ifos[0]
-
 
     fmask = ifo.frequency_mask
     freq = ifo.strain_data.frequency_array[fmask]

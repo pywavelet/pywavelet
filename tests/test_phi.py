@@ -1,7 +1,11 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-from pywavelet.transforms.phi_computer import phi_vec, phitilde_vec_norm, phitilde_vec
+from pywavelet.transforms.phi_computer import (
+    phi_vec,
+    phitilde_vec,
+    phitilde_vec_norm,
+)
 
 
 def test_phi(plot_dir):
@@ -15,7 +19,7 @@ def test_phi(plot_dir):
     phi = phi_vec(Nf=Nf, dt=dt, d=d, q=q) / delT
     t = np.linspace(-q, q, len(phi))
     f = np.linspace(-1, 1, 1000)
-    phitilde = phitilde_vec(f, Nf=Nf, d=d, dt=dt)/ delF
+    phitilde = phitilde_vec(f, Nf=Nf, d=d, dt=dt) / delF
 
     fig, ax = plt.subplots(
         2,
