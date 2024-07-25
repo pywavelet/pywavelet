@@ -142,13 +142,6 @@ class Data(object):
             duration=frequencyseries.duration,
             start_time=start_time,
         )
-        # strain_data._wavelet = from_time_to_wavelet(
-        #     strain_data.timeseries,
-        #     Nf=strain_data.Nf,
-        #     Nt=strain_data.Nt,
-        #     nx=strain_data.nx,
-        #     mult=mult,
-        # )
         strain_data._wavelet = from_freq_to_wavelet(
             strain_data.frequencyseries,
             Nf=strain_data.Nf,

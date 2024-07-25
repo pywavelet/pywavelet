@@ -324,7 +324,6 @@ psd = FrequencySeries(data=PSD, freq=freq)
 
 kwgs = dict(
     Nf=512,
-    mult=16,
 )
 
 
