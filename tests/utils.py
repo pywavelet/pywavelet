@@ -63,22 +63,16 @@ def plot_wavelet_domain_signal(
     return fig, ax
 
 
-def plot_residuals(residuals: TimeSeries, ax=None):
-    if ax is None:
-        fig, ax = plt.subplots(2, 1, figsize=(8, 8))
-    fig, ax = residuals.plot(ax=ax)
+def plot_residuals(residuals: TimeSeries, axes=None):
+    if axes is None:
+        fig, axes = plt.subplots(2, 1, figsize=(8, 8))
+    ax = axes[0]
+    ax.plot(residuals)
     ax.set_ylabel("Residuals")
     # horizontal line at y = 0
     ax.axhline(0, color="k", linestyle="--")
-    ax.fill_between(
-        residuals.time.data,
-        -0.68,
-        0.68,
-        color="gray",
-        alpha=0.1,
-    )
     # add txtbox with stats
-    mean, std = residuals.data.mean(), residuals.data.std()
+    mean, std = np.mean(residuals), np.std(residuals)
     # stats txtbox in latex
     stats = r"err = ${:.2f} \pm {:.2f}$".format(mean, std)
     ax.text(
@@ -89,7 +83,14 @@ def plot_residuals(residuals: TimeSeries, ax=None):
         fontsize=12,
         verticalalignment="top",
     )
-    plt.tight_layout()
+
+    ax = axes[1]
+    ax.hist(residuals.data, bins=50, density=True)
+    ax.set_xlabel("Residuals")
+    ax.set_ylabel("Density")
+
+    fig = axes[0].get_figure()
+
     return fig, ax
 
 
