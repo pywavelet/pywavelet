@@ -86,6 +86,7 @@ def test_snr_lvk(plot_dir):
         dt=h_f.dt,
     )
 
+    # cool line
     SNR2_wavelet = np.nansum((data.wavelet * data.wavelet) / psd_wavelet)
     print("wavelet_SNR is", SNR2_wavelet ** (1 / 2))
 
