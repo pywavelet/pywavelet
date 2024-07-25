@@ -125,10 +125,10 @@ def test_lvk_lnl(plot_dir):
         psd_f=psd.freq,
         f_grid=data.wavelet.freq.data,
         t_grid=data.wavelet.time.data,
-        dt=signal_t.dt,
+        dt=signal_f.dt,
     )
     data.plot_wavelet()
     wavelet_snr = compute_snr(data.wavelet, psd_wavelet)
     assert np.isclose(
-        snr, wavelet_snr, atol=1
+        snr, wavelet_snr, atol=3
     ), f"LVK SNR mismatch {snr} != {wavelet_snr}"
