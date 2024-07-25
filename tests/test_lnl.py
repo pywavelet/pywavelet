@@ -111,10 +111,12 @@ def test_lisa_lnl(plot_dir):
 
 
 def test_lvk_lnl(plot_dir):
+    # FFT is different, need to divide by delta_t
     Nf = 128
-    signal_t, psd, snr = inject_signal_in_noise(mc=30, noise=False)
+    signal_f, psd, snr = inject_signal_in_noise(mc=30, noise=False)
+    
     data = Data.from_frequencyseries(
-        signal_t,
+        signal_f,
         Nf=Nf,
         mult=32,
     )

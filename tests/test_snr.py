@@ -59,9 +59,12 @@ def test_lisa_snr(plot_dir):
     print("Wavelet snr using freqseries = ", wavelet_snr_from_freqseries)
     print("snr is = ", snr)
 
-    # assert np.isclose(
-    #     snr, wavelet_snr, atol=1
-    # ), f"{snr} != {wavelet_snr}, wavelet/freq snr = {snr / wavelet_snr:.2f}"
+    assert np.isclose(
+        snr, wavelet_snr_from_timeseries, atol=1
+    ), f"{snr} != {wavelet_snr_from_timeseries}, wavelet/freq snr = {snr / wavelet_snr_from_timeseries:.2f}"
+    assert np.isclose(
+        snr, wavelet_snr_from_freqseries, atol=1
+    ), f"{snr} != {wavelet_snr_from_freqseries}, wavelet/freq snr = {snr / wavelet_snr_from_freqseries:.2f}"
 
 
 def test_snr_lvk(plot_dir):
@@ -89,8 +92,7 @@ def test_snr_lvk(plot_dir):
     # cool line
     SNR2_wavelet = np.nansum((data.wavelet * data.wavelet) / psd_wavelet)
     print("wavelet_SNR is", SNR2_wavelet ** (1 / 2))
-
-    # assert np.isclose(snr, wavelet_snr, atol=1)
+    assert np.isclose(snr, SNR2_wavelet**(1/2), atol=1)
 
 
 # pytest parameterize decorator
