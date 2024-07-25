@@ -59,12 +59,8 @@ def FFT(waveform: np.ndarray, taper=False) -> np.ndarray:
     the PSD (for which the frequency domain waveform is used with) is undefined at f = 0.
     """
     N = len(waveform)
-    if taper:
-        taper = tukey(N, 0.1)
-        waveform = zero_pad(waveform * taper)
-    else:
-        waveform = zero_pad(waveform)
-    return np.fft.rfft(waveform)[1:]
+    waveform = zero_pad(waveform)
+    return np.fft.rfft(waveform)
 
 
 def freq_PSD(waveform_t: np.ndarray, delta_t: float) -> FrequencySeries:
@@ -73,7 +69,9 @@ def freq_PSD(waveform_t: np.ndarray, delta_t: float) -> FrequencySeries:
     f = 0 frequency bin because the PSD is undefined there.
     """
     n_t = len(zero_pad(waveform_t))
-    freq = np.fft.rfftfreq(n_t, delta_t)[1:]
+    freq = np.fft.rfftfreq(n_t, delta_t)
+    freq[0] = freq[1] # Notice here that we redefine the zeroth frequency f = 0 to f = Delta f. 
+                      # this stops sn(f_0 = 0) = \infty 
     return lisa_psd_func(freq)
 
 
@@ -125,6 +123,7 @@ def get_lisa_data(a_true=5e-21, f_true=1e-3, fdot_true=1e-8, samp_interval=0.01)
     )  # Round length of time series to a power of two.
     t = t[:n]
     h_t = TimeSeries(waveform(a_true, f_true, fdot_true, t), t)
+
     psd = freq_PSD(h_t.data, delta_t)
     h_f = FrequencySeries(FFT(h_t.data), psd.freq)
     snr = optimal_snr(h_f.data, psd.data, delta_t, n)
