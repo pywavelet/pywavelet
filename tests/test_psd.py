@@ -25,7 +25,12 @@ def test_basic(plot_dir):
     psd, psd_f = get_lvk_psd()
     t_grid = np.linspace(0, 1, 64)
     f_grid = np.linspace(0, max(psd_f), 2048)
-    w = evolutionary_psd_from_stationary_psd(psd, psd_f, f_grid, t_grid)
+
+    N_t = len(t_grid)
+    N_f = len(f_grid)
+    N = N_t * N_f
+    dt = t_grid[-1]/N
+    w = evolutionary_psd_from_stationary_psd(psd, psd_f, f_grid, t_grid, dt)
 
     fig, ax = plt.subplots(1, 2, figsize=(10, 5), sharey=True)
     ax[0].loglog(psd, psd_f)
@@ -103,15 +108,18 @@ def test_lvk_psd(plot_dir):
     fs = 4096
     fmin, fmax = 20, fs / 2
 
+
     # Wavelet data from noise
+    N = 2**17 # Dimension of signal in time domain
     noise_ts = generate_noise_from_psd(
         psd_func=psd_func,
-        n_data=2**17,
+        n_data=N,
         fs=fs,
         noise_type=TimeSeries,
     )
 
     Nt = 128
+    Nf = N//Nt 
 
     wavelet_kwgs = dict(Nt=Nt, nx=4.0, mult=32)
     data = Data.from_timeseries(
@@ -153,10 +161,14 @@ def test_evolutionary_psd(plot_dir):
     def amp(t):
         return 1 + ALPHA_TRUE * np.cos(2 * np.pi * F_TRUE * t)
 
+    breakpoint()
     tmax = 120 * 60 * 60  # Final time
     fs = 0.1  # Sampling rate
     delta_t = 1 / fs  # Sampling interval -- largely oversampling here.
     n_data = 2 ** int(np.log(tmax / delta_t) / np.log(2))
+
+    freq = np.fft.rfftfreq(n_data, delta_t)
+    freq[0] = freq[1]
 
     q = int(np.log(n_data) / np.log(2))
     qf = int(q / 2) + 1
