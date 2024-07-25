@@ -33,7 +33,7 @@ def _get_bins(data: Union[TimeSeries, FrequencySeries], Nf=None, Nt=None):
     """
     T = data.duration
     if data.name == "Frequency Series":
-        N = 2*len(data)
+        N = len(data)
     elif data.name == "Time Series":
         N = len(data)
 
