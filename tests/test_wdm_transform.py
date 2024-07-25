@@ -1,7 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import pytest
-from pastamarkers import markers
 
 from pywavelet.data import Data
 from pywavelet.psd import evolutionary_psd_from_stationary_psd
