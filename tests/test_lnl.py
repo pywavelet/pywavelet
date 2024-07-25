@@ -71,8 +71,6 @@ def test_lisa_lnl(plot_dir):
     print("SNR wavelet  = ", SNR2_wavelet ** (1 / 2))
     print("SNR freq = ", SNR2_freq ** (1 / 2))
 
-    breakpoint()
-
     lnl = [lnl_func(a) for a in a_vals]
     lnl_wavelets = [wavelet_lnl_func(a) for a in a_vals]
     # lnl_wavelets = np.zeros(len(a_vals))

@@ -236,7 +236,7 @@ def MCMC_run(
         ####
         # Perform accept_reject call
         ####
-        # breakpoint()
+        #
         if accept_reject(lp_prop, lp_prev) == 1:  # Accept
             f_chain.append(f_prop)  # accept a_{prop} as new sample
             a_chain.append(a_prop)  # accept f_{prop} as new sample

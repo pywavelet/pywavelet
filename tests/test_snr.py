@@ -58,7 +58,6 @@ def test_lisa_snr(plot_dir):
     print("Wavelet snr using timeseries = ", wavelet_snr_from_timeseries)
     print("Wavelet snr using freqseries = ", wavelet_snr_from_freqseries)
     print("snr is = ", snr)
-    breakpoint()
 
     # assert np.isclose(
     #     snr, wavelet_snr, atol=1
@@ -89,7 +88,7 @@ def test_snr_lvk(plot_dir):
 
     SNR2_wavelet = np.nansum((data.wavelet * data.wavelet) / psd_wavelet)
     print("wavelet_SNR is", SNR2_wavelet ** (1 / 2))
-    breakpoint()
+
     # assert np.isclose(snr, wavelet_snr, atol=1)
 
 
@@ -149,7 +148,7 @@ def test_toy_model_snr(f0, T, A, PSD_AMP, Nf):
         dt=dt,
     )
     wavelet_snr2 = compute_snr(signal_wavelet, psd_wavelet) ** 2
-    breakpoint()
+
     assert np.isclose(
         wavelet_snr2, SNR2_t_analytical, atol=1e-2
     ), f"SNRs dont match {wavelet_snr2:.2f}!={SNR2_t_analytical:.2f} (factor:{SNR2_t_analytical/wavelet_snr2:.2f})"
