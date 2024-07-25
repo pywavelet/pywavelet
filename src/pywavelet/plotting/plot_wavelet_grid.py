@@ -31,12 +31,16 @@ def plot_wavelet_grid(
 
     norm = None
     if not absolute:
-        cmap = "bwr"
-        norm = TwoSlopeNorm(
-            vmin=np.min(wavelet_data), vcenter=0, vmax=np.max(wavelet_data)
-        )
+        try:
+            cmap = "bwr"
+            norm = TwoSlopeNorm(
+                vmin=np.min(wavelet_data), vcenter=0, vmax=np.max(wavelet_data)
+            )
+        except Exception:
+            cmap = "viridis"
     else:
         cmap = "viridis"
+
     if zscale == "log":
         norm = LogNorm(vmin=np.nanmin(z), vmax=np.nanmax(z))
 
