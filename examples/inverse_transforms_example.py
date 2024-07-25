@@ -167,15 +167,20 @@ print("SNR in wavelet domain is", SNR2_wavelet**(1/2))
 N_t = len(h_wavelet.time)
 N_f = len(h_wavelet.freq)
 
-h_t_pad = zero_pad(h_t)
-h_pos_fft = np.fft.rfft(h_t_pad)
 
-h_pos_neg_fft = np.fft.fftshift(np.fft.fft(h_t_pad))
+h_t_rescaled = waveform(1.0, f_true, fdot_true, t) 
 
-h_pos_neg_freq_series = FrequencySeries(h_pos_neg_fft, freq=freq)
-h_pos_freq_series = FrequencySeries(h_pos_fft, freq=freq)
+h_t_pad_rescaled = zero_pad(h_t_rescaled)
+h_pos_fft_rescaled = np.fft.rfft(h_t_pad_rescaled)
 
-h_f_from_wavelet = from_wavelet_to_freq(h_wavelet.data, N_f, N_t, delta_t)
+h_pos_freq_series_rescaled = FrequencySeries(h_pos_fft_rescaled, freq=freq)
+
+h_wavelet_rescaled = Data.from_frequencyseries(h_pos_freq_series_rescaled, **kwgs).wavelet
+
+h_t_from_wavelet_rescaled = from_wavelet_to_time(h_wavelet_rescaled, dt = delta_t)
+
+print("wavelet to time", h_t_from_wavelet_rescaled.data)
+print("original time", h_t_pad_rescaled)
 breakpoint()
 
 
