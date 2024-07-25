@@ -9,6 +9,7 @@ def inverse_wavelet_time_helper_fast(
     wave_in: np.ndarray, phi: np.ndarray, Nf: int, Nt: int, mult: int
 ) -> np.ndarray:
     """helper loop for fast inverse wavelet transform"""
+    breakpoint()
     ND = Nf * Nt
     K = mult * 2 * Nf
     # res = np.zeros(ND)
