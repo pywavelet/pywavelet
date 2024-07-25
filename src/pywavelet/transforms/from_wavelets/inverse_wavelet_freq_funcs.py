@@ -23,6 +23,24 @@ def inverse_wavelet_freq_helper_fast(
 
     return res
 
+@njit()
+def __pack_wave_inverse(m, Nt, Nf, prefactor2s, wave_in) -> None:
+    """helper for fast frequency domain inverse transform to prepare for fourier transform"""
+    if m == 0:
+        for n in range(0, Nt):
+            prefactor2s[n] = 2**(-1/2) * wave_in[(2 * n) % Nt, 0]
+    elif m == Nf:
+        for n in range(0, Nt):
+            prefactor2s[n] =  2**(-1/2) * wave_in[(2 * n) % Nt + 1, 0]
+    else:
+        for n in range(0, Nt):
+            val = wave_in[n, m]
+            if (n + m) % 2:
+                mult2 = -1j
+            else:
+                mult2 = 1
+
+            prefactor2s[n] = mult2 * val
 
 @njit()
 def __unpack_wave_inverse(
@@ -65,21 +83,4 @@ def __unpack_wave_inverse(
         res[Nt // 2 * m] = fft_prefactor2s[(Nt // 2 * m) % Nt] * phif[0]
 
 
-@njit()
-def __pack_wave_inverse(m, Nt, Nf, prefactor2s, wave_in) -> None:
-    """helper for fast frequency domain inverse transform to prepare for fourier transform"""
-    if m == 0:
-        for n in range(0, Nt):
-            prefactor2s[n] = 1 / np.sqrt(2) * wave_in[(2 * n) % Nt, 0]
-    elif m == Nf:
-        for n in range(0, Nt):
-            prefactor2s[n] = 1 / np.sqrt(2) * wave_in[(2 * n) % Nt + 1, 0]
-    else:
-        for n in range(0, Nt):
-            val = wave_in[n, m]
-            if (n + m) % 2:
-                mult2 = -1j
-            else:
-                mult2 = 1
 
-            prefactor2s[n] = mult2 * val
