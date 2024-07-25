@@ -20,49 +20,45 @@ def transform_wavelet_time_helper(
     data_pad = np.concatenate((data, data[:K]))
 
     for i in range(0, Nt):
-        __assign_wdata(i, K, ND, Nf, wdata, data_pad, phi)
-        # rfft --> real part of the fft (0 to Nf)
-        wdata_trans = fft.rfft(
-            wdata, K
-        )  # have to use rfft here because numba doesn't support rfft
-        # wdata_trans = np.sum(wdata) * np.exp(1j * np.pi * np.arange(0, 1+K//2) / K)
-        __pack_wave(i, mult, Nf, wdata_trans, wave)
+        __fill_wave(i, K, ND, Nf, wdata, data_pad, phi, mult, wave)
 
     return wave
 
 
-@njit()
-def __assign_wdata(
-    i: int,
+def __fill_wave(
+    t_bin: int,
     K: int,
     ND: int,
     Nf: int,
     wdata: np.ndarray,
     data_pad: np.ndarray,
     phi: np.ndarray,
+    mult,
+    wave,
 ) -> None:
     """Assign wdata to be FFT'd in a loop with K extra values on the right to loop."""
     # wrapping the data is needed to make the sum in Eq 13 in Cornish paper from [-K/2, K/2]
-    jj = (i * Nf - K // 2) % ND  # Periodically wrap the data
+    jj = (t_bin * Nf - K // 2) % ND  # Periodically wrap the data
     for j in range(K):
         # Eq 13 from Cornish paper
         wdata[j] = data_pad[jj] * phi[j]  # Apply the window
         jj = (jj + 1) % ND  # Periodically wrap the data
 
+    # rfft --> real part of the fft (0 to Nf)
+    # FIXME: this breaks njit beacause numba doesn't support rfft
+    wdata_trans = fft.rfft(wdata, K)
 
-@njit()
-def __pack_wave(
-    i: int, mult: int, Nf: int, wdata_trans: np.ndarray, wave: np.ndarray
-) -> None:
-    """pack fftd wdata into wave array"""
-    if i % 2 == 0 and i < wave.shape[0] - 1:
+    # wdata_trans = np.sum(wdata) * np.exp(1j * np.pi * np.arange(0, 1+K//2) / K)
+
+    # pack fft'd wdata into wave array
+    if t_bin % 2 == 0 and t_bin < wave.shape[0] - 1:  # if EVEN t_bin
         # m=0 value at even Nt and
-        wave[i, 0] = np.real(wdata_trans[0]) / np.sqrt(2)
-        wave[i + 1, 0] = np.real(wdata_trans[Nf * mult]) / np.sqrt(2)
+        wave[t_bin, 0] = np.real(wdata_trans[0]) / np.sqrt(2)
+        wave[t_bin + 1, 0] = np.real(wdata_trans[Nf * mult]) / np.sqrt(2)
 
     # Cnm in eq 13
     for j in range(1, Nf):
-        if (i + j) % 2:
-            wave[i, j] = -np.imag(wdata_trans[j * mult])
+        if (t_bin + j) % 2:
+            wave[t_bin, j] = -np.imag(wdata_trans[j * mult])
         else:
-            wave[i, j] = np.real(wdata_trans[j * mult])
+            wave[t_bin, j] = np.real(wdata_trans[j * mult])

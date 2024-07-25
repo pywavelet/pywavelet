@@ -1,6 +1,6 @@
 """helper functions for transform_freq"""
 import numpy as np
-from numba import njit
+from numba import jit, njit
 
 from pywavelet import fft_funcs as fft
 
@@ -31,21 +31,17 @@ def transform_wavelet_freq_helper(
     freq_strain = data.data  # Convert
     for m in range(0, Nf + 1):
         __fill_wave(m, Nt, Nf, DX, freq_strain, phif, wave)
-        DX_trans = fft.ifft(
-            DX, Nt
-        )  # have to use ifft here because nnumba doesn't support fft
-        __DX_unpack_loop(m, Nt, Nf, DX_trans, wave)
     return wave
 
 
-@njit()
-def __DX_assign_loop(
+def __fill_wave(
     m: int,
     Nt: int,
     Nf: int,
     DX: np.ndarray,
     data: np.ndarray,
     phif: np.ndarray,
+    wave: np.ndarray,
 ) -> None:
     """helper for assigning DX in the main loop"""
     i_base = Nt // 2
@@ -71,12 +67,9 @@ def __DX_assign_loop(
         else:
             DX[i] = phif[j] * data[jj]
 
+    # the following breaks njit (numba doesnt have fft)
+    DX_trans = fft.ifft(DX, Nt)
 
-@njit()
-def __DX_unpack_loop(
-    m: int, Nt: int, Nf: int, DX_trans: np.ndarray, wave: np.ndarray
-) -> None:
-    """helper for unpacking fftd DX in main loop"""
     if m == 0:
         # half of lowest and highest frequency bin pixels are redundant, so store them in even and odd components of m=0 respectively
         for n in range(0, Nt, 2):
