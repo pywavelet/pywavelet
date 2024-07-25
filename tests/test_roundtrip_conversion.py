@@ -24,86 +24,102 @@ ND = Nt * Nf
 ts = np.arange(0, ND) * dt
 
 
-def test_chirp_roundtrip(make_plots, plot_dir):
+def test_timedomain_chirp_roundtrip(make_plots, plot_dir):
     freq_range = [20, 100]
-    h_time = generate_chirp_time_domain_signal(ts, freq_range)
-    __run_checks(
-        h_time,
+    __run_timedomain_checks(
+        generate_chirp_time_domain_signal(ts, freq_range),
         Nt,
         mult,
         dt,
         freq_range,
         make_plots,
-        f"{plot_dir}/out_roundtrip/chirp.png",
+        f"{plot_dir}/out_roundtrip/chirp_time.png",
     )
 
 
-def test_sine_roundtrip(make_plots, plot_dir):
+def test_timedomain_sine_roundtrip(make_plots, plot_dir):
     f_true = 10
-    freq_range = [f_true - 5, f_true + 5]
-    h_time = generate_sine_time_domain_signal(ts, ND, f_true=f_true)
-    __run_checks(
-        h_time,
+    __run_timedomain_checks(
+        generate_sine_time_domain_signal(ts, ND, f_true=f_true),
+        Nt,
+        mult,
+        dt,
+        [f_true - 5, f_true + 5],
+        make_plots,
+        f"{plot_dir}/out_roundtrip/sine_time.png",
+    )
+
+
+def test_freqdomain_chirp_roundtrip(make_plots, plot_dir):
+    freq_range = [20, 100]
+    __run_freqdomain_checks(
+        generate_chirp_time_domain_signal(ts, freq_range),
         Nt,
         mult,
         dt,
         freq_range,
         make_plots,
-        f"{plot_dir}/out_roundtrip/sine.png",
+        f"{plot_dir}/out_roundtrip/chirp_freq.png",
     )
 
 
-def __run_checks(h_time, Nt, mult, dt, freq_range, make_plots, fname):
-    data_from_t = Data.from_timeseries(
-        h_time,
+def test_freqdomain_sine_roundtrip(make_plots, plot_dir):
+    f_true = 10
+    __run_freqdomain_checks(
+        generate_sine_time_domain_signal(ts, ND, f_true=f_true),
+        Nt,
+        mult,
+        dt,
+        [f_true - 5, f_true + 5],
+        make_plots,
+        f"{plot_dir}/out_roundtrip/sine_freq.png",
+    )
+
+
+def test_freqdomain_roundtrip(make_plots, plot_dir):
+    pass
+
+
+def __run_timedomain_checks(ht, Nt, mult, dt, freq_range, make_plots, fname):
+    data = Data.from_timeseries(
+        ht,
         Nt=Nt,
         mult=mult,
         minimum_frequency=freq_range[0],
         maximum_frequency=freq_range[1],
     )
-    h_freq = data_from_t.frequencyseries
-    data_from_f = Data.from_frequencyseries(h_freq, Nt=Nt, mult=mult)
-    h_reconstructed_from_time = from_wavelet_to_time(
-        data_from_t.wavelet, mult=mult, dt=dt
-    )
-    h_reconstructed_from_freq = from_wavelet_to_freq(
-        data_from_f.wavelet, dt=dt
-    )
+    h_reconstructed = from_wavelet_to_time(data.wavelet, mult=mult, dt=dt)
+    if make_plots:
+        os.makedirs(os.path.dirname(fname), exist_ok=True)
+        __make_plots(
+            ht,
+            h_reconstructed,
+            data,
+            fname=fname,
+        )
+    __check_residuals(ht.data - h_reconstructed.data, "t->wdm->t")
+
+
+def __run_freqdomain_checks(ht, Nt, mult, dt, freq_range, make_plots, fname):
+    hf = Data.from_timeseries(
+        ht,
+        Nt=Nt,
+        mult=mult,
+        minimum_frequency=freq_range[0],
+        maximum_frequency=freq_range[1],
+    ).frequencyseries
+    data = Data.from_frequencyseries(hf, Nt=Nt, mult=mult)
+    h_reconstructed = from_wavelet_to_freq(data.wavelet, dt=dt)
 
     if make_plots:
         os.makedirs(os.path.dirname(fname), exist_ok=True)
         __make_plots(
-            h_time,
-            h_reconstructed_from_time,
-            data_from_t,
-            fname=fname.replace(".png", "_time.png"),
+            hf,
+            h_reconstructed,
+            data,
+            fname,
         )
-        __make_plots(
-            h_freq,
-            h_reconstructed_from_freq,
-            data_from_f,
-            fname=fname.replace(".png", "_freq.png"),
-        )
-
-    residuals_f = (
-        data_from_t.frequencyseries.data - h_reconstructed_from_freq.data
-    )
-    f_mean, f_std = residuals_f.mean(), residuals_f.std()
-    assert (
-        np.abs(f_mean) < 0.1
-    ), f"Roundtrip [f->wdm->t] residual mean is {f_std} > 0.1"
-    assert (
-        np.abs(f_std) < 1
-    ), f"Roundtrip [f->wdm->t] residual std is {f_mean} > 1"
-
-    residuals_t = h_time.data - h_reconstructed_from_time.data
-    t_mean, t_std = residuals_t.mean(), residuals_t.std()
-    assert (
-        np.abs(t_mean) < 0.1
-    ), f"Roundtrip [t->wdm->t] residual mean is {t_mean} > 0.1"
-    assert (
-        np.abs(t_std) < 1
-    ), f"Roundtrip [t->wdm->t] residual std is {t_std} > 1"
+    __check_residuals(hf.data - h_reconstructed.data, "t->f->wdm->f")
 
 
 def __make_plots(h, h_reconstructed, data, fname):
@@ -112,3 +128,9 @@ def __make_plots(h, h_reconstructed, data, fname):
     plot_residuals(h.data - h_reconstructed.data, axes=axes[4:])
     plt.tight_layout()
     fig.savefig(fname, dpi=300)
+
+
+def __check_residuals(residuals, label):
+    mu, sig = np.mean(residuals), np.std(residuals)
+    assert np.abs(mu) < 0.1, f"Roundtrip [{label}] residual mean is {mu} > 0.1"
+    assert np.abs(sig) < 1, f"Roundtrip [{label}] residual std is {sig} > 1"
