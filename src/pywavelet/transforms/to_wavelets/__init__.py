@@ -81,5 +81,5 @@ def from_freq_to_wavelet(
     dt = data.dt
     phif = 2 / Nf * phitilde_vec_norm(Nf, Nt, dt=dt, d=nx)
     wave = transform_wavelet_freq_helper(data, Nf, Nt, phif)
-    wave = wave * np.sqrt(2) 
+    wave = wave * 2 **(1/2) 
     return wavelet_dataset(wave, time_grid=t_bins, freq_grid=f_bins, **kwargs)
