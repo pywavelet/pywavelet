@@ -22,7 +22,9 @@ def transform_wavelet_time_helper(
     for i in range(0, Nt):
         __assign_wdata(i, K, ND, Nf, wdata, data_pad, phi)
         # rfft --> real part of the fft (0 to Nf)
-        wdata_trans = fft.rfft(wdata, K)
+        wdata_trans = fft.rfft(
+            wdata, K
+        )  # have to use rfft here because numba doesn't support rfft
         # wdata_trans = np.sum(wdata) * np.exp(1j * np.pi * np.arange(0, 1+K//2) / K)
         __pack_wave(i, mult, Nf, wdata_trans, wave)
 

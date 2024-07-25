@@ -30,8 +30,10 @@ def transform_wavelet_freq_helper(
     DX = np.zeros(Nt, dtype=np.complex128)
     freq_strain = data.data  # Convert
     for m in range(0, Nf + 1):
-        __DX_assign_loop(m, Nt, Nf, DX, freq_strain, phif)
-        DX_trans = fft.ifft(DX, Nt)
+        __fill_wave(m, Nt, Nf, DX, freq_strain, phif, wave)
+        DX_trans = fft.ifft(
+            DX, Nt
+        )  # have to use ifft here because nnumba doesn't support fft
         __DX_unpack_loop(m, Nt, Nf, DX_trans, wave)
     return wave
 
