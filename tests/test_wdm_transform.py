@@ -1,5 +1,7 @@
+import matplotlib.pyplot as plt
 import numpy as np
 import pytest
+from pastamarkers import markers
 
 from pywavelet.data import Data
 from pywavelet.psd import evolutionary_psd_from_stationary_psd
@@ -9,12 +11,8 @@ from pywavelet.utils.lisa import get_lisa_data
 from pywavelet.utils.lvk import inject_signal_in_noise
 from pywavelet.utils.snr import compute_snr
 
-import matplotlib.pyplot as plt
-from pastamarkers import markers
-
 
 def test_toy_model_snr():
-
     A = 1e-3
     f0 = 1.0 * np.sqrt(3)
     T = 10000
@@ -39,33 +37,45 @@ def test_toy_model_snr():
     )  # continuous time fourier transform [seconds]
 
     import matplotlib.pyplot as plt
+
     # plt.stem(freq,abs(y_fft)**2,label = 'periodigram')
     # plt.xlabel(r'Frequency [Hz]')
     # plt.ylabel(r'Spectrogram')
     # plt.title('Checking Frequency Domain')
     # plt.show()
 
-
-    print("Analytical result of periodigram is, not taking into account leakage ", abs(len(t))**2 * A**2 / 4)
-    print("max value of periogram is = ",max(abs(y_fft)**2))
+    print(
+        "Analytical result of periodigram is, not taking into account leakage ",
+        abs(len(t)) ** 2 * A**2 / 4,
+    )
+    print("max value of periogram is = ", max(abs(y_fft) ** 2))
 
     # Now using sinusoids... this will be interesting
 
-
     m0 = f0 * N_t * dt
 
+    analytical_fft = (A / 2 * 1j) * np.array(
+        [
+            N_t
+            if k == m0 or k == -m0
+            else (
+                np.sin((1) * (np.pi * (m0 - k)))
+                / np.sin(np.pi / N_t * (m0 - k))
+                - np.sin((1) * np.pi * (m0 + k))
+                / np.sin(np.pi / N_t * (m0 + k))
+            )
+            for k in range(-N_t // 2, N_t // 2)
+        ]
+    )
 
-    analytical_fft = (A / 2*1j) * np.array([N_t if k == m0 or k == -m0 else 
-        (np.sin((1) *(np.pi * (m0 - k))) / np.sin(np.pi / N_t * (m0 - k)) - 
-        np.sin((1) * np.pi * (m0 + k)) / np.sin(np.pi / N_t * (m0 + k))) 
-        for k in range(-N_t//2, N_t//2)
-    ])
+    print(
+        "Now with leakage formula, what is max value? ",
+        max(abs(analytical_fft) ** 2),
+    )
 
-    print("Now with leakage formula, what is max value? ", max(abs(analytical_fft)**2))
-    
-    # analytical_fft = (A / 2*1j) * np.array([N_t if k == m0 or k == -m0 else 
-    #     (np.exp(-1j * 2*np.pi/N_t * (m0 - k)* (N_t - 1)/2) * np.sin((np.pi * (m0 - k))) / np.sin(np.pi / N_t * (m0 - k)) - 
-    #     np.exp(-1j * 2*np.pi/N_t * (m0 + k)* (N_t - 1)/2) * np.sin(np.pi * (m0 + k)) / np.sin(np.pi / N_t * (m0 + k))) 
+    # analytical_fft = (A / 2*1j) * np.array([N_t if k == m0 or k == -m0 else
+    #     (np.exp(-1j * 2*np.pi/N_t * (m0 - k)* (N_t - 1)/2) * np.sin((np.pi * (m0 - k))) / np.sin(np.pi / N_t * (m0 - k)) -
+    #     np.exp(-1j * 2*np.pi/N_t * (m0 + k)* (N_t - 1)/2) * np.sin(np.pi * (m0 + k)) / np.sin(np.pi / N_t * (m0 + k)))
     #     for k in range(-N_t//2, N_t//2)
     # ])
 
@@ -77,24 +87,42 @@ def test_toy_model_snr():
     # plt.legend()
     # plt.show()
 
-    plt.figure(figsize=(10, 6))  # Increase the figure size for better readability
+    plt.figure(
+        figsize=(10, 6)
+    )  # Increase the figure size for better readability
 
     # Plotting the numerical data
-    plt.plot(freq, abs(y_fft)**2, label='Numerical', color='blue', linestyle='-',  marker=markers.tortellini, alpha=0.7)
+    plt.plot(
+        freq,
+        abs(y_fft) ** 2,
+        label="Numerical",
+        color="blue",
+        linestyle="-",
+        marker=markers.tortellini,
+        alpha=0.7,
+    )
 
     # Plotting the analytical data
-    plt.plot(freq, abs(analytical_fft)**2, label='Analytical', color='red', marker = markers.stelline, linestyle='--', alpha=0.5)
+    plt.plot(
+        freq,
+        abs(analytical_fft) ** 2,
+        label="Analytical",
+        color="red",
+        marker=markers.stelline,
+        linestyle="--",
+        alpha=0.5,
+    )
 
     # Adding labels and title
-    plt.xlabel('Frequency [Hz]', fontsize=14)
-    plt.ylabel('Spectrogram', fontsize=14)
-    plt.title('Checking Frequency Domain', fontsize=16)
+    plt.xlabel("Frequency [Hz]", fontsize=14)
+    plt.ylabel("Spectrogram", fontsize=14)
+    plt.title("Checking Frequency Domain", fontsize=16)
 
     # Adding legend
     plt.legend(fontsize=12)
 
     # Displaying the plot
     plt.grid(True)  # Adding grid for better readability
-    plt.xlim([-f0-0.0002,-f0+0.0002])
+    plt.xlim([-f0 - 0.0002, -f0 + 0.0002])
     plt.show()
     breakpoint()

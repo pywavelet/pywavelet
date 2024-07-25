@@ -58,7 +58,9 @@ def from_time_to_wavelet(
     mult = min(mult, Nt // 2)  # make sure K isn't bigger than ND
     phi = phi_vec(Nf, dt=dt, d=nx, q=mult)
     wave = transform_wavelet_time_helper(data, Nf, Nt, phi, mult)
-    wave = wave * np.sqrt(2) #* dt #IMPORTANT -- for time to wavelet! Need this!!! 
+    wave = wave * np.sqrt(
+        2
+    )  # * dt #IMPORTANT -- for time to wavelet! Need this!!!
     return wavelet_dataset(wave, time_grid=t_bins, freq_grid=f_bins, **kwargs)
 
 

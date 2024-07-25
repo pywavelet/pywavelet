@@ -7,5 +7,3 @@ class LikelihoodBase(ABC):
 
     def log_likelihood(self, data, model):
         pass
-
-

@@ -1,14 +1,14 @@
 import numpy as np
-from numpy.random import normal
 import pytest
+from numpy.random import normal
 
 from pywavelet.data import Data
 from pywavelet.psd import evolutionary_psd_from_stationary_psd
 from pywavelet.transforms.types import FrequencySeries
-from pywavelet.utils.lisa import get_lisa_data, waveform, FFT, zero_pad
-
+from pywavelet.utils.lisa import FFT, get_lisa_data, waveform, zero_pad
 from pywavelet.utils.lvk import inject_signal_in_noise
 from pywavelet.utils.snr import compute_snr
+
 
 def test_lisa_lnl(plot_dir):
     np.random.seed(1234)
@@ -39,8 +39,9 @@ def test_lisa_lnl(plot_dir):
     )
 
     FM_estimate = a_true / SNR
-    a_vals = np.linspace(a_true-5*FM_estimate, a_true+5*FM_estimate, 100)
-
+    a_vals = np.linspace(
+        a_true - 5 * FM_estimate, a_true + 5 * FM_estimate, 100
+    )
 
     n = len(zero_pad(waveform(a_true, f_true, fdot_true, t)))
     variance_noise_f = n * psd.data / (4 * h_t.dt)
@@ -56,51 +57,59 @@ def test_lisa_lnl(plot_dir):
         h = Data.from_frequencyseries(hf, **kwgs).wavelet
         return -0.5 * np.nansum(((d - h) ** 2) / psd_wavelet)
 
-
     # Compute SNR, wavelets
     ht = waveform(a_true, f_true, fdot_true, t)
-    hf_discrete = FrequencySeries(FFT(ht), h_f.freq)    
-    hf_continuous = FrequencySeries(FFT(ht), h_f.freq)    
+    hf_discrete = FrequencySeries(FFT(ht), h_f.freq)
+    hf_continuous = FrequencySeries(FFT(ht), h_f.freq)
     h = Data.from_frequencyseries(hf_continuous, **kwgs).wavelet
 
-    SNR2_wavelet = np.nansum((h*h) / psd_wavelet)
-    SNR2_freq = 4*h_t.dt * np.sum(abs(hf_discrete.data)**2 / (n*psd.data))
+    SNR2_wavelet = np.nansum((h * h) / psd_wavelet)
+    SNR2_freq = (
+        4 * h_t.dt * np.sum(abs(hf_discrete.data) ** 2 / (n * psd.data))
+    )
 
-    print("SNR wavelet  = ",SNR2_wavelet**(1/2))
-    print("SNR freq = ", SNR2_freq**(1/2))
+    print("SNR wavelet  = ", SNR2_wavelet ** (1 / 2))
+    print("SNR freq = ", SNR2_freq ** (1 / 2))
 
     breakpoint()
 
-    lnl =  [lnl_func(a) for a in a_vals]
+    lnl = [lnl_func(a) for a in a_vals]
     lnl_wavelets = [wavelet_lnl_func(a) for a in a_vals]
     # lnl_wavelets = np.zeros(len(a_vals))
 
     import matplotlib.pyplot as plt
-    fig, axes = plt.subplots(2,1, sharex=True)
+
+    fig, axes = plt.subplots(2, 1, sharex=True)
     axes[0].plot(a_vals, lnl)
     axes[1].plot(a_vals, lnl_wavelets)
     axes[0].set_ylabel("LnL (freq domain)")
     axes[1].set_ylabel("LnL (WDM domain)")
     for ax in axes:
-        ax.axvline(a_true, color='k', linestyle='--')
+        ax.axvline(a_true, color="k", linestyle="--")
         ax.set_xlabel("A from $A\sin(2\pi (ft + 0.5 * \dot{f} t^2))$")
     plt.tight_layout()
-    plt.savefig(f'{plot_dir}/lnl.png', dpi=300)
+    plt.savefig(f"{plot_dir}/lnl.png", dpi=300)
 
     # plot likelihood with FM estimate.
     A = a_true
     plt.figure()
-    plt.plot(a_vals, np.exp(np.array(lnl_wavelets)), label = 'WDM domain')
-    plt.axvline(x = A - FM_estimate, label = 'FM', c = 'black')
-    plt.axvline(x = A + FM_estimate, label = 'FM', c = 'black')
+    plt.plot(a_vals, np.exp(np.array(lnl_wavelets)), label="WDM domain")
+    plt.axvline(x=A - FM_estimate, label="FM", c="black")
+    plt.axvline(x=A + FM_estimate, label="FM", c="black")
     # twin axes
     ax = plt.gca()
     ax2 = ax.twinx()
-    ax2.plot(a_vals, np.exp(np.array(lnl)), ls='--', color='tab:orange', label='Freq domain')
-    ax2.legend(loc='upper right', frameon=False)
+    ax2.plot(
+        a_vals,
+        np.exp(np.array(lnl)),
+        ls="--",
+        color="tab:orange",
+        label="Freq domain",
+    )
+    ax2.legend(loc="upper right", frameon=False)
     ax.set_ylabel("Posterior")
-    ax.legend(loc='upper left', frameon=False)
-    plt.savefig(f'{plot_dir}/lnl_fm.png', dpi=300)
+    ax.legend(loc="upper left", frameon=False)
+    plt.savefig(f"{plot_dir}/lnl_fm.png", dpi=300)
 
 
 def test_lvk_lnl(plot_dir):

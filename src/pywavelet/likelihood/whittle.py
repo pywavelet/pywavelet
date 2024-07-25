@@ -16,8 +16,9 @@ where
 
 
 """
-from ..transforms.types import Wavelet
 import numpy as np
+
+from ..transforms.types import Wavelet
 
 
 def whittle_likelihood(d: Wavelet, h: Wavelet, psd: Wavelet) -> float:

@@ -4,9 +4,8 @@ import pytest
 
 from pywavelet.data import Data
 from pywavelet.psd import evolutionary_psd_from_stationary_psd
-from pywavelet.transforms.to_wavelets import from_time_to_wavelet 
-
-from pywavelet.transforms.types import TimeSeries,FrequencySeries
+from pywavelet.transforms.to_wavelets import from_time_to_wavelet
+from pywavelet.transforms.types import FrequencySeries, TimeSeries
 from pywavelet.utils.lisa import get_lisa_data
 from pywavelet.utils.lvk import inject_signal_in_noise
 from pywavelet.utils.snr import compute_snr
@@ -23,10 +22,9 @@ def test_lisa_snr(plot_dir):
         Nf=Nf,
         mult=16,
     )
- 
+
     data_from_freqseries = Data.from_frequencyseries(
-        frequencyseries=h_f,
-        Nf=Nf
+        frequencyseries=h_f, Nf=Nf
     )
 
     psd_wavelet_time = evolutionary_psd_from_stationary_psd(
@@ -37,19 +35,29 @@ def test_lisa_snr(plot_dir):
         dt=h_t.dt,
     )
     psd_wavelet_freq = evolutionary_psd_from_stationary_psd(
-            psd=psd.data,
-            psd_f=psd.freq,
-            f_grid=data_from_freqseries.wavelet.freq,
-            t_grid=data_from_freqseries.wavelet.time,
-            dt=h_t.dt,
+        psd=psd.data,
+        psd_f=psd.freq,
+        f_grid=data_from_freqseries.wavelet.freq,
+        t_grid=data_from_freqseries.wavelet.time,
+        dt=h_t.dt,
+    )
+
+    wavelet_snr_from_timeseries = np.sqrt(
+        np.nansum(
+            (data_from_timeseries.wavelet * data_from_timeseries.wavelet)
+            / psd_wavelet_time
         )
+    )
+    wavelet_snr_from_freqseries = np.sqrt(
+        np.nansum(
+            (data_from_freqseries.wavelet * data_from_freqseries.wavelet)
+            / psd_wavelet_freq
+        )
+    )
 
-    wavelet_snr_from_timeseries = np.sqrt(np.nansum((data_from_timeseries.wavelet * data_from_timeseries.wavelet) / psd_wavelet_time))
-    wavelet_snr_from_freqseries = np.sqrt(np.nansum((data_from_freqseries.wavelet * data_from_freqseries.wavelet) / psd_wavelet_freq))
-
-    print("Wavelet snr using timeseries = ",wavelet_snr_from_timeseries)
-    print("Wavelet snr using freqseries = ",wavelet_snr_from_freqseries)
-    print("snr is = ",snr)
+    print("Wavelet snr using timeseries = ", wavelet_snr_from_timeseries)
+    print("Wavelet snr using freqseries = ", wavelet_snr_from_freqseries)
+    print("snr is = ", snr)
     breakpoint()
 
     # assert np.isclose(
@@ -59,8 +67,11 @@ def test_lisa_snr(plot_dir):
 
 def test_snr_lvk(plot_dir):
     Nf = 128
-    h_f, psd, snr = inject_signal_in_noise(mc=30, noise=False, )
-    h_f = FrequencySeries(data=h_f/h_f.dt, freq=h_f.freq)
+    h_f, psd, snr = inject_signal_in_noise(
+        mc=30,
+        noise=False,
+    )
+    h_f = FrequencySeries(data=h_f / h_f.dt, freq=h_f.freq)
     data = Data.from_frequencyseries(
         h_f,
         Nf=Nf,
@@ -75,9 +86,9 @@ def test_snr_lvk(plot_dir):
         t_grid=data.wavelet.time.data,
         dt=h_f.dt,
     )
-    
+
     SNR2_wavelet = np.nansum((data.wavelet * data.wavelet) / psd_wavelet)
-    print("wavelet_SNR is", SNR2_wavelet**(1/2))
+    print("wavelet_SNR is", SNR2_wavelet ** (1 / 2))
     breakpoint()
     # assert np.isclose(snr, wavelet_snr, atol=1)
 
@@ -142,4 +153,3 @@ def test_toy_model_snr(f0, T, A, PSD_AMP, Nf):
     assert np.isclose(
         wavelet_snr2, SNR2_t_analytical, atol=1e-2
     ), f"SNRs dont match {wavelet_snr2:.2f}!={SNR2_t_analytical:.2f} (factor:{SNR2_t_analytical/wavelet_snr2:.2f})"
-
