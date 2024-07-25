@@ -5,7 +5,7 @@ from numba import jit, njit
 from pywavelet import fft_funcs as fft
 
 
-@njit()
+@njit
 def tukey(data: np.ndarray, alpha: float, N: int) -> None:
     """apply tukey window function to data"""
     imin = np.int64(alpha * (N - 1) / 2)
@@ -29,13 +29,13 @@ def transform_wavelet_freq_helper(
 
     DX = np.zeros(Nt, dtype=np.complex128)
     freq_strain = data.data  # Convert
-    for m in range(0, Nf + 1):
-        __fill_wave(m, Nt, Nf, DX, freq_strain, phif, wave)
+    for f_bin in range(0, Nf + 1):
+        __fill_wave(f_bin, Nt, Nf, DX, freq_strain, phif, wave)
     return wave
 
 
 def __fill_wave(
-    m: int,
+    f_bin: int,
     Nt: int,
     Nf: int,
     DX: np.ndarray,
@@ -45,22 +45,22 @@ def __fill_wave(
 ) -> None:
     """helper for assigning DX in the main loop"""
     i_base = Nt // 2
-    jj_base = m * Nt // 2
+    jj_base = f_bin * Nt // 2
 
-    if m == 0 or m == Nf:
+    if f_bin == 0 or f_bin == Nf:
         # NOTE this term appears to be needed to recover correct constant (at least for m=0), but was previously missing
-        DX[Nt // 2] = phif[0] * data[m * Nt // 2] / 2.0
-        DX[Nt // 2] = phif[0] * data[m * Nt // 2] / 2.0
+        DX[Nt // 2] = phif[0] * data[f_bin * Nt // 2] / 2.0
+        DX[Nt // 2] = phif[0] * data[f_bin * Nt // 2] / 2.0
     else:
-        DX[Nt // 2] = phif[0] * data[m * Nt // 2]
-        DX[Nt // 2] = phif[0] * data[m * Nt // 2]
+        DX[Nt // 2] = phif[0] * data[f_bin * Nt // 2]
+        DX[Nt // 2] = phif[0] * data[f_bin * Nt // 2]
 
     for jj in range(jj_base + 1 - Nt // 2, jj_base + Nt // 2):
         j = np.abs(jj - jj_base)
         i = i_base - jj_base + jj
-        if m == Nf and jj > jj_base:
+        if f_bin == Nf and jj > jj_base:
             DX[i] = 0.0
-        elif m == 0 and jj < jj_base:
+        elif f_bin == 0 and jj < jj_base:
             DX[i] = 0.0
         elif j == 0:
             continue
@@ -70,22 +70,22 @@ def __fill_wave(
     # the following breaks njit (numba doesnt have fft)
     DX_trans = fft.ifft(DX, Nt)
 
-    if m == 0:
-        # half of lowest and highest frequency bin pixels are redundant, so store them in even and odd components of m=0 respectively
+    if f_bin == 0:
+        # half of lowest and highest frequency bin pixels are redundant, so store them in even and odd components of f_bin=0 respectively
         for n in range(0, Nt, 2):
             wave[n, 0] = np.real(DX_trans[n] * np.sqrt(2))
-    elif m == Nf:
+    elif f_bin == Nf:
         for n in range(0, Nt, 2):
             wave[n + 1, 0] = np.real(DX_trans[n] * np.sqrt(2))
     else:
         for n in range(0, Nt):
-            if m % 2:
-                if (n + m) % 2:
-                    wave[n, m] = -np.imag(DX_trans[n])
+            if f_bin % 2:
+                if (n + f_bin) % 2:
+                    wave[n, f_bin] = -np.imag(DX_trans[n])
                 else:
-                    wave[n, m] = np.real(DX_trans[n])
+                    wave[n, f_bin] = np.real(DX_trans[n])
             else:
-                if (n + m) % 2:
-                    wave[n, m] = np.imag(DX_trans[n])
+                if (n + f_bin) % 2:
+                    wave[n, f_bin] = np.imag(DX_trans[n])
                 else:
-                    wave[n, m] = np.real(DX_trans[n])
+                    wave[n, f_bin] = np.real(DX_trans[n])
