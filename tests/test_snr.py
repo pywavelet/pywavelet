@@ -116,6 +116,7 @@ def test_toy_model_snr(f0, T, A, PSD_AMP, Nf):
     SNR2_f = 2 * np.sum(abs(y_fft) ** 2 / PSD) * df
     SNR2_t = 2 * dt * np.sum(abs(y) ** 2 / PSD)
     SNR2_t_analytical = (A**2) * T / PSD[0]
+
     assert np.isclose(
         SNR2_t, SNR2_t_analytical, atol=0.01
     ), f"{SNR2_t}!={SNR2_t_analytical}"
