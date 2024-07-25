@@ -47,7 +47,8 @@ dev = [
     "pycbc",
     "bilby",
     "jupyter-book",
-    "GitPython"
+    "GitPython",
+    "pastamarkers"
 ]
 
 [tool.setuptools_scm]

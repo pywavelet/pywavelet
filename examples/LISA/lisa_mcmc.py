@@ -236,7 +236,7 @@ def MCMC_run(
         ####
         # Perform accept_reject call
         ####
-        # breakpoint()
+        #
         if accept_reject(lp_prop, lp_prev) == 1:  # Accept
             f_chain.append(f_prop)  # accept a_{prop} as new sample
             a_chain.append(a_prop)  # accept f_{prop} as new sample
@@ -300,7 +300,7 @@ N_f = len(variance_noise_f)  # Length of signal in frequency domain
 noise_f = np.random.normal(
     0, np.sqrt(variance_noise_f), N_f
 ) + 1j * np.random.normal(0, np.sqrt(variance_noise_f), N_f)
-data_f = h_true_f + 0*noise_f  # Construct data stream
+data_f = h_true_f + 0 * noise_f  # Construct data stream
 # %%
 
 
@@ -367,8 +367,10 @@ samples_burned = [
 ]
 
 
-os.chdir('/Users/alexander_burke/Documents/LISA_Science/Projects/Noise/pywavelet/examples/LISA/data/freq_domain')
-np.save("samples", samples_burned )
+os.chdir(
+    "/Users/alexander_burke/Documents/LISA_Science/Projects/Noise/pywavelet/examples/LISA/data/freq_domain"
+)
+np.save("samples", samples_burned)
 
 # Plot corner plot
 samples = np.column_stack(samples_burned)  # Stack samples to plot corner plot

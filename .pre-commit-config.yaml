@@ -1,9 +1,4 @@
 repos:
-  - repo: https://github.com/Lucas-C/pre-commit-hooks
-    rev: v1.5.4
-    hooks:
-      - id: forbid-crlf
-      - id: remove-crlf
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.5.0
     hooks:
@@ -21,7 +16,6 @@ repos:
     rev: 23.10.0
     hooks:
       - id: black
-        language_version: python3.8
   - repo: https://github.com/psf/black
     rev: "23.10.0"
     hooks:

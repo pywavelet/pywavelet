@@ -6,7 +6,7 @@ from .. import fft_funcs as fft
 PI = np.pi
 
 
-def phitilde_vec(ω: np.ndarray, Nf: int, dt:float, d=4.0) -> np.ndarray:
+def phitilde_vec(ω: np.ndarray, Nf: int, dt: float, d=4.0) -> np.ndarray:
     """Compute phi_tilde(omega_i) array, nx is filter steepness, defaults to 4.
 
     Eq 11 of https://arxiv.org/pdf/2009.00043.pdf (Cornish et al. 2020)
@@ -34,7 +34,7 @@ def phitilde_vec(ω: np.ndarray, Nf: int, dt:float, d=4.0) -> np.ndarray:
         Array of phi_tilde(omega_i) values
 
     """
-    ΔF = 1.0 / (2 * Nf)  # NOTE: added missing 1/dt, EQ 7 in Cornish paper?
+    ΔF = 1.0 / (2 * Nf)  # NOTE: missing 1/dt?
     ΔΩ = 2 * PI * ΔF  # Near Eq 10 # 2 pi times DF
     inverse_sqrt_ΔΩ = 1.0 / np.sqrt(ΔΩ)
 
@@ -43,7 +43,7 @@ def phitilde_vec(ω: np.ndarray, Nf: int, dt:float, d=4.0) -> np.ndarray:
 
     phi = np.zeros(ω.size)
     mask = (A <= np.abs(ω)) & (np.abs(ω) < A + B)
-    vd = (PI / 2.0) * __νd(ω[mask], A, B, d=d) # different from paper
+    vd = (PI / 2.0) * __νd(ω[mask], A, B, d=d)  # different from paper
     phi[mask] = inverse_sqrt_ΔΩ * np.cos(vd)
     phi[np.abs(ω) < A] = inverse_sqrt_ΔΩ
     return phi
@@ -78,7 +78,7 @@ def __νd(ω, A, B, d=4.0):
     return numerator / denominator
 
 
-def phitilde_vec_norm(Nf: int, Nt: int, dt:float, d: int) -> np.ndarray:
+def phitilde_vec_norm(Nf: int, Nt: int, dt: float, d: int) -> np.ndarray:
     """Normalize phitilde for inverse frequency domain transform."""
 
     # Calculate the frequency values
@@ -112,10 +112,14 @@ def phi_vec(Nf: int, dt, d: float = 4.0, q: int = 16) -> np.ndarray:
 
     DX = DX.copy()
     # postive frequencies
-    DX[1 : half_K + 1] = phitilde_vec(dom * np.arange(1, half_K + 1), Nf, dt, d)
+    DX[1 : half_K + 1] = phitilde_vec(
+        dom * np.arange(1, half_K + 1), Nf, dt, d
+    )
     # negative frequencies
-    DX[half_K + 1 :] = phitilde_vec(-dom * np.arange(half_K - 1, 0, -1), Nf,  dt, d)
-    DX = K * fft.ifft(DX, K) 
+    DX[half_K + 1 :] = phitilde_vec(
+        -dom * np.arange(half_K - 1, 0, -1), Nf, dt, d
+    )
+    DX = K * fft.ifft(DX, K)
 
     phi = np.zeros(K)
     phi[0:half_K] = np.real(DX[half_K:K])
