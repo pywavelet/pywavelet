@@ -25,7 +25,7 @@ def test_basic(plot_dir):
     psd, psd_f = get_lvk_psd()
     t_grid = np.linspace(0, 1, 64)
     f_grid = np.linspace(0, max(psd_f), 2048)
-    w = evolutionary_psd_from_stationary_psd(psd, psd_f, f_grid, t_grid)
+    w = evolutionary_psd_from_stationary_psd(psd, psd_f, f_grid, t_grid, 1)
 
     fig, ax = plt.subplots(1, 2, figsize=(10, 5), sharey=True)
     ax[0].loglog(psd, psd_f)

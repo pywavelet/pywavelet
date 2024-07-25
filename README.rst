@@ -26,5 +26,5 @@ For developers
 
 .. code-block::
 
-    $ pip install .[dev]
+    $ pip install -e .[dev]
     $ pre-commit install

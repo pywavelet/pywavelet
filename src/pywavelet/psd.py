@@ -83,7 +83,9 @@ def generate_noise_from_psd(
     # Compute the PSD (or the spectrum matrix)
     psd_f = psd_func(np.abs(f))
 
-    if psd_f.ndim == 1:
+    ndim = 1
+    assert ndim == 1, "Only 1D PSDs are supported {}D given".format(ndim)
+    if ndim == 1:
         psd_sqrt = np.sqrt(psd_f)
         # Real part of the Noise fft : it is a gaussian random variable
         noise_tf_real = (
@@ -104,7 +106,7 @@ def generate_noise_from_psd(
         noise_tf = noise_tf_real + 1j * noise_tf_im
 
     # To get a real valued signal we must have NoiseTF(-f) = NoiseTF*
-    if (n_psd % 2 == 0) & (psd_f.ndim == 1):
+    if (n_psd % 2 == 0) & (ndim == 1):
         # The TF at Nyquist frequency must be real in the case of an even
         # number of data
         noise_sym0 = np.array([psd_sqrt[n_fft + 1] * np.random.normal(0, 1)])
@@ -112,7 +114,7 @@ def generate_noise_from_psd(
         noise_tf = np.hstack(
             (noise_tf, noise_sym0, np.conj(noise_tf[1 : n_fft + 1])[::-1])
         )
-    elif (n_psd % 2 != 0) & (psd_f.ndim == 1):
+    elif (n_psd % 2 != 0) & (ndim == 1):
         noise_tf = np.hstack(
             (noise_tf, np.conj(noise_tf[1 : n_fft + 1])[::-1])
         )
