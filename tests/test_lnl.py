@@ -113,10 +113,8 @@ def test_lisa_lnl(plot_dir):
 def test_lvk_lnl(plot_dir):
     Nf = 128
     signal_t, psd, snr = inject_signal_in_noise(mc=30, noise=False)
-    data = Data.from_timeseries(
+    data = Data.from_frequencyseries(
         signal_t,
-        minimum_frequency=psd.minimum_frequency,
-        maximum_frequency=psd.maximum_frequency,
         Nf=Nf,
         mult=32,
     )
@@ -129,4 +127,6 @@ def test_lvk_lnl(plot_dir):
     )
     data.plot_wavelet()
     wavelet_snr = compute_snr(data.wavelet, psd_wavelet)
-    assert np.isclose(snr, wavelet_snr, atol=1)
+    assert np.isclose(
+        snr, wavelet_snr, atol=1
+    ), f"LVK SNR mismatch {snr} != {wavelet_snr}"

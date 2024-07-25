@@ -12,7 +12,7 @@ from pywavelet.utils.lvk import inject_signal_in_noise
 from pywavelet.utils.snr import compute_snr
 
 
-def test_toy_model_snr():
+def test_toy_model_snr(plot_dir):
     A = 1e-3
     f0 = 1.0 * np.sqrt(3)
     T = 10000
@@ -35,8 +35,6 @@ def test_toy_model_snr():
     y_fft = np.fft.fftshift(
         np.fft.fft(y)
     )  # continuous time fourier transform [seconds]
-
-    import matplotlib.pyplot as plt
 
     # plt.stem(freq,abs(y_fft)**2,label = 'periodigram')
     # plt.xlabel(r'Frequency [Hz]')
@@ -124,4 +122,4 @@ def test_toy_model_snr():
     # Displaying the plot
     plt.grid(True)  # Adding grid for better readability
     plt.xlim([-f0 - 0.0002, -f0 + 0.0002])
-    plt.show()
+    plt.savefig(f"{plot_dir}/test_toy_model_snr.png")
