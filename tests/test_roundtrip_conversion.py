@@ -72,17 +72,29 @@ def test_freqdomain_chirp_roundtrip(make_plots, plot_dir):
 
 def test_freqdomain_sine_roundtrip(make_plots, plot_dir):
     f_true = 10
+    ND = 32 * 32
+    # ts = np.arange(0, ND) * dt
     # freqseries = generate_sine_time_domain_signal(ts, ND, f_true=f_true)
     # hf = Data.from_timeseries(freqseries, Nt=Nt, mult=mult).frequencyseries
 
     # Create the frequency array (one-sided)
-    ND = 32 * 32
-    frequencies = np.fft.fftshift(np.fft.fftfreq(ND, d=dt))
-    frequencies = frequencies[ND // 2 :]
-    frequencies = np.append(frequencies, fs)
-    freq_index = np.where(np.isclose(frequencies, f_true))[0][0]
-    fft_data = np.zeros(ND + 1, dtype=complex)
-    fft_data[freq_index] = 1
+    one_sided = True
+
+    if one_sided:
+        frequencies = np.fft.fftshift(np.fft.fftfreq(ND, d=dt))
+        frequencies = frequencies[ND // 2 :]
+        frequencies = np.append(frequencies, fs)
+        freq_index = np.where(np.isclose(frequencies, f_true))[0][0]
+        fft_data = np.zeros(ND + 1, dtype=complex)
+        fft_data[freq_index] = 1
+    else:
+        frequencies = np.fft.fftshift(np.fft.fftfreq(ND, d=dt))
+        frequencies = np.append(frequencies, fs / 2)
+        freq_index = np.where(np.isclose(frequencies, f_true))[0][0]
+        neg_freq_index = np.where(np.isclose(frequencies, -f_true))[0][0]
+        fft_data = np.zeros(ND, dtype=complex)
+        fft_data[freq_index] = 1
+        fft_data[neg_freq_index] = 1
 
     ## THIS MAKES THE SIGNAL --> ND+1 IN LEN
 
@@ -96,10 +108,6 @@ def test_freqdomain_sine_roundtrip(make_plots, plot_dir):
         make_plots,
         f"{plot_dir}/out_roundtrip/sine_freq.png",
     )
-
-
-def test_freqdomain_roundtrip(make_plots, plot_dir):
-    pass
 
 
 def __run_timedomain_checks(ht, Nt, mult, dt, freq_range, make_plots, fname):
@@ -123,7 +131,7 @@ def __run_timedomain_checks(ht, Nt, mult, dt, freq_range, make_plots, fname):
 
 
 def __run_freqdomain_checks(hf, Nt, mult, dt, make_plots, fname):
-    data = Data.from_frequencyseries(hf, Nt=Nt, mult=mult)
+    data = Data.from_frequencyseries(hf, Nt=Nt, mult=mult, roll_off=0)
     h_reconstructed = from_wavelet_to_freq(data.wavelet, dt=dt)
 
     if make_plots:

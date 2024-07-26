@@ -28,7 +28,7 @@ def transform_wavelet_freq_helper(
     wave = np.zeros((Nt, Nf))  # wavelet wavepacket transform of the signal
 
     DX = np.zeros(Nt, dtype=np.complex128)
-    freq_strain = data.data  # Convert
+    freq_strain = data.data.copy()  # Convert
     for f_bin in range(0, Nf + 1):
         __fill_wave(f_bin, Nt, Nf, DX, freq_strain, phif, wave)
     return wave
