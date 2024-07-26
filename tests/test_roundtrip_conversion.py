@@ -9,14 +9,15 @@ from utils import (
     plot_residuals,
 )
 
-from pywavelet.data import Data, TimeSeries
+from pywavelet.data import Data, FrequencySeries, TimeSeries
 from pywavelet.transforms import (
     from_time_to_wavelet,
     from_wavelet_to_freq,
     from_wavelet_to_time,
 )
 
-dt = 1 / 512
+fs = 512
+dt = 1 / fs
 Nt = 2**6
 Nf = 2**6
 mult = 16
@@ -52,12 +53,18 @@ def test_timedomain_sine_roundtrip(make_plots, plot_dir):
 
 def test_freqdomain_chirp_roundtrip(make_plots, plot_dir):
     freq_range = [20, 100]
-    __run_freqdomain_checks(
+    hf = Data.from_timeseries(
         generate_chirp_time_domain_signal(ts, freq_range),
+        Nt=Nt,
+        mult=mult,
+        minimum_frequency=freq_range[0],
+        maximum_frequency=freq_range[1],
+    ).frequencyseries
+    __run_freqdomain_checks(
+        hf,
         Nt,
         mult,
         dt,
-        freq_range,
         make_plots,
         f"{plot_dir}/out_roundtrip/chirp_freq.png",
     )
@@ -65,19 +72,42 @@ def test_freqdomain_chirp_roundtrip(make_plots, plot_dir):
 
 def test_freqdomain_sine_roundtrip(make_plots, plot_dir):
     f_true = 10
+    ND = 32 * 32
+    # ts = np.arange(0, ND) * dt
+    # freqseries = generate_sine_time_domain_signal(ts, ND, f_true=f_true)
+    # hf = Data.from_timeseries(freqseries, Nt=Nt, mult=mult).frequencyseries
+
+    # Create the frequency array (one-sided)
+    one_sided = True
+
+    if one_sided:
+        frequencies = np.fft.fftshift(np.fft.fftfreq(ND, d=dt))
+        frequencies = frequencies[ND // 2 :]
+        frequencies = np.append(frequencies, fs)
+        freq_index = np.where(np.isclose(frequencies, f_true))[0][0]
+        fft_data = np.zeros(ND + 1, dtype=complex)
+        fft_data[freq_index] = 1
+    else:
+        frequencies = np.fft.fftshift(np.fft.fftfreq(ND, d=dt))
+        frequencies = np.append(frequencies, fs / 2)
+        freq_index = np.where(np.isclose(frequencies, f_true))[0][0]
+        neg_freq_index = np.where(np.isclose(frequencies, -f_true))[0][0]
+        fft_data = np.zeros(ND, dtype=complex)
+        fft_data[freq_index] = 1
+        fft_data[neg_freq_index] = 1
+
+    ## THIS MAKES THE SIGNAL --> ND+1 IN LEN
+
+    freqseries = FrequencySeries(data=fft_data, freq=frequencies)
+
     __run_freqdomain_checks(
-        generate_sine_time_domain_signal(ts, ND, f_true=f_true),
-        Nt,
+        freqseries,
+        32,
         mult,
         dt,
-        [f_true - 5, f_true + 5],
         make_plots,
         f"{plot_dir}/out_roundtrip/sine_freq.png",
     )
-
-
-def test_freqdomain_roundtrip(make_plots, plot_dir):
-    pass
 
 
 def __run_timedomain_checks(ht, Nt, mult, dt, freq_range, make_plots, fname):
@@ -100,15 +130,8 @@ def __run_timedomain_checks(ht, Nt, mult, dt, freq_range, make_plots, fname):
     __check_residuals(ht.data - h_reconstructed.data, "t->wdm->t")
 
 
-def __run_freqdomain_checks(ht, Nt, mult, dt, freq_range, make_plots, fname):
-    hf = Data.from_timeseries(
-        ht,
-        Nt=Nt,
-        mult=mult,
-        minimum_frequency=freq_range[0],
-        maximum_frequency=freq_range[1],
-    ).frequencyseries
-    data = Data.from_frequencyseries(hf, Nt=Nt, mult=mult)
+def __run_freqdomain_checks(hf, Nt, mult, dt, make_plots, fname):
+    data = Data.from_frequencyseries(hf, Nt=Nt, mult=mult, roll_off=0)
     h_reconstructed = from_wavelet_to_freq(data.wavelet, dt=dt)
 
     if make_plots:
