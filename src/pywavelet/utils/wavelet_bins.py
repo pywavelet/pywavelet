@@ -10,11 +10,11 @@ def _preprocess_bins(
 ):
     """preprocess the bins"""
 
-    # if data.name == "Frequency Series":
-    #     N = 2*len(data)
-    # elif data.name == "Time Series":
-    #     N = len(data)
-    N = len(data)
+
+    if data.name == "Frequency Series" and np.all(data.freq >= 0):  
+        N = 2*(len(data) - 1)
+    else: # Two sided transform OR time series
+        N = len(data)
 
     if Nt is not None and Nf is None:
         assert 1 <= Nt <= N, f"Nt={Nt} must be between 1 and N={N}"
@@ -33,11 +33,10 @@ def _get_bins(data: Union[TimeSeries, FrequencySeries], Nf=None, Nt=None):
     Eq 4-6 in Wavelets paper
     """
     T = data.duration
-    # if data.name == "Frequency Series":
-    #     N = 2*len(data)
-    # elif data.name == "Time Series":
-    #     N = len(data)
-    N = len(data)
+    if data.name == "Frequency Series" and np.all(data.freq >= 0):  
+        N = 2*(len(data) - 1)
+    else: # Two sided transform OR time series
+        N = len(data)
 
     fs = N / T
     fmax = fs / 2

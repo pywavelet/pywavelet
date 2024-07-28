@@ -77,7 +77,7 @@ def test_snr_lvk(plot_dir):
     data = Data.from_frequencyseries(
         h_f,
         Nf=Nf,
-        mult=32,
+        mult=16,
     )
     fig, ax = data.plot_wavelet()
     fig.show()

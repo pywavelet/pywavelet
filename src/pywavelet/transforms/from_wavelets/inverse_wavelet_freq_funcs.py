@@ -4,12 +4,12 @@ from numba import njit
 
 from ... import fft_funcs as fft
 
-
 # @njit()
 def inverse_wavelet_freq_helper_fast(
     wave_in: np.ndarray, phif: np.ndarray, Nf: int, Nt: int
 ):
     """jit compatible loop for inverse_wavelet_freq"""
+    wave_in = wave_in.T
     ND = Nf * Nt
 
     prefactor2s = np.zeros(Nt, np.complex128)
@@ -34,7 +34,7 @@ def __pack_wave_inverse(m, Nt, Nf, prefactor2s, wave_in) -> None:
             prefactor2s[n] =  2**(-1/2) * wave_in[(2 * n) % Nt + 1, 0]
     else:
         for n in range(0, Nt):
-            val = wave_in[n, m]
+            val = wave_in[n, m] # bug is here
             if (n + m) % 2:
                 mult2 = -1j
             else:

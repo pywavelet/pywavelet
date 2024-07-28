@@ -223,7 +223,7 @@ class FrequencySeries(AsDataArray):
         ax.loglog(self.freq, np.abs(self.data) ** 2, **kwargs)
         flow = np.min(np.abs(self.freq))
         ax.set_xlabel("Frequency (Hz)")
-        ax.set_ylabel("Power Spectral Density")
+        ax.set_ylabel("Periodigram")
         ax.set_xlim(left=flow, right=self.nyquist_frequency)
         return ax.figure, ax
 

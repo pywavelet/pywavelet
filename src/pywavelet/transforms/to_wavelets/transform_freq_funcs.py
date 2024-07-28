@@ -5,20 +5,21 @@ from numba import jit, njit
 from pywavelet import fft_funcs as fft
 
 
-@njit
-def tukey(data: np.ndarray, alpha: float, N: int) -> None:
-    """apply tukey window function to data"""
-    imin = np.int64(alpha * (N - 1) / 2)
-    imax = np.int64((N - 1) * (1 - alpha / 2))
-    Nwin = N - imax
+# @njit
+# def tukey(data: np.ndarray, alpha: float, N: int) -> None:
+#     """apply tukey window function to data"""
+#     """ This function isn't used. """
+#     imin = np.int64(alpha * (N - 1) / 2)
+#     imax = np.int64((N - 1) * (1 - alpha / 2))
+#     Nwin = N - imax
 
-    for i in range(0, N):
-        f_mult = 1.0
-        if i < imin:
-            f_mult = 0.5 * (1.0 + np.cos(np.pi * (i / imin - 1.0)))
-        if i > imax:
-            f_mult = 0.5 * (1.0 + np.cos(np.pi / Nwin * (i - imax)))
-        data[i] *= f_mult
+#     for i in range(0, N):
+#         f_mult = 1.0
+#         if i < imin:
+#             f_mult = 0.5 * (1.0 + np.cos(np.pi * (i / imin - 1.0)))
+#         if i > imax:
+#             f_mult = 0.5 * (1.0 + np.cos(np.pi / Nwin * (i - imax)))
+#         data[i] *= f_mult
 
 
 def transform_wavelet_freq_helper(

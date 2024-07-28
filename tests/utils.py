@@ -85,7 +85,7 @@ def plot_residuals(residuals: TimeSeries, axes=None):
     )
 
     ax = axes[1]
-    ax.hist(residuals.data, bins=50, density=True)
+    ax.hist(residuals, bins=50, density=True)
     ax.set_xlabel("Residuals")
     ax.set_ylabel("Density")
 
@@ -122,6 +122,6 @@ def __zero_pad(data):
 
 def generate_sine_time_domain_signal(ts, n, f_true=10):
     h_signal = np.sin(2 * np.pi * f_true * ts)
-    window = tukey(n, 0.2)
+    window = tukey(n, 0.0)
     h_signal = __zero_pad(h_signal * window)
     return TimeSeries(h_signal, time=ts)

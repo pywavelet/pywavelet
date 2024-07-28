@@ -11,7 +11,6 @@ def inverse_wavelet_time_helper_fast(
     """helper loop for fast inverse wavelet transform"""
     ND = Nf * Nt
     K = mult * 2 * Nf
-    # res = np.zeros(ND)
 
     # extend this array, we can use wrapping boundary conditions at end
     res = np.zeros(ND + K + Nf)
