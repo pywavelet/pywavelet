@@ -5,23 +5,25 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.signal.windows import tukey
 from utils import (
-    generate_chirp_time_domain_signal,
-    generate_sine_time_domain_signal,
+    #generate_chirp_time_domain_signal,
+    #generate_sine_time_domain_signal,
     plot_residuals
 )
 
 from pywavelet.data import Data, FrequencySeries, TimeSeries
 from pywavelet.transforms import (
     from_time_to_wavelet,
+    from_freq_to_wavelet,
     from_wavelet_to_freq,
     from_wavelet_to_time,
 )
 
+# from pywavelet.transforms.to_wavelets import from_time_to_wavelet, from_freq_to_wavelet
 # fs = 512
 # dt = 1 / fs
 # Nt = 2**6
 # Nf = 2**6
-mult = 8
+mult = 16
 # ND = Nt * Nf
 # ts = np.arange(0, ND) * dt
 
@@ -72,80 +74,69 @@ def test_freqdomain_chirp_roundtrip(make_plots, plot_dir):
 
 
 def test_freqdomain_sine_roundtrip(make_plots, plot_dir):
+
+    f0 = 20
+    T = 1000
+    A = 2
+    Nf = 32
+
+    dt = 0.5 / (2 * f0)  # Shannon's sampling theorem, set dt < 1/2*highest_freq
+    t = np.arange(0, T, dt)  # Time array
     
-    one_sided = True
-    pad = True
-     
-    f_true = 1          # True frequency
-    mult = 10 
-    dt = 0.01             
-    ts = np.arange(0, 10, dt)
-    h = np.sin(2*np.pi*f_true*ts) # True signal, spike at f_true
-    window_t = tukey(len(h),0.3)
+    # round len(t) to the nearest power of 2
+    t = t[: 2 ** int(np.log2(len(t)))]
+    T = len(t) * dt
+    ND = len(t)
 
-    h*=window_t
+    h = A * np.sin(2 * np.pi * f0 * t)  # Signal waveform we wish to test 
+    
+    Nt = ND//Nf
 
-
-    if pad == True:
-        pow_2 = np.ceil(np.log2(len(h)))
-        h = np.pad(h, (0, int((2**pow_2) - len(h))), "constant")
-        ND = len(h)
-        Nt = int(2**np.ceil(np.log2(ND)//2)) # lol
-        Nf = ND//Nt
-    else:
-        ND = len(h) 
-        Nt = 10 # Horribly hardcoded for now. 
-        Nf = 10
-        assert Nt*Nf == ND
-
-    if one_sided: 
-        frequencies = np.fft.rfftfreq(ND, d = dt)
-        fft_data = np.fft.rfft(h)
-    else:
-        frequencies = np.fft.fftshift(np.fft.fftfreq(ND, d=dt))
-        fft_data = np.fft.fftshift(np.fft.fft(h))
-
-    # plt.loglog(frequencies,abs(fft_data)**2);plt.show()
-    # plt.xlabel(r'Frequency')
-    # plt.ylabel(r'Periodigram')
-    # plt.show()
-    # breakpoint()
-    ## THIS MAKES THE SIGNAL --> ND+1 IN LEN
+    frequencies = np.fft.rfftfreq(ND, d = dt)
+    fft_data = np.fft.rfft(h)
 
     freqseries = FrequencySeries(data=fft_data, freq=frequencies)
+    timeseries = TimeSeries(data = h, time=t)
+    
     __run_freqdomain_checks(
         freqseries,
-        Nt,
-        mult,
+        Nf,
         dt,
         make_plots,
         f"{plot_dir}/out_roundtrip/sine_freq.png",
     )
 
+    __run_timedomain_checks(timeseries, 
+                            Nt, 
+                            mult, 
+                            dt, 
+                            make_plots, 
+                            f"{plot_dir}/out_roundtrip/sine_time.png")
 
-def __run_freqdomain_checks(hf, Nt, mult, dt, make_plots, fname):
-    data = Data.from_frequencyseries(hf, Nt=Nt, mult=mult, roll_off=0.2)
-    h_reconstructed = from_wavelet_to_freq(data.wavelet, dt=dt)
+
+def __run_freqdomain_checks(hf, Nf, dt, make_plots, fname):
+    h_wavelet = Data.from_frequencyseries(hf, Nf = Nf)
+    h_reconstructed = from_wavelet_to_freq(h_wavelet.wavelet, dt=dt)
 
     if make_plots:
         os.makedirs(os.path.dirname(fname), exist_ok=True)
         __make_plots(
             hf,
             h_reconstructed,
-            data,
+            h_wavelet,
             fname,
         )
     __check_residuals(hf.data - h_reconstructed.data, "t->f->wdm->f")
 
-def __run_timedomain_checks(ht, Nt, mult, dt, freq_range, make_plots, fname):
+def __run_timedomain_checks(ht, Nt, mult, dt, make_plots, fname):
     data = Data.from_timeseries(
         ht,
         Nt=Nt,
-        mult=mult,
-        minimum_frequency=freq_range[0],
-        maximum_frequency=freq_range[1],
+        mult=mult
     )
     h_reconstructed = from_wavelet_to_time(data.wavelet, mult=mult, dt=dt)
+
+    breakpoint()
     if make_plots:
         os.makedirs(os.path.dirname(fname), exist_ok=True)
         __make_plots(
@@ -160,15 +151,10 @@ def __run_timedomain_checks(ht, Nt, mult, dt, freq_range, make_plots, fname):
 
 
 def __make_plots(h, h_reconstructed, data, fname):
-    fig, axes = plt.subplots(7, 1, figsize=(4, 15))
+    fig, axes = plt.subplots(6, 1, figsize=(4, 15))
     data.plot_all(axes=axes)
     plot_residuals(h.data - h_reconstructed.data, axes=axes[4:6])
 
-    breakpoint()
-    axes[6].loglog(data.frequencyseries.freq, (h_reconstructed.data)**2)
-    axes[6].set_xlabel(r'Frequency [Hz]')
-    axes[6].set_ylabel(r'Reconstructed signal (periodigram) [Hz]')
-    breakpoint()
     plt.tight_layout()
     fig.savefig(fname, dpi=300)
 
