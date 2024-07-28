@@ -89,7 +89,7 @@ def phitilde_vec_norm(Nf: int, Nt: int, dt: float, d: int) -> np.ndarray:
     u_phit = phitilde_vec(omegas, Nf, dt, d)
 
     # Normalize the phitilde
-    normalising_factor =  (Nf/2) * np.pi**(-1/2)  # Ollie's normalising factor
+    normalising_factor = np.pi**(-1/2)  # Ollie's normalising factor
 
     # Notes: this is the overall normalising factor that is different from Cornish's paper
     # It is the only way I can force this code to be consistent with our work in the 
