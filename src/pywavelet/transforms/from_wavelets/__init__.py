@@ -16,7 +16,6 @@ def from_wavelet_to_time(
     mult: int = 32,
 ) -> TimeSeries:
     """fast inverse wavelet transform to time domain"""
-    breakpoint()
     wave_in = wave_in.T
     mult = min(mult, wave_in.Nt // 2)  # make sure K isn't bigger than ND
     phi = phi_vec(wave_in.Nf, d=nx, q=mult, dt=dt) / 2
