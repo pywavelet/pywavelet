@@ -40,10 +40,6 @@ def phitilde_vec(ω: np.ndarray, Nf: int, dt: float, d=4.0) -> np.ndarray:
 
     A = ΔΩ/2
     B = ΔΩ - 2*A
-    # B = ΔΩ / 2 # Hardcoded values
-    # A = ΔΩ / 4 # Hardcoded values
-
-
 
     phi = np.zeros(ω.size)
     mask = (A <= np.abs(ω)) & (np.abs(ω) < A + B)
