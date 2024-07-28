@@ -14,7 +14,7 @@ def plot_wavelet_grid(
     freq_scale="linear",
     absolute=False,
     freq_range=None,
-) -> Tuple[plt.Figure, plt.Axes]:
+    **kwargs) -> Tuple[plt.Figure, plt.Axes]:
     """Plots the wavelet domain data (i.e. the wavelet amplitudes) as a 2D image."""
     if ax is None:
         fig = plt.figure()
@@ -71,9 +71,12 @@ def plot_wavelet_grid(
         bbox=dict(boxstyle="round", facecolor=None, alpha=0.2),
     )
     ax.set_yscale(freq_scale)
-    ax.set_xlabel(r"Time Bins [$\Delta T$=" + f"{1 / Nt:.4f}s, Nt={Nt}]")
-    ax.set_ylabel(r"Freq Bins [$\Delta F$=" + f"{1 / Nf:.4f}Hz, Nf={Nf}]")
-
+    ax.set_xlabel(r"Time Bins [$\Delta T$=" + f"{1 / Nt:.4f}s, Nt={Nt}]", fontsize = 8)
+    ax.set_ylabel(r"Freq Bins [$\Delta F$=" + f"{1 / Nf:.4f}Hz, Nf={Nf}]", fontsize = 4)
+    ax.tick_params(axis='x', labelsize=6)
+    ax.tick_params(axis='y', labelsize=6)
+    if kwargs["title"] is not None:
+        ax.set_title(kwargs["title"], fontsize = 10)
     if freq_range is not None:
         ax.set_ylim(freq_range)
     plt.tight_layout()
