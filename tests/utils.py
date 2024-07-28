@@ -2,8 +2,8 @@ from typing import List, Tuple
 
 import matplotlib.pyplot as plt
 import numpy as np
-from pycbc.conversions import mass1_from_mchirp_q, mass2_from_mchirp_q
-from pycbc.waveform import get_td_waveform
+# from pycbc.conversions import mass1_from_mchirp_q, mass2_from_mchirp_q
+# from pycbc.waveform import get_td_waveform
 from scipy.signal import chirp, spectrogram
 from scipy.signal.windows import tukey
 
