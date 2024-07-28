@@ -37,7 +37,6 @@ def _get_bins(data: Union[TimeSeries, FrequencySeries], Nf=None, Nt=None):
         N = 2*(len(data) - 1)
     else: # Two sided transform OR time series
         N = len(data)
-    # N = len(data)
 
     fs = N / T
     fmax = fs / 2
