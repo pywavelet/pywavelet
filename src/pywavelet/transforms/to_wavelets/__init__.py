@@ -77,7 +77,6 @@ def from_freq_to_wavelet(
 ) -> Wavelet:
     """do the wavelet transform using the fast wavelet domain transform"""
     Nf, Nt = _preprocess_bins(data, Nf, Nt)
-    breakpoint()
     t_bins, f_bins = _get_bins(data, Nf, Nt)
     dt = data.dt
     phif = phitilde_vec_norm(Nf, Nt, dt=dt, d=nx)
