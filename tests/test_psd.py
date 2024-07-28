@@ -161,7 +161,6 @@ def test_evolutionary_psd(plot_dir):
     def amp(t):
         return 1 + ALPHA_TRUE * np.cos(2 * np.pi * F_TRUE * t)
 
-    breakpoint()
     tmax = 120 * 60 * 60  # Final time
     fs = 0.1  # Sampling rate
     delta_t = 1 / fs  # Sampling interval -- largely oversampling here.
