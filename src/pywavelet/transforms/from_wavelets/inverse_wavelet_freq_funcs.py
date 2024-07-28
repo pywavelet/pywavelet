@@ -23,7 +23,7 @@ def inverse_wavelet_freq_helper_fast(
 
     return res
 
-# @njit()
+@njit()
 def __pack_wave_inverse(m, Nt, Nf, prefactor2s, wave_in) -> None:
     """helper for fast frequency domain inverse transform to prepare for fourier transform"""
     if m == 0:
@@ -42,7 +42,7 @@ def __pack_wave_inverse(m, Nt, Nf, prefactor2s, wave_in) -> None:
 
             prefactor2s[n] = mult2 * val
 
-# @njit()
+@njit()
 def __unpack_wave_inverse(
     m: int,
     Nt: int,
