@@ -4,7 +4,6 @@ from numba import njit
 
 from ... import fft_funcs as fft
 
-# @njit()
 def inverse_wavelet_freq_helper_fast(
     wave_in: np.ndarray, phif: np.ndarray, Nf: int, Nt: int
 ):

@@ -31,18 +31,20 @@ def transform_wavelet_freq_helper(
     DX = np.zeros(Nt, dtype=np.complex128)
     freq_strain = data.data.copy()  # Convert
     for f_bin in range(0, Nf + 1):
-        __fill_wave(f_bin, Nt, Nf, DX, freq_strain, phif, wave)
+        __fill_wave_1(f_bin, Nt, Nf, DX, freq_strain, phif)
+        DX_trans = fft.ifft(DX, Nt)
+        __fill_wave_2(f_bin, DX_trans, wave, Nt, Nf)
+
     return wave
 
-
-def __fill_wave(
+@njit()
+def __fill_wave_1(
     f_bin: int,
     Nt: int,
     Nf: int,
     DX: np.ndarray,
     data: np.ndarray,
-    phif: np.ndarray,
-    wave: np.ndarray,
+    phif: np.ndarray
 ) -> None:
     """helper for assigning DX in the main loop"""
     i_base = Nt // 2
@@ -68,9 +70,8 @@ def __fill_wave(
         else:
             DX[i] = phif[j] * data[jj]
 
-    # the following breaks njit (numba doesnt have fft)
-    DX_trans = fft.ifft(DX, Nt)
-
+@njit()
+def __fill_wave_2(f_bin, DX_trans, wave, Nt, Nf):
     if f_bin == 0:
         # half of lowest and highest frequency bin pixels are redundant, so store them in even and odd components of f_bin=0 respectively
         for n in range(0, Nt, 2):
