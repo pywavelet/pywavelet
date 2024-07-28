@@ -38,8 +38,8 @@ def phitilde_vec(ω: np.ndarray, Nf: int, dt: float, d=4.0) -> np.ndarray:
     ΔΩ = 2 * PI * ΔF  # Near Eq 10 # 2 pi times DF
     inverse_sqrt_ΔΩ = 1.0 / np.sqrt(ΔΩ)
 
-    B = ΔΩ / 2
-    A = ΔΩ / 4
+    B = ΔΩ / 2 # Hardcoded values
+    A = ΔΩ / 4 # Hardcoded values
 
     phi = np.zeros(ω.size)
     mask = (A <= np.abs(ω)) & (np.abs(ω) < A + B)
@@ -89,12 +89,29 @@ def phitilde_vec_norm(Nf: int, Nt: int, dt: float, d: int) -> np.ndarray:
     u_phit = phitilde_vec(omegas, Nf, dt, d)
 
     # Normalize the phitilde
-    nrm_fctor = np.sqrt(
-        (2 * np.sum(u_phit[1:] ** 2) + u_phit[0] ** 2) * 2 * PI / ND
-    )
-    nrm_fctor /= PI ** (3 / 2) / PI
+    normalising_factor =  (Nf/2) * np.pi**(-1/2)  # Ollie's normalising factor
 
-    return u_phit / (nrm_fctor)
+    # Notes: this is the overall normalising factor that is different from Cornish's paper
+    # It is the only way I can force this code to be consistent with our work in the 
+    # frequency domain. First note that 
+
+    # old normalising factor -- This factor is absolutely ridiculous. Why!?
+    # Matt_normalising_factor = np.sqrt(
+    #     (2 * np.sum(u_phit[1:] ** 2) + u_phit[0] ** 2) * 2 * PI / ND
+    # )
+    # Matt_normalising_factor /= PI**(3/2)/PI
+
+    # The expression above is equal to np.pi**(-1/2) after working through the maths. 
+    # I have pulled (2/Nf) from __init__.py (from freq to wavelet) into the normalsiing
+    # factor here. I thnk it's cleaner to have ONE normalising constant. Avoids confusion
+    # and it is much easier to track. 
+
+    # TODO: understand the following:  
+    # (2 * np.sum(u_phit[1:] ** 2) + u_phit[0] ** 2) = 0.5 * Nt / dOmega
+    # Matt_normalising_factor is equal to 1/sqrt(pi)... why is this computed?
+    # in such a stupid way? 
+
+    return u_phit / (normalising_factor)
 
 
 def phi_vec(Nf: int, dt, d: float = 4.0, q: int = 16) -> np.ndarray:
