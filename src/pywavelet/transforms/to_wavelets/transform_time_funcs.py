@@ -20,7 +20,7 @@ def transform_wavelet_time_helper(
     data_pad = np.concatenate((data, data[:K]))
 
     for i in range(0, Nt):
-        t_bin = __fill_wave_1(i, K, ND, Nf, wdata, data_pad, phi, mult, wave)
+        t_bin = __fill_wave_1(i, K, ND, Nf, wdata, data_pad, phi)
         wdata_trans = fft.rfft(wdata, K) # A fix because numba doesn't support np.fft
         __fill_wave_2(t_bin, wave, wdata_trans, Nf, mult)
 
