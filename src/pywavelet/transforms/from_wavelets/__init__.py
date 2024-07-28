@@ -41,5 +41,7 @@ def from_wavelet_to_freq(
     freq_data = inverse_wavelet_freq_helper_fast(
         wave_in.data, phif, wave_in.Nf, wave_in.Nt
     )
+    ND = wave_in.Nf * wave_in.Nt
+    freq_data *= np.sqrt(ND/2) # Normalise 
     freqs = np.fft.rfftfreq(wave_in.ND, d=dt)
     return FrequencySeries(data=freq_data, freq=freqs)
