@@ -75,9 +75,10 @@ def plot_wavelet_grid(
     ax.set_ylabel(r"Freq Bins [$\Delta F$=" + f"{1 / Nf:.4f}Hz, Nf={Nf}]", fontsize = 4)
     ax.tick_params(axis='x', labelsize=6)
     ax.tick_params(axis='y', labelsize=6)
-    if kwargs["title"] is not None:
-        ax.set_title(kwargs["title"], fontsize = 10)
-    if freq_range is not None:
-        ax.set_ylim(freq_range)
+    # if kwargs != {}:
+    #     if kwargs["title"] is not None:
+    #         ax.set_title(kwargs["title"], fontsize = 10)
+    #     if freq_range is not None:
+    #         ax.set_ylim(freq_range)
     plt.tight_layout()
     return fig, ax

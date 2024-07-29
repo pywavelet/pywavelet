@@ -88,7 +88,7 @@ def test_freqdomain_sine_roundtrip(make_plots, plot_dir):
     T = len(t) * dt
     ND = len(t)
 
-    h = A * np.sin(2 * np.pi * f0 * t)  # Signal waveform we wish to test 
+    h = A * np.sin(2 * np.pi * t * (f0  +  0 * t))  # Signal waveform we wish to test 
     
     Nt = ND//Nf
 
@@ -136,7 +136,6 @@ def __run_timedomain_checks(ht, Nt, mult, dt, make_plots, fname):
     )
     h_reconstructed = from_wavelet_to_time(data.wavelet, mult=mult, dt=dt)
 
-    breakpoint()
     if make_plots:
         os.makedirs(os.path.dirname(fname), exist_ok=True)
         __make_plots(
