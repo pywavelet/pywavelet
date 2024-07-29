@@ -69,12 +69,16 @@ def plot_wavelet_grid(
         fontsize=14,
         verticalalignment="top",
         bbox=dict(boxstyle="round", facecolor=None, alpha=0.2),
-    )
+    ) 
     ax.set_yscale(freq_scale)
-    ax.set_xlabel(r"Time Bins [$\Delta T$=" + f"{1 / Nt:.4f}s, Nt={Nt}]", fontsize = 8)
-    ax.set_ylabel(r"Freq Bins [$\Delta F$=" + f"{1 / Nf:.4f}Hz, Nf={Nf}]", fontsize = 4)
-    ax.tick_params(axis='x', labelsize=6)
-    ax.tick_params(axis='y', labelsize=6)
+    ax.set_xlabel(r"Time Bins [$\Delta T$=" + f"{1 / Nt:.4f}s, Nt={Nt}]", fontsize = 15)
+    ax.set_ylabel(r"Freq Bins [$\Delta F$=" + f"{1 / Nf:.4f}Hz, Nf={Nf}]", fontsize = 15)
+    ax.tick_params(axis='x', labelsize=10)
+    ax.tick_params(axis='y', labelsize=10)
+    
+    if freq_range is not None:
+        ax.set_ylim(freq_range)
+
     # if kwargs != {}:
     #     if kwargs["title"] is not None:
     #         ax.set_title(kwargs["title"], fontsize = 10)

@@ -75,10 +75,9 @@ def __unpack_wave_inverse(
             ind31 -= 1
             ind32 += 1
             if ind31 < 0:
-                ind31 = Nt - 1
+                ind31 = Nt - 1 
             if ind32 == Nt:
-                ind32 = 0
-
+                ind32 = 0     
         res[Nt // 2 * m] = fft_prefactor2s[(Nt // 2 * m) % Nt] * phif[0]
 
 
