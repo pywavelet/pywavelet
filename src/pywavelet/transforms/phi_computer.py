@@ -6,7 +6,7 @@ from .. import fft_funcs as fft
 PI = np.pi
 
 
-def phitilde_vec(ω: np.ndarray, Nf: int, dt: float, d=4.0) -> np.ndarray:
+def phitilde_vec(omega: np.ndarray, Nf: int, dt: float, d=4.0) -> np.ndarray:
     """Compute phi_tilde(omega_i) array, nx is filter steepness, defaults to 4.
 
     Eq 11 of https://arxiv.org/pdf/2009.00043.pdf (Cornish et al. 2020)
@@ -34,22 +34,27 @@ def phitilde_vec(ω: np.ndarray, Nf: int, dt: float, d=4.0) -> np.ndarray:
         Array of phi_tilde(omega_i) values
 
     """
-    ΔF = 1.0 / (2 * Nf)  # NOTE: missing 1/dt?
-    ΔΩ = 2 * PI * ΔF  # Near Eq 10 # 2 pi times DF
-    inverse_sqrt_ΔΩ = 1.0 / np.sqrt(ΔΩ)
+    dF = 1.0 / (2 * Nf)  # NOTE: missing 1/dt?
+    dOmega = 2 * PI * dF  # Near Eq 10 # 2 pi times DF
+    inverse_sqrt_dOmega = 1.0 / np.sqrt(dOmega)
 
-    A = ΔΩ/2
-    B = ΔΩ - 2*A
+    A = dOmega/4
+    B = dOmega - 2 * A # Cannot have B \leq 0.  
+    if B <= 0:
+        raise ValueError("B must be greater than 0")
 
-    phi = np.zeros(ω.size)
-    mask = (A <= np.abs(ω)) & (np.abs(ω) < A + B)
-    vd = (PI / 2.0) * __νd(ω[mask], A, B, d=d)  # different from paper
-    phi[mask] = inverse_sqrt_ΔΩ * np.cos(vd)
-    phi[np.abs(ω) < A] = inverse_sqrt_ΔΩ
+
+
+    # breakpoint()
+    phi = np.zeros(omega.size)
+    mask = (A <= np.abs(omega)) & (np.abs(omega) <  A + B)  # Minor changes 
+    vd = (PI / 2.0) * __nu_d(omega[mask], A, B, d=d)  # different from paper
+    phi[mask] = inverse_sqrt_dOmega * np.cos(vd)
+    phi[np.abs(omega) < A] = inverse_sqrt_dOmega
     return phi
 
 
-def __νd(ω, A, B, d=4.0):
+def __nu_d(omega, A, B, d=4.0):
     """Compute the normalized incomplete beta function.
 
     Parameters
@@ -72,7 +77,7 @@ def __νd(ω, A, B, d=4.0):
     https://docs.scipy.org/doc/scipy-1.7.1/reference/reference/generated/scipy.special.betainc.html
 
     """
-    x = (np.abs(ω) - A) / B
+    x = (np.abs(omega) - A) / B
     numerator = scipy.special.betainc(d, d, x)
     denominator = scipy.special.betainc(d, d, 1)
     return numerator / denominator
