@@ -5,6 +5,7 @@ from bilby.gw.detector.strain_data import (
     InterferometerStrainData as _BilbyData,
 )
 
+from .logger import logger
 from .transforms import (
     from_freq_to_wavelet,
     from_time_to_wavelet,
@@ -229,3 +230,10 @@ class CoupledData(object):
     @property
     def freq_range(self):
         return (self.minimum_frequency, self.maximum_frequency)
+
+
+class Data(CoupledData):
+    logger.warning(
+        "The Data class is deprecated and will be removed in a future release. "
+        "Please use CoupledData instead."
+    )
