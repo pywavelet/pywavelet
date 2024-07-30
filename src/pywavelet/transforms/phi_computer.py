@@ -1,7 +1,6 @@
 import numpy as np
 import scipy
-
-from .. import fft_funcs as fft
+from numpy import fft
 
 PI = np.pi
 
@@ -38,16 +37,14 @@ def phitilde_vec(omega: np.ndarray, Nf: int, dt: float, d=4.0) -> np.ndarray:
     dOmega = 2 * PI * dF  # Near Eq 10 # 2 pi times DF
     inverse_sqrt_dOmega = 1.0 / np.sqrt(dOmega)
 
-    A = dOmega/4
-    B = dOmega - 2 * A # Cannot have B \leq 0.  
+    A = dOmega / 4
+    B = dOmega - 2 * A  # Cannot have B \leq 0.
     if B <= 0:
         raise ValueError("B must be greater than 0")
 
-
-
     # breakpoint()
     phi = np.zeros(omega.size)
-    mask = (A <= np.abs(omega)) & (np.abs(omega) <  A + B)  # Minor changes 
+    mask = (A <= np.abs(omega)) & (np.abs(omega) < A + B)  # Minor changes
     vd = (PI / 2.0) * __nu_d(omega[mask], A, B, d=d)  # different from paper
     phi[mask] = inverse_sqrt_dOmega * np.cos(vd)
     phi[np.abs(omega) < A] = inverse_sqrt_dOmega
@@ -94,11 +91,11 @@ def phitilde_vec_norm(Nf: int, Nt: int, dt: float, d: int) -> np.ndarray:
     u_phit = phitilde_vec(omegas, Nf, dt, d)
 
     # Normalize the phitilde
-    normalising_factor = np.pi**(-1/2)  # Ollie's normalising factor
+    normalising_factor = np.pi ** (-1 / 2)  # Ollie's normalising factor
 
     # Notes: this is the overall normalising factor that is different from Cornish's paper
-    # It is the only way I can force this code to be consistent with our work in the 
-    # frequency domain. First note that 
+    # It is the only way I can force this code to be consistent with our work in the
+    # frequency domain. First note that
 
     # old normalising factor -- This factor is absolutely ridiculous. Why!?
     # Matt_normalising_factor = np.sqrt(
@@ -106,15 +103,15 @@ def phitilde_vec_norm(Nf: int, Nt: int, dt: float, d: int) -> np.ndarray:
     # )
     # Matt_normalising_factor /= PI**(3/2)/PI
 
-    # The expression above is equal to np.pi**(-1/2) after working through the maths. 
+    # The expression above is equal to np.pi**(-1/2) after working through the maths.
     # I have pulled (2/Nf) from __init__.py (from freq to wavelet) into the normalsiing
     # factor here. I thnk it's cleaner to have ONE normalising constant. Avoids confusion
-    # and it is much easier to track. 
+    # and it is much easier to track.
 
-    # TODO: understand the following:  
+    # TODO: understand the following:
     # (2 * np.sum(u_phit[1:] ** 2) + u_phit[0] ** 2) = 0.5 * Nt / dOmega
     # Matt_normalising_factor is equal to 1/sqrt(pi)... why is this computed?
-    # in such a stupid way? 
+    # in such a stupid way?
 
     return u_phit / (normalising_factor)
 

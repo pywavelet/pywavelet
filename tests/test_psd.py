@@ -29,7 +29,7 @@ def test_basic(plot_dir):
     N_t = len(t_grid)
     N_f = len(f_grid)
     N = N_t * N_f
-    dt = t_grid[-1]/N
+    dt = t_grid[-1] / N
     w = evolutionary_psd_from_stationary_psd(psd, psd_f, f_grid, t_grid, dt)
 
     fig, ax = plt.subplots(1, 2, figsize=(10, 5), sharey=True)
@@ -108,9 +108,8 @@ def test_lvk_psd(plot_dir):
     fs = 4096
     fmin, fmax = 20, fs / 2
 
-
     # Wavelet data from noise
-    N = 2**17 # Dimension of signal in time domain
+    N = 2**17  # Dimension of signal in time domain
     noise_ts = generate_noise_from_psd(
         psd_func=psd_func,
         n_data=N,
@@ -119,7 +118,7 @@ def test_lvk_psd(plot_dir):
     )
 
     Nt = 128
-    Nf = N//Nt 
+    Nf = N // Nt
 
     wavelet_kwgs = dict(Nt=Nt, nx=4.0, mult=32)
     data = Data.from_timeseries(
@@ -132,7 +131,7 @@ def test_lvk_psd(plot_dir):
     # generate and plot the true PSD --> wavelet
     lvk_psd = psd_func(data.frequencyseries.freq)
     psd_grid = np.dot(np.ones((Nt, 1)), np.reshape(lvk_psd, (1, -1)))
-    psd_wavelet: Wavelet = wavelet_dataset(
+    psd_wavelet: Wavelet = Wavelet.from_data(
         psd_grid,
         time_grid=data.wavelet.time.data,
         freq_grid=data.wavelet.freq.data,
@@ -192,10 +191,10 @@ def test_evolutionary_psd(plot_dir):
     amplitudes = np.reshape(amp(times.data) ** 2, (-1, 1))
     non_evol = np.dot(np.ones((Nt, 1)), lisa_psd)
     evol = np.dot(amplitudes, lisa_psd)
-    psd_wavelet = wavelet_dataset(
+    psd_wavelet = Wavelet.from_data(
         wavelet_data=np.sqrt(non_evol), time_grid=times, freq_grid=freqs
     )
-    psd_modulated_wavelet = wavelet_dataset(
+    psd_modulated_wavelet = Wavelet.from_data(
         wavelet_data=np.sqrt(evol), time_grid=times, freq_grid=freqs
     )
 

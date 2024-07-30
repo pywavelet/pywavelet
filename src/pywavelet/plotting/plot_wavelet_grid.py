@@ -14,8 +14,41 @@ def plot_wavelet_grid(
     freq_scale="linear",
     absolute=False,
     freq_range=None,
-    **kwargs) -> Tuple[plt.Figure, plt.Axes]:
-    """Plots the wavelet domain data (i.e. the wavelet amplitudes) as a 2D image."""
+    **kwargs,
+) -> Tuple[plt.Figure, plt.Axes]:
+    """Plot a 2D grid of wavelet coefficients.
+
+    Parameters
+    ----------
+    wavelet_data : np.ndarray
+        The wavelet data to plot.
+
+    time_grid : np.ndarray, optional
+        The time grid for the wavelet data.
+
+    freq_grid : np.ndarray, optional
+        The frequency grid for the wavelet data.
+
+    ax : plt.Axes, optional
+        The axes to plot on.
+
+    zscale : str, optional
+        The scale for the colorbar.
+
+    freq_scale : str, optional
+        The scale for the frequency axis.
+
+    absolute : bool, optional
+        Whether to plot the absolute value of the wavelet data.
+
+    freq_range : Tuple[float, float], optional
+        The frequency range to plot.
+
+    kwargs : dict, optional
+        Additional keyword arguments for the plot.
+
+    """
+
     if ax is None:
         fig = plt.figure()
         ax = fig.gca()
@@ -69,20 +102,19 @@ def plot_wavelet_grid(
         fontsize=14,
         verticalalignment="top",
         bbox=dict(boxstyle="round", facecolor=None, alpha=0.2),
-    ) 
+    )
     ax.set_yscale(freq_scale)
-    ax.set_xlabel(r"Time Bins [$\Delta T$=" + f"{1 / Nt:.4f}s, Nt={Nt}]", fontsize = 15)
-    ax.set_ylabel(r"Freq Bins [$\Delta F$=" + f"{1 / Nf:.4f}Hz, Nf={Nf}]", fontsize = 15)
-    ax.tick_params(axis='x', labelsize=10)
-    ax.tick_params(axis='y', labelsize=10)
-    
+    ax.set_xlabel(
+        r"Time Bins [$\Delta T$=" + f"{1 / Nt:.4f}s, Nt={Nt}]", fontsize=15
+    )
+    ax.set_ylabel(
+        r"Freq Bins [$\Delta F$=" + f"{1 / Nf:.4f}Hz, Nf={Nf}]", fontsize=15
+    )
+    ax.tick_params(axis="x", labelsize=10)
+    ax.tick_params(axis="y", labelsize=10)
+
     if freq_range is not None:
         ax.set_ylim(freq_range)
 
-    # if kwargs != {}:
-    #     if kwargs["title"] is not None:
-    #         ax.set_title(kwargs["title"], fontsize = 10)
-    #     if freq_range is not None:
-    #         ax.set_ylim(freq_range)
     plt.tight_layout()
     return fig, ax

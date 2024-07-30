@@ -2,7 +2,7 @@ from typing import Union
 
 import numpy as np
 
-from ..transforms.types import FrequencySeries, TimeSeries
+from ..types import FrequencySeries, TimeSeries
 
 
 def _preprocess_bins(
@@ -10,10 +10,9 @@ def _preprocess_bins(
 ):
     """preprocess the bins"""
 
-
-    if data.name == "Frequency Series" and np.all(data.freq >= 0):  
-        N = 2*(len(data) - 1)
-    else: # Two sided transform OR time series
+    if data.name == "Frequency Series" and np.all(data.freq >= 0):
+        N = 2 * (len(data) - 1)
+    else:  # Two sided transform OR time series
         N = len(data)
 
     if Nt is not None and Nf is None:
@@ -33,9 +32,9 @@ def _get_bins(data: Union[TimeSeries, FrequencySeries], Nf=None, Nt=None):
     Eq 4-6 in Wavelets paper
     """
     T = data.duration
-    if data.name == "Frequency Series" and np.all(data.freq >= 0):  
-        N = 2*(len(data) - 1)
-    else: # Two sided transform OR time series
+    if isinstance(data, FrequencySeries) and np.all(data.freq >= 0):
+        N = 2 * (len(data) - 1)
+    else:  # Two sided transform OR time series
         N = len(data)
 
     fs = N / T
