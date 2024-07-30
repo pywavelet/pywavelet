@@ -2,7 +2,6 @@ from typing import Optional
 
 import numpy as np
 
-from ... import fft_funcs as fft
 from ...transforms.phi_computer import phi_vec, phitilde_vec_norm
 from ..types import FrequencySeries, TimeSeries, Wavelet
 from .inverse_wavelet_freq_funcs import inverse_wavelet_freq_helper_fast
@@ -22,18 +21,12 @@ def from_wavelet_to_time(
     h_t = inverse_wavelet_time_helper_fast(
         wave_in.data, phi, wave_in.Nf, wave_in.Nt, mult
     )
-    h_t *= (2**-(1/2))  # We must normalise by this to get proper backwards transformation
+    h_t *= 2 ** -(
+        1 / 2
+    )  # We must normalise by this to get proper backwards transformation
 
     ts = np.arange(0, wave_in.Nf * wave_in.Nt) * dt
     return TimeSeries(data=h_t, time=ts)
-
-
-def from_wavelet_to_freq_to_time(
-    wave_in: Wavelet, nx: float = 4.0
-) -> TimeSeries:
-    """inverse wavlet transform to time domain via fourier transform of frequency domain"""
-    res_f = from_wavelet_to_freq(wave_in, nx)
-    return fft.irfft(res_f)
 
 
 def from_wavelet_to_freq(
@@ -44,8 +37,10 @@ def from_wavelet_to_freq(
     freq_data = inverse_wavelet_freq_helper_fast(
         wave_in.data, phif, wave_in.Nf, wave_in.Nt
     )
-    
-    freq_data *= 2**(-1/2)  # Normalise to get the proper backwards transformation 
-    
+
+    freq_data *= 2 ** (
+        -1 / 2
+    )  # Normalise to get the proper backwards transformation
+
     freqs = np.fft.rfftfreq(wave_in.ND, d=dt)
     return FrequencySeries(data=freq_data, freq=freqs)

@@ -39,7 +39,7 @@ def evolutionary_psd_from_stationary_psd(
 
     # repeat the PSD for each time bin
     psd_grid = np.repeat(psd_grid[None, :], Nt, axis=0) / dt
-    w = wavelet_dataset(psd_grid, time_grid=t_grid, freq_grid=f_grid)
+    w = Wavelet.from_data(psd_grid, time_grid=t_grid, freq_grid=f_grid)
     return w
 
 

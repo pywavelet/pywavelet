@@ -1,8 +1,7 @@
 """helper functions for transform_time.py"""
 import numpy as np
 from numba import njit
-
-from ... import fft_funcs as fft
+from numpy import fft
 
 
 def transform_wavelet_time_helper(
@@ -21,10 +20,13 @@ def transform_wavelet_time_helper(
 
     for i in range(0, Nt):
         t_bin = __fill_wave_1(i, K, ND, Nf, wdata, data_pad, phi)
-        wdata_trans = fft.rfft(wdata, K) # A fix because numba doesn't support np.fft
+        wdata_trans = fft.rfft(
+            wdata, K
+        )  # A fix because numba doesn't support np.fft
         __fill_wave_2(t_bin, wave, wdata_trans, Nf, mult)
 
     return wave
+
 
 @njit()
 def __fill_wave_1(
@@ -34,7 +36,8 @@ def __fill_wave_1(
     Nf: int,
     wdata: np.ndarray,
     data_pad: np.ndarray,
-    phi: np.ndarray) -> None:
+    phi: np.ndarray,
+) -> None:
     """Assign wdata to be FFT'd in a loop with K extra values on the right to loop."""
     # wrapping the data is needed to make the sum in Eq 13 in Cornish paper from [-K/2, K/2]
     jj = (t_bin * Nf - K // 2) % ND  # Periodically wrap the data
@@ -43,6 +46,7 @@ def __fill_wave_1(
         wdata[j] = data_pad[jj] * phi[j]  # Apply the window
         jj = (jj + 1) % ND  # Periodically wrap the data
     return t_bin
+
 
 @njit()
 def __fill_wave_2(t_bin, wave, wdata_trans, Nf, mult):

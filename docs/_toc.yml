@@ -4,5 +4,6 @@
 format: jb-book
 root: intro
 chapters:
+- file: api.rst
 - file: demos/roundtrip_demo
 - file: demos/lisa_mcmc_demo
