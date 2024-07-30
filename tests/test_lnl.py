@@ -2,7 +2,7 @@ import numpy as np
 import pytest
 from numpy.random import normal
 
-from pywavelet.data import Data
+from pywavelet.data import CoupledData
 from pywavelet.psd import evolutionary_psd_from_stationary_psd
 from pywavelet.transforms.types import FrequencySeries
 from pywavelet.utils.lisa import FFT, get_lisa_data, waveform, zero_pad
@@ -29,7 +29,7 @@ def test_lisa_lnl(plot_dir):
         Nf=256,
         mult=16,
     )
-    d = Data.from_frequencyseries(data_f, **kwgs).wavelet
+    d = CoupledData.from_frequencyseries(data_f, **kwgs).wavelet
     psd_wavelet = evolutionary_psd_from_stationary_psd(
         psd=psd.data,
         psd_f=psd.freq,
@@ -54,14 +54,14 @@ def test_lisa_lnl(plot_dir):
     def wavelet_lnl_func(a):
         ht = waveform(a, f_true, fdot_true, t)
         hf = FrequencySeries(FFT(ht), h_f.freq)
-        h = Data.from_frequencyseries(hf, **kwgs).wavelet
+        h = CoupledData.from_frequencyseries(hf, **kwgs).wavelet
         return -0.5 * np.nansum(((d - h) ** 2) / psd_wavelet)
 
     # Compute SNR, wavelets
     ht = waveform(a_true, f_true, fdot_true, t)
     hf_discrete = FrequencySeries(FFT(ht), h_f.freq)
     hf_continuous = FrequencySeries(FFT(ht), h_f.freq)
-    h = Data.from_frequencyseries(hf_continuous, **kwgs).wavelet
+    h = CoupledData.from_frequencyseries(hf_continuous, **kwgs).wavelet
 
     SNR2_wavelet = np.nansum((h * h) / psd_wavelet)
     SNR2_freq = (
@@ -114,8 +114,8 @@ def test_lvk_lnl(plot_dir):
     # FFT is different, need to divide by delta_t
     Nf = 128
     signal_f, psd, snr = inject_signal_in_noise(mc=30, noise=False)
-    
-    data = Data.from_frequencyseries(
+
+    data = CoupledData.from_frequencyseries(
         signal_f,
         Nf=Nf,
         mult=32,

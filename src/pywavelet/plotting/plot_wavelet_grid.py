@@ -72,7 +72,7 @@ def plot_wavelet_grid(
         except Exception:
             cmap = "viridis"
     else:
-        cmap = "viridis"
+        cmap = kwargs.get("cmap", "viridis")
 
     if zscale == "log":
         norm = LogNorm(vmin=np.nanmin(z), vmax=np.nanmax(z))

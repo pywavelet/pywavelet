@@ -1,8 +1,11 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from bilby.core.utils import PropertyAccessor
-from bilby.gw.detector.strain_data import InterferometerStrainData
+from bilby.gw.detector.strain_data import (
+    InterferometerStrainData as _BilbyData,
+)
 
+from .logger import logger
 from .transforms import (
     from_freq_to_wavelet,
     from_time_to_wavelet,
@@ -11,16 +14,24 @@ from .transforms import (
 from .transforms.types import FrequencySeries, TimeSeries, Wavelet
 
 
-class Data(object):
-    """A class to hold strain data and convert between time, frequency, wavelet domains"""
+class CoupledData(object):
+    """A class to hold data that is coupled in the time, frequency, wavelet domains"""
 
-    duration = PropertyAccessor("_strain", "duration")
-    sampling_frequency = PropertyAccessor("_strain", "sampling_frequency")
-    start_time = PropertyAccessor("_strain", "start_time")
-    _frequency_array = PropertyAccessor("_strain", "frequency_array")
-    _time_array = PropertyAccessor("_strain", "time_array")
-    minimum_frequency = PropertyAccessor("_strain", "minimum_frequency")
-    maximum_frequency = PropertyAccessor("_strain", "maximum_frequency")
+    duration = PropertyAccessor("_coupled_timefreq_data", "duration")
+    sampling_frequency = PropertyAccessor(
+        "_coupled_timefreq_data", "sampling_frequency"
+    )
+    start_time = PropertyAccessor("_coupled_timefreq_data", "start_time")
+    _frequency_array = PropertyAccessor(
+        "_coupled_timefreq_data", "frequency_array"
+    )
+    _time_array = PropertyAccessor("_coupled_timefreq_data", "time_array")
+    minimum_frequency = PropertyAccessor(
+        "_coupled_timefreq_data", "minimum_frequency"
+    )
+    maximum_frequency = PropertyAccessor(
+        "_coupled_timefreq_data", "maximum_frequency"
+    )
 
     def __init__(
         self,
@@ -32,7 +43,7 @@ class Data(object):
         nx=4.0,
         mult=32,
     ):
-        """Initiate an InterferometerStrainData object
+        """Initiate a CoupledData object
 
         The initialised object contains no data, this should be added using one
         of the `set_from..` methods.
@@ -48,7 +59,7 @@ class Data(object):
             This corresponds to alpha * duration / 2 for scipy tukey window.
 
         """
-        self._strain = InterferometerStrainData(
+        self._coupled_timefreq_data = _BilbyData(
             minimum_frequency, maximum_frequency, roll_off
         )
         # wavelet stuff
@@ -64,12 +75,15 @@ class Data(object):
 
     @property
     def timeseries(self) -> TimeSeries:
-        return TimeSeries(self._strain.time_domain_strain, self._time_array)
+        return TimeSeries(
+            self._coupled_timefreq_data.time_domain_strain, self._time_array
+        )
 
     @property
     def frequencyseries(self) -> FrequencySeries:
         return FrequencySeries(
-            self._strain.frequency_domain_strain, self._frequency_array
+            self._coupled_timefreq_data.frequency_domain_strain,
+            self._frequency_array,
         )
 
     @property
@@ -97,7 +111,7 @@ class Data(object):
             nx=nx,
             mult=mult,
         )
-        strain_data._strain.set_from_time_domain_strain(
+        strain_data._coupled_timefreq_data.set_from_time_domain_strain(
             timeseries.data,
             sampling_frequency=timeseries.fs,
             duration=timeseries.duration,
@@ -136,7 +150,7 @@ class Data(object):
             nx=nx,
             mult=mult,
         )
-        strain_data._strain.set_from_frequency_domain_strain(
+        strain_data._coupled_timefreq_data.set_from_frequency_domain_strain(
             frequencyseries.data,
             sampling_frequency=frequencyseries.fs,
             duration=frequencyseries.duration,
@@ -173,7 +187,7 @@ class Data(object):
 
         strain_data._wavelet = wavelet
         ts = from_wavelet_to_time(wavelet, nx=nx, mult=mult, dt=dt)
-        strain_data._strain.set_from_time_domain_strain(ts)
+        strain_data._coupled_timefreq_data.set_from_time_domain_strain(ts)
 
         return strain_data
 
@@ -216,3 +230,10 @@ class Data(object):
     @property
     def freq_range(self):
         return (self.minimum_frequency, self.maximum_frequency)
+
+
+class Data(CoupledData):
+    logger.warning(
+        "The Data class is deprecated and will be removed in a future release. "
+        "Please use CoupledData instead."
+    )

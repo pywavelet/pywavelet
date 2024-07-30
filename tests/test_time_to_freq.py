@@ -8,7 +8,7 @@ from utils import (
     plot_residuals,
 )
 
-from pywavelet.data import Data, TimeSeries
+from pywavelet.data import CoupledData, TimeSeries
 
 dt = 1 / 512
 Nt = 64
@@ -23,7 +23,7 @@ def test_ts_plots(plot_dir):
     os.makedirs(plt_dir, exist_ok=True)
     frange = [20, 50]
     htime = generate_chirp_time_domain_signal(t=ts, freq_range=frange)
-    data_chirp = Data.from_timeseries(
+    data_chirp = CoupledData.from_timeseries(
         htime,
         minimum_frequency=frange[0],
         maximum_frequency=frange[1],
@@ -32,7 +32,7 @@ def test_ts_plots(plot_dir):
         mult=mult,
     )
     hsine = generate_sine_time_domain_signal(ts, ND, f_true=25)
-    data_sine = Data.from_timeseries(
+    data_sine = CoupledData.from_timeseries(
         hsine,
         minimum_frequency=frange[0],
         maximum_frequency=frange[1],
@@ -45,9 +45,9 @@ def test_ts_plots(plot_dir):
     __roundtrip(data_sine, f"{plt_dir}/sine_series.png")
 
 
-def __roundtrip(data: Data, fname: str, **kwargs):
+def __roundtrip(data: CoupledData, fname: str, **kwargs):
     assert data.frequencyseries.duration == data.timeseries.duration
-    data_reconstructed = Data.from_frequencyseries(
+    data_reconstructed = CoupledData.from_frequencyseries(
         data.frequencyseries,
         start_time=data.start_time,
         Nt=data.Nt,

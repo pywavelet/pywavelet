@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 
-from pywavelet.data import Data
+from pywavelet.data import CoupledData
 from pywavelet.psd import evolutionary_psd_from_stationary_psd
 from pywavelet.transforms.to_wavelets import from_time_to_wavelet
 from pywavelet.transforms.types import FrequencySeries, TimeSeries
@@ -17,13 +17,13 @@ def test_lisa_snr(plot_dir):
     Nf = 256
 
     # FROM TIMESERIES
-    data_from_timeseries = Data.from_timeseries(
+    data_from_timeseries = CoupledData.from_timeseries(
         timeseries=h_t,
         Nf=Nf,
         mult=16,
     )
 
-    data_from_freqseries = Data.from_frequencyseries(
+    data_from_freqseries = CoupledData.from_frequencyseries(
         frequencyseries=h_f, Nf=Nf
     )
 
@@ -74,7 +74,7 @@ def test_snr_lvk(plot_dir):
         noise=False,
     )
     h_f = FrequencySeries(data=h_f, freq=h_f.freq)
-    data = Data.from_frequencyseries(
+    data = CoupledData.from_frequencyseries(
         h_f,
         Nf=Nf,
         mult=16,
@@ -92,7 +92,7 @@ def test_snr_lvk(plot_dir):
     # cool line
     SNR2_wavelet = np.nansum((data.wavelet * data.wavelet) / psd_wavelet)
     print("wavelet_SNR is", SNR2_wavelet ** (1 / 2))
-    assert np.isclose(snr, SNR2_wavelet**(1/2), atol=3)
+    assert np.isclose(snr, SNR2_wavelet ** (1 / 2), atol=3)
 
 
 # pytest parameterize decorator

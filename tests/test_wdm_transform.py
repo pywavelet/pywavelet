@@ -3,7 +3,7 @@ import numpy as np
 import pytest
 from pastamarkers import markers
 
-from pywavelet.data import Data
+from pywavelet.data import CoupledData
 from pywavelet.psd import evolutionary_psd_from_stationary_psd
 from pywavelet.transforms.to_wavelets import from_time_to_wavelet
 from pywavelet.transforms.types import TimeSeries
