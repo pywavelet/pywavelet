@@ -10,7 +10,7 @@ from utils import (
     plot_residuals,
 )
 
-from pywavelet.data import Data, FrequencySeries, TimeSeries
+from pywavelet.data import CoupledData, FrequencySeries, TimeSeries
 from pywavelet.transforms import from_wavelet_to_freq, from_wavelet_to_time
 
 # from pywavelet.transforms.to_wavelets import from_time_to_wavelet, from_freq_to_wavelet
@@ -49,7 +49,7 @@ def test_timedomain_sine_roundtrip(make_plots, plot_dir):
 
 def test_freqdomain_chirp_roundtrip(make_plots, plot_dir):
     freq_range = [20, 100]
-    hf = Data.from_timeseries(
+    hf = CoupledData.from_timeseries(
         generate_chirp_time_domain_signal(ts, freq_range),
         Nt=Nt,
         mult=mult,
@@ -112,7 +112,7 @@ def test_freqdomain_sine_roundtrip(make_plots, plot_dir):
 
 
 def __run_freqdomain_checks(hf, Nf, dt, make_plots, fname):
-    h_wavelet = Data.from_frequencyseries(hf, Nf=Nf)
+    h_wavelet = CoupledData.from_frequencyseries(hf, Nf=Nf)
     h_reconstructed = from_wavelet_to_freq(h_wavelet.wavelet, dt=dt)
 
     if make_plots:
@@ -127,7 +127,7 @@ def __run_freqdomain_checks(hf, Nf, dt, make_plots, fname):
 
 
 def __run_timedomain_checks(ht, Nt, mult, dt, make_plots, fname):
-    data = Data.from_timeseries(ht, Nt=Nt, mult=mult)
+    data = CoupledData.from_timeseries(ht, Nt=Nt, mult=mult)
     h_reconstructed = from_wavelet_to_time(data.wavelet, mult=mult, dt=dt)
 
     if make_plots:

@@ -49,8 +49,8 @@ class TimeSeries(AsDataArray):
             plot_kwargs["cmap"] = "Reds"
 
         cm = ax.pcolormesh(t, f, Sxx, shading="nearest", **plot_kwargs)
-        ax.set_xlabel("Time")
-        ax.set_ylabel("Frequency")
+        ax.set_xlabel("Time [s]")
+        ax.set_ylabel("Frequency [Hz]")
         ax.set_ylim(top=self.nyquist_frequency)
         cbar = plt.colorbar(cm, ax=ax)
         cbar.set_label("Spectrogram Amplitude")

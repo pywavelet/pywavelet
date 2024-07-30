@@ -58,7 +58,7 @@ def __test_gw170817():
     axes[1].imshow(data_wavelet.data, aspect="auto")
     axes[1].set_ylabel("Frequency [Hz]")
     axes[1].set_xlabel("Time [s]")
-    axes[1].set_title("Data Wavelet Amplitude")
+    axes[1].set_title("CoupledData Wavelet Amplitude")
     axes[2].imshow(data_wavelet.data / psd_wavelet.data, aspect="auto")
     axes[2].set_ylabel("Frequency [Hz]")
     axes[2].set_xlabel("Time [s]")

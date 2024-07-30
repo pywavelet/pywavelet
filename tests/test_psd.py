@@ -5,7 +5,7 @@ import scipy
 from scipy.interpolate import interp1d
 from scipy.stats import norm
 
-from pywavelet.data import Data
+from pywavelet.data import CoupledData
 from pywavelet.psd import (
     evolutionary_psd_from_stationary_psd,
     generate_noise_from_psd,
@@ -121,7 +121,7 @@ def test_lvk_psd(plot_dir):
     Nf = N // Nt
 
     wavelet_kwgs = dict(Nt=Nt, nx=4.0, mult=32)
-    data = Data.from_timeseries(
+    data = CoupledData.from_timeseries(
         noise_ts,
         **wavelet_kwgs,
         minimum_frequency=fmin,
