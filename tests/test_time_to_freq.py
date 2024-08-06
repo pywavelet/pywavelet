@@ -59,7 +59,7 @@ def __roundtrip(data: CoupledData, fname: str, **kwargs):
 
     # plot time domain signal
     data.plot_all(axes=axes)
-    plot_residuals(residuals, ax=axes[-1])
+    plot_residuals(residuals, axes=[axes[-2], axes[-1]])
     fig.savefig(fname, dpi=300)
 
     residuals_mean = np.abs(residuals.data).mean()
