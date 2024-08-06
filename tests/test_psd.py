@@ -11,12 +11,7 @@ from pywavelet.psd import (
     generate_noise_from_psd,
 )
 from pywavelet.transforms import from_time_to_wavelet, from_wavelet_to_time
-from pywavelet.transforms.types import (
-    FrequencySeries,
-    TimeSeries,
-    Wavelet,
-    wavelet_dataset,
-)
+from pywavelet.transforms.types import FrequencySeries, TimeSeries, Wavelet
 from pywavelet.utils.lisa import lisa_psd_func
 from pywavelet.utils.lvk import get_lvk_psd, get_lvk_psd_function
 
