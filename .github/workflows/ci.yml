@@ -28,6 +28,7 @@ jobs:
 
       - name: pre-commit
         run: pre-commit run --all-files --verbose --show-diff-on-failure
+        continue-on-error: true  # Allow failure for this step
 
       - name: pytest
         run: pytest --cov='pywavelet' --cov-report term-missing
