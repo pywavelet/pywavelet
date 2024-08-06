@@ -70,8 +70,10 @@ def freq_PSD(waveform_t: np.ndarray, delta_t: float) -> FrequencySeries:
     """
     n_t = len(zero_pad(waveform_t))
     freq = np.fft.rfftfreq(n_t, delta_t)
-    freq[0] = freq[1] # Notice here that we redefine the zeroth frequency f = 0 to f = Delta f. 
-                      # this stops sn(f_0 = 0) = \infty 
+    freq[0] = freq[
+        1
+    ]  # Notice here that we redefine the zeroth frequency f = 0 to f = Delta f.
+    # this stops sn(f_0 = 0) = \infty
     return lisa_psd_func(freq)
 
 

@@ -84,30 +84,29 @@ def inject_signal_in_noise(
     ifo: bilby.gw.detector.Interferometer = ifos[0]
 
     # This code will not work with our formalism due to non-integer power of two
-    # for the lengths. 
+    # for the lengths.
 
     # fmask = ifo.frequency_mask
     # freq = ifo.strain_data.frequency_array[fmask]
     # psd = ifo.power_spectral_density_array[fmask]
     # h_rfft = ifo.frequency_domain_strain[fmask]
 
-
-    # a band aid solution. We need to fix this.  
+    # a band aid solution. We need to fix this.
     freq = ifo.strain_data.frequency_array
     psd = ifo.power_spectral_density_array
     h_rfft = ifo.frequency_domain_strain
 
     # Create a mask to identify non-inf values
-    finite_mask = np.isfinite(psd) 
+    finite_mask = np.isfinite(psd)
     # Find the maximum value among the non-inf values
-    max_value = np.max(psd[finite_mask]) 
+    max_value = np.max(psd[finite_mask])
     # Replace inf values with this maximum value
     psd[~finite_mask] = max_value
-    # Here I am essentially regularising the PSD. 
-    
+    # Here I am essentially regularising the PSD.
+
     psd = FrequencySeries(psd, freq)
     h_f_cont = FrequencySeries(h_rfft, freq)
-    h_f_disc = FrequencySeries(h_rfft/h_f_cont.dt, freq)
+    h_f_disc = FrequencySeries(h_rfft / h_f_cont.dt, freq)
     snr = compute_frequency_optimal_snr(h_f_cont.data, psd, DURATION)
 
     return h_f_disc, psd, np.abs(snr)

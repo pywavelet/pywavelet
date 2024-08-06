@@ -1,11 +1,8 @@
-from typing import Optional, Tuple, Union
+from typing import Optional, Union
 
-import bilby
-import matplotlib.pyplot as plt
 import numpy as np
 from scipy.interpolate import interp1d
 
-from .transforms import from_time_to_wavelet
 from .transforms.types import FrequencySeries, TimeSeries, Wavelet
 
 DATA_TYPE = Union[TimeSeries, FrequencySeries, Wavelet]
