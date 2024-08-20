@@ -69,7 +69,7 @@ def plot_residuals(residuals: TimeSeries, axes=None):
     )
 
     ax = axes[1]
-    ax.hist(residuals, bins=50, density=True)
+    ax.hist(np.abs(residuals), bins=50, density=True)
     ax.set_xlabel("Residuals")
     ax.set_ylabel("Density")
 
