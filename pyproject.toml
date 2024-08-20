@@ -44,11 +44,8 @@ dev = [
     "black[jupyter]>=22.12.0",
     "isort",
     "mypy",
-#    "pycbc",
-#    "bilby",
     "jupyter-book",
     "GitPython",
-    "pastamarkers"
 ]
 
 [tool.setuptools_scm]

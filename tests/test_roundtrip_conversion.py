@@ -1,9 +1,7 @@
 import os
-from tkinter import W
 
 import matplotlib.pyplot as plt
 import numpy as np
-from scipy.signal.windows import tukey
 from utils import (
     generate_chirp_time_domain_signal,
     generate_sine_time_domain_signal,
@@ -13,7 +11,6 @@ from utils import (
 from pywavelet.data import CoupledData, FrequencySeries, TimeSeries
 from pywavelet.transforms import from_wavelet_to_freq, from_wavelet_to_time
 
-# from pywavelet.transforms.to_wavelets import from_time_to_wavelet, from_freq_to_wavelet
 fs = 512
 dt = 1 / fs
 Nt = 2**6

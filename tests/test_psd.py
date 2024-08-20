@@ -21,4 +21,4 @@ def test_evolutionary_psd_from_stationary_psd(plot_dir):
         t_grid=t_grid,
         dt=dt,
     )
-    assert w.data.shape == (N_t, N_f)
+    assert w.data.shape == (N_f, N_t)
