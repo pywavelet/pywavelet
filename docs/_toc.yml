@@ -6,4 +6,11 @@ root: intro
 chapters:
 - file: api.rst
 - file: demos/roundtrip_demo
-- file: demos/lisa_mcmc_demo
+- title: Case Studies
+  chapters:
+  - url: https://www.youtube.com/watch?v=dQw4w9WgXcQ&themeRefresh=1
+    title: LISA white-dwarf
+  - url: https://www.youtube.com/watch?v=dQw4w9WgXcQ&themeRefresh=1
+    title: LVK compact binary
+  - url: https://www.youtube.com/watch?v=dQw4w9WgXcQ&themeRefresh=1
+    title: Analysis with gaps
