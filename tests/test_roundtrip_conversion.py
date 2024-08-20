@@ -10,8 +10,9 @@ from utils import (
     plot_residuals,
 )
 
-from pywavelet.data import CoupledData, FrequencySeries, TimeSeries
+from pywavelet.data import CoupledData
 from pywavelet.transforms import from_wavelet_to_freq, from_wavelet_to_time
+from pywavelet.transforms.types import FrequencySeries, TimeSeries
 
 # from pywavelet.transforms.to_wavelets import from_time_to_wavelet, from_freq_to_wavelet
 fs = 512

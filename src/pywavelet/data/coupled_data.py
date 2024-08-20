@@ -1,17 +1,15 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from bilby.core.utils import PropertyAccessor
-from bilby.gw.detector.strain_data import (
-    InterferometerStrainData as _BilbyData,
-)
 
-from .logger import logger
-from .transforms import (
+from ..logger import logger
+from ..transforms import (
     from_freq_to_wavelet,
     from_time_to_wavelet,
     from_wavelet_to_time,
 )
-from .transforms.types import FrequencySeries, TimeSeries, Wavelet
+from ..transforms.types import FrequencySeries, TimeSeries, Wavelet
+from .coupled_time_and_frequency_series import CoupledTimeAndFrequencySeries
+from .utils import PropertyAccessor
 
 
 class CoupledData(object):
@@ -59,7 +57,7 @@ class CoupledData(object):
             This corresponds to alpha * duration / 2 for scipy tukey window.
 
         """
-        self._coupled_timefreq_data = _BilbyData(
+        self._coupled_timefreq_data = CoupledTimeAndFrequencySeries(
             minimum_frequency, maximum_frequency, roll_off
         )
         # wavelet stuff
@@ -76,13 +74,13 @@ class CoupledData(object):
     @property
     def timeseries(self) -> TimeSeries:
         return TimeSeries(
-            self._coupled_timefreq_data.time_domain_strain, self._time_array
+            self._coupled_timefreq_data.time_domain_data, self._time_array
         )
 
     @property
     def frequencyseries(self) -> FrequencySeries:
         return FrequencySeries(
-            self._coupled_timefreq_data.frequency_domain_strain,
+            self._coupled_timefreq_data.frequency_domain_data,
             self._frequency_array,
         )
 
@@ -102,7 +100,7 @@ class CoupledData(object):
         nx=4.0,
         mult=32,
     ):
-        strain_data = cls(
+        data = cls(
             minimum_frequency=minimum_frequency,
             maximum_frequency=maximum_frequency,
             roll_off=roll_off,
@@ -111,20 +109,22 @@ class CoupledData(object):
             nx=nx,
             mult=mult,
         )
-        strain_data._coupled_timefreq_data.set_from_time_domain_strain(
-            timeseries.data,
-            sampling_frequency=timeseries.fs,
-            duration=timeseries.duration,
-            start_time=timeseries.t0,
+        data._coupled_timefreq_data = (
+            CoupledTimeAndFrequencySeries.set_from_time_domain(
+                timeseries.data,
+                sampling_frequency=timeseries.fs,
+                duration=timeseries.duration,
+                start_time=timeseries.t0,
+            )
         )
-        strain_data._wavelet = from_time_to_wavelet(
+        data._wavelet = from_time_to_wavelet(
             data=timeseries,
-            Nf=strain_data.Nf,
-            Nt=strain_data.Nt,
-            nx=strain_data.nx,
-            mult=strain_data.mult,
+            Nf=data.Nf,
+            Nt=data.Nt,
+            nx=data.nx,
+            mult=data.mult,
         )
-        return strain_data
+        return data
 
     @classmethod
     def from_frequencyseries(
@@ -141,7 +141,7 @@ class CoupledData(object):
         freqseries: Single-sided FFT of time domain strain normalised to units of strain / Hz
         """
         min_f, max_f = frequencyseries.freq_range
-        strain_data = cls(
+        data = cls(
             minimum_frequency=min_f,
             maximum_frequency=max_f,
             roll_off=roll_off,
@@ -150,19 +150,21 @@ class CoupledData(object):
             nx=nx,
             mult=mult,
         )
-        strain_data._coupled_timefreq_data.set_from_frequency_domain_strain(
-            frequencyseries.data,
-            sampling_frequency=frequencyseries.fs,
-            duration=frequencyseries.duration,
-            start_time=start_time,
+        data._coupled_timefreq_data = (
+            CoupledTimeAndFrequencySeries.set_from_frequency_domain(
+                frequencyseries.data,
+                sampling_frequency=frequencyseries.fs,
+                duration=frequencyseries.duration,
+                start_time=start_time,
+            )
         )
-        strain_data._wavelet = from_freq_to_wavelet(
-            strain_data.frequencyseries,
-            Nf=strain_data.Nf,
-            Nt=strain_data.Nt,
-            nx=strain_data.nx,
+        data._wavelet = from_freq_to_wavelet(
+            data.frequencyseries,
+            Nf=data.Nf,
+            Nt=data.Nt,
+            nx=data.nx,
         )
-        return strain_data
+        return data
 
     @classmethod
     def from_wavelet(
@@ -175,7 +177,7 @@ class CoupledData(object):
         mult=32.0,
         dt=None,
     ):
-        strain_data = cls(
+        data = cls(
             minimum_frequency=minimum_frequency,
             maximum_frequency=maximum_frequency,
             roll_off=roll_off,
@@ -185,11 +187,11 @@ class CoupledData(object):
             mult=wavelet.mult,
         )
 
-        strain_data._wavelet = wavelet
+        data._wavelet = wavelet
         ts = from_wavelet_to_time(wavelet, nx=nx, mult=mult, dt=dt)
-        strain_data._coupled_timefreq_data.set_from_time_domain_strain(ts)
+        data._coupled_timefreq_data.set_from_time_domain_strain(ts)
 
-        return strain_data
+        return data
 
     def plot_periodogram(self, *args, **kwargs):
         fig, ax = self.frequencyseries.plot_periodogram(*args, **kwargs)
@@ -230,10 +232,3 @@ class CoupledData(object):
     @property
     def freq_range(self):
         return (self.minimum_frequency, self.maximum_frequency)
-
-
-class Data(CoupledData):
-    logger.warning(
-        "The Data class is deprecated and will be removed in a future release. "
-        "Please use CoupledData instead."
-    )

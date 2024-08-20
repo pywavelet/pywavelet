@@ -8,7 +8,7 @@ from utils import (
     plot_residuals,
 )
 
-from pywavelet.data import CoupledData, TimeSeries
+from pywavelet.data import CoupledData
 
 dt = 1 / 512
 Nt = 64
