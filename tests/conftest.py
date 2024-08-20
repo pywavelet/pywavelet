@@ -2,6 +2,9 @@ import os
 
 import pytest
 
+# set global env var "NUMBA_DISABLE_JIT=1"
+os.environ["NUMBA_DISABLE_JIT"] = "1"
+
 
 @pytest.fixture()
 def make_plots():
