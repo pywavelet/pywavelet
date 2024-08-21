@@ -1,81 +1,89 @@
 """helper functions for transform_freq"""
+import jax
+import jax.numpy as jnp
 import numpy as np
-from numba import njit
-from numpy import fft
+from jax import jit
+from jax.numpy.fft import fft, ifft
 
 
 def transform_wavelet_freq_helper(
-    data: np.ndarray, Nf: int, Nt: int, phif: np.ndarray
+    data: np.ndarray, Nf: int, Nt: int, phif: jnp.ndarray
 ) -> np.ndarray:
     """helper to do the wavelet transform using the fast wavelet domain transform"""
-    wave = np.zeros((Nt, Nf))  # wavelet wavepacket transform of the signal
+    wave = jnp.zeros((Nt, Nf))  # wavelet wavepacket transform of the signal
 
-    DX = np.zeros(Nt, dtype=np.complex128)
+    DX = jnp.zeros(Nt, dtype=jnp.complex128)
     freq_strain = data.copy()  # Convert
+
     for f_bin in range(0, Nf + 1):
-        __fill_wave_1(f_bin, Nt, Nf, DX, freq_strain, phif)
-        DX_trans = fft.ifft(
-            DX, Nt
-        )  # A fix because numba doesn't support np.fft
-        __fill_wave_2(f_bin, DX_trans, wave, Nt, Nf)
+        DX = fill_wave_1(f_bin, Nt, Nf, DX, freq_strain, phif)
+        DX_trans = ifft(DX, Nt)
+        wave = fill_wave_2(f_bin, DX_trans, wave, Nt, Nf)
 
-    return wave
+    return np.array(wave.tolist())
 
 
-@njit()
-def __fill_wave_1(
+@jit
+def fill_wave_1(
     f_bin: int,
     Nt: int,
     Nf: int,
-    DX: np.ndarray,
-    data: np.ndarray,
-    phif: np.ndarray,
-) -> None:
+    DX: jnp.ndarray,
+    data: jnp.ndarray,
+    phif: jnp.ndarray,
+) -> jnp.ndarray:
     """helper for assigning DX in the main loop"""
     i_base = Nt // 2
     jj_base = f_bin * Nt // 2
 
-    if f_bin == 0 or f_bin == Nf:
-        # NOTE this term appears to be needed to recover correct constant (at least for m=0), but was previously missing
-        DX[Nt // 2] = phif[0] * data[f_bin * Nt // 2] / 2.0
-        DX[Nt // 2] = phif[0] * data[f_bin * Nt // 2] / 2.0
-    else:
-        DX[Nt // 2] = phif[0] * data[f_bin * Nt // 2]
-        DX[Nt // 2] = phif[0] * data[f_bin * Nt // 2]
+    def set_initial_value(DX):
+        value = jnp.where(
+            (f_bin == 0) | (f_bin == Nf),
+            phif[0] * data[f_bin * Nt // 2] / 2.0,
+            phif[0] * data[f_bin * Nt // 2],
+        )
+        return DX.at[Nt // 2].set(value)
 
-    for jj in range(jj_base + 1 - Nt // 2, jj_base + Nt // 2):
-        j = np.abs(jj - jj_base)
+    DX = set_initial_value(DX)
+
+    def body_fun(jj, DX):
+        j = jnp.abs(jj - jj_base)
         i = i_base - jj_base + jj
-        if f_bin == Nf and jj > jj_base:
-            DX[i] = 0.0
-        elif f_bin == 0 and jj < jj_base:
-            DX[i] = 0.0
-        elif j == 0:
-            continue
-        else:
-            DX[i] = phif[j] * data[jj]
+        cond1 = (f_bin == Nf) & (jj > jj_base)
+        cond2 = (f_bin == 0) & (jj < jj_base)
+        cond3 = j == 0
+        val = jnp.where(cond1 | cond2, 0.0, phif[j] * data[jj])
+        DX = DX.at[i].set(jnp.where(cond3, DX[i], val))
+        return DX
+
+    return jax.lax.fori_loop(
+        jj_base + 1 - Nt // 2, jj_base + Nt // 2, body_fun, DX
+    )
 
 
-@njit()
-def __fill_wave_2(
-    f_bin: int, DX_trans: np.ndarray, wave: np.ndarray, Nt: int, Nf: int
-) -> None:
-    if f_bin == 0:
-        # half of lowest and highest frequency bin pixels are redundant, so store them in even and odd components of f_bin=0 respectively
-        for n in range(0, Nt, 2):
-            wave[n, 0] = np.real(DX_trans[n] * np.sqrt(2))
-    elif f_bin == Nf:
-        for n in range(0, Nt, 2):
-            wave[n + 1, 0] = np.real(DX_trans[n] * np.sqrt(2))
-    else:
-        for n in range(0, Nt):
-            if f_bin % 2:
-                if (n + f_bin) % 2:
-                    wave[n, f_bin] = -np.imag(DX_trans[n])
-                else:
-                    wave[n, f_bin] = np.real(DX_trans[n])
-            else:
-                if (n + f_bin) % 2:
-                    wave[n, f_bin] = np.imag(DX_trans[n])
-                else:
-                    wave[n, f_bin] = np.real(DX_trans[n])
+@jit
+def fill_wave_2(
+    f_bin: int, DX_trans: jnp.ndarray, wave: jnp.ndarray, Nt: int, Nf: int
+) -> jnp.ndarray:
+    def case_0(wave):
+        return wave.at[::2, 0].set(jnp.real(DX_trans[::2] * jnp.sqrt(2)))
+
+    def case_Nf(wave):
+        return wave.at[1::2, 0].set(jnp.real(DX_trans[::2] * jnp.sqrt(2)))
+
+    def case_other(wave):
+        n_range = jnp.arange(wave.shape[0])
+        cond1 = (n_range + f_bin) % 2 == 1
+        cond2 = f_bin % 2 == 1
+
+        real_part = jnp.where(cond2, -jnp.imag(DX_trans), jnp.real(DX_trans))
+        imag_part = jnp.where(cond2, jnp.real(DX_trans), jnp.imag(DX_trans))
+
+        return wave.at[:, f_bin].set(jnp.where(cond1, imag_part, real_part))
+
+    return jax.lax.cond(
+        f_bin == 0,
+        case_0,
+        lambda w: jax.lax.cond(f_bin == Nf, case_Nf, case_other, w),
+        wave,
+    )
