@@ -38,9 +38,7 @@ def __fill_wave_1(
     if f_bin == 0 or f_bin == Nf:
         # NOTE this term appears to be needed to recover correct constant (at least for m=0), but was previously missing
         DX[Nt // 2] = phif[0] * data[f_bin * Nt // 2] / 2.0
-        DX[Nt // 2] = phif[0] * data[f_bin * Nt // 2] / 2.0
     else:
-        DX[Nt // 2] = phif[0] * data[f_bin * Nt // 2]
         DX[Nt // 2] = phif[0] * data[f_bin * Nt // 2]
 
     for jj in range(jj_base + 1 - Nt // 2, jj_base + Nt // 2):
