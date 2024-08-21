@@ -8,7 +8,14 @@ time/frequency domains to the WDM-wavelet domain.
 
 
 *************
-Time/Frequncy
+Transform Functions
+*************
+
+.. automodule:: pywavelet.transforms
+   :members:
+
+*************
+Time/Frequency Objects
 *************
 
 .. autoclass:: pywavelet.transforms.types.TimeSeries
