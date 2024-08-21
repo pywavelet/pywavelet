@@ -3,10 +3,12 @@
 
 format: jb-book
 root: intro
-chapters:
-- file: api.rst
-- file: demos/roundtrip_demo
-- title: Case Studies
+parts:
+- caption: " "
+  chapters:
+  - file: api.rst
+  - file: roundtrip_demo
+- caption:  Case Studies
   chapters:
   - url: https://www.youtube.com/watch?v=dQw4w9WgXcQ&themeRefresh=1
     title: LISA white-dwarf
