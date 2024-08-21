@@ -73,5 +73,9 @@ class FrequencySeries(AsDataArray):
     def freq_range(self) -> Tuple[float, float]:
         return (self.minimum_frequency, self.maximum_frequency)
 
+    @property
+    def is_two_sided(self) -> bool:
+        return np.all(self.freq >= 0)
+
     def __repr__(self):
         return f"FrequencySeries(n={len(self)}, frange=[{min(self.freq):.2f}, {max(self.freq):.2f}] Hz, T={self.duration:.2f}s, fs={self.fs:.2f} Hz)"
