@@ -7,6 +7,7 @@ from scipy.signal import spectrogram
 from xarray_dataclasses import AsDataArray, Coordof, Data, Name
 
 from .common import TIME, TimeAxis, _len_check
+from .plotting import plot_spectrogram, plot_timeseries
 
 __all__ = ["TimeSeries"]
 
@@ -20,33 +21,22 @@ class TimeSeries(AsDataArray):
     def __post_init__(self):
         _len_check(self.data)
 
-    def plot(self, ax=None, *args, **kwargs) -> Tuple[plt.Figure, plt.Axes]:
-        """Custom method."""
-        if ax == None:
-            fig, ax = plt.subplots()
-        ax.plot(self.time, self.data, **kwargs)
-        ax.set_xlabel("Time")
-        ax.set_ylabel("Amplitude")
-        ax.set_xlim(left=self.time[0], right=self.time[-1])
-        return ax.figure, ax
+    def plot(self, ax=None, **kwargs) -> Tuple[plt.Figure, plt.Axes]:
+        return plot_timeseries(self.data, self.time, ax=ax, **kwargs)
 
     def plot_spectrogram(
-        self, ax=None, spec_kwargs={}, plot_kwargs={}, *args, **kwargs
+        self,
+        ax=None,
+        spec_kwargs={},
+        plot_kwargs={},
     ) -> Tuple[plt.Figure, plt.Axes]:
-        f, t, Sxx = spectrogram(self.data, fs=self.fs, **spec_kwargs)
-        if ax == None:
-            fig, ax = plt.subplots()
-
-        if "cmap" not in plot_kwargs:
-            plot_kwargs["cmap"] = "Reds"
-
-        cm = ax.pcolormesh(t, f, Sxx, shading="nearest", **plot_kwargs)
-        ax.set_xlabel("Time [s]")
-        ax.set_ylabel("Frequency [Hz]")
-        ax.set_ylim(top=self.nyquist_frequency)
-        cbar = plt.colorbar(cm, ax=ax)
-        cbar.set_label("Spectrogram Amplitude")
-        return ax.figure, ax
+        return plot_spectrogram(
+            self.data,
+            self.fs,
+            ax=ax,
+            spec_kwargs=spec_kwargs,
+            plot_kwargs=plot_kwargs,
+        )
 
     def __len__(self):
         return len(self.data)

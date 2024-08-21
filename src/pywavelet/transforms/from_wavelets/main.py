@@ -12,7 +12,24 @@ def from_wavelet_to_time(
     nx: float = 4.0,
     mult: int = 32,
 ) -> TimeSeries:
-    """fast inverse wavelet transform to time domain"""
+    """Inverse wavelet transform to time domain.
+
+    Parameters
+    ----------
+    wave_in : Wavelet
+        input wavelet
+    dt : float
+        time step
+    nx : float, optional
+        parameter for phi_vec, by default 4.0
+    mult : int, optional
+        parameter for phi_vec, by default 32
+
+    Returns
+    -------
+    TimeSeries
+        Time domain signal
+    """
     wave_in = wave_in.T
     mult = min(mult, wave_in.Nt // 2)  # make sure K isn't bigger than ND
     phi = phi_vec(wave_in.Nf, d=nx, q=mult, dt=dt) / 2
@@ -30,7 +47,23 @@ def from_wavelet_to_time(
 def from_wavelet_to_freq(
     wave_in: Wavelet, dt: float, nx=4.0
 ) -> FrequencySeries:
-    """inverse wavelet transform to freq domain signal"""
+    """Inverse wavelet transform to frequency domain.
+
+    Parameters
+    ----------
+    wave_in : Wavelet
+        input wavelet
+    dt : float
+        time step
+    nx : float, optional
+        parameter for phitilde_vec_norm, by default 4.0
+
+    Returns
+    -------
+    FrequencySeries
+        Frequency domain signal
+
+    """
     phif = phitilde_vec_norm(wave_in.Nf, wave_in.Nt, dt=dt, d=nx)
     freq_data = inverse_wavelet_freq_helper_fast(
         wave_in.data, phif, wave_in.Nf, wave_in.Nt

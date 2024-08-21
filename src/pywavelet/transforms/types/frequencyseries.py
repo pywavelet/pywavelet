@@ -6,6 +6,7 @@ import numpy as np
 from xarray_dataclasses import AsDataArray, Coordof, Data, Name
 
 from .common import FREQ, FreqAxis
+from .plotting import plot_freqseries, plot_periodogram
 
 __all__ = ["FrequencySeries"]
 
@@ -16,27 +17,17 @@ class FrequencySeries(AsDataArray):
     freq: Coordof[FreqAxis] = 0
     name: Name[str] = "Frequency Series"
 
-    def plot(self, ax=None, *args, **kwargs) -> Tuple[plt.Figure, plt.Axes]:
-        if ax == None:
-            fig, ax = plt.subplots()
-        ax.plot(self.freq, self.data, **kwargs)
-        ax.set_xlabel("Frequency Bin")
-        ax.set_ylabel("Amplitude")
-        ax.set_xlim(-self.nyquist_frequency, self.nyquist_frequency)
-        return ax.figure, ax
+    def plot(self, ax=None, **kwargs) -> Tuple[plt.Figure, plt.Axes]:
+        return plot_freqseries(
+            self.data, self.freq, self.nyquist_frequency, ax=ax, **kwargs
+        )
 
     def plot_periodogram(
-        self, ax=None, *args, **kwargs
+        self, ax=None, **kwargs
     ) -> Tuple[plt.Figure, plt.Axes]:
-        if ax == None:
-            fig, ax = plt.subplots()
-
-        ax.loglog(self.freq, np.abs(self.data) ** 2, **kwargs)
-        flow = np.min(np.abs(self.freq))
-        ax.set_xlabel("Frequency (Hz)")
-        ax.set_ylabel("Periodigram")
-        ax.set_xlim(left=flow, right=self.nyquist_frequency)
-        return ax.figure, ax
+        return plot_periodogram(
+            self.data, self.freq, self.nyquist_frequency, ax=ax, **kwargs
+        )
 
     def __len__(self):
         return len(self.data)

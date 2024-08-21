@@ -18,23 +18,31 @@ def from_time_to_wavelet(
     mult: int = 32,
     **kwargs,
 ) -> Wavelet:
-    """From time domain to wavelet domain
+    """Transforms time-domain data to wavelet-domain data.
 
     Warning: there can be significant leakage if mult is too small and the
     transform is only approximately exact if mult=Nt/2
 
     Parameters
     ----------
-    timeseries : array_like
-        Time domain freqseries
+    timeseries : TimeSeries
+        Time domain data
     Nf : int
         Number of frequency bins
     Nt : int
         Number of time bins
     nx : float, optional
-        Number of standard deviations for the gaussian wavelet, by default 4.
+        Number of standard deviations for the phi_vec, by default 4.
     mult : int, optional
         Number of time bins to use for the wavelet transform, by default 32
+    **kwargs:
+        Additional keyword arguments passed to the Wavelet.from_data constructor.
+
+    Returns
+    -------
+    Wavelet
+        Wavelet domain data
+
     """
     Nf, Nt = _preprocess_bins(timeseries, Nf, Nt)
     dt = timeseries.dt
@@ -70,7 +78,27 @@ def from_freq_to_wavelet(
     nx: float = 4.0,
     **kwargs,
 ) -> Wavelet:
-    """do the wavelet transform using the fast wavelet domain transform"""
+    """Transforms frequency-domain data to wavelet-domain data.
+
+    Parameters
+    ----------
+    freqseries : FrequencySeries
+        Frequency domain data
+    Nf : int
+        Number of frequency bins
+    Nt : int
+        Number of time bins
+    nx : float, optional
+        Number of standard deviations for the phi_vec, by default 4.
+    **kwargs:
+        Additional keyword arguments passed to the Wavelet.from_data constructor.
+
+    Returns
+    -------
+    Wavelet
+        Wavelet domain data
+
+    """
     Nf, Nt = _preprocess_bins(freqseries, Nf, Nt)
     t_bins, f_bins = _get_bins(freqseries, Nf, Nt)
     dt = freqseries.dt
