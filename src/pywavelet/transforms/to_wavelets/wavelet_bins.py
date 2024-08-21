@@ -10,7 +10,7 @@ def _preprocess_bins(
 ) -> Tuple[int, int]:
     """preprocess the bins"""
 
-    if data.name == "Frequency Series" and np.all(data.freq >= 0):
+    if data.name == "Frequency Series" and np.all(data.freq.data >= 0):
         N = 2 * (len(data) - 1)
     else:  # Two sided transform OR time series
         N = len(data)
@@ -36,7 +36,7 @@ def _get_bins(
     Eq 4-6 in Wavelets paper
     """
     T = data.duration
-    if isinstance(data, FrequencySeries) and np.all(data.freq >= 0):
+    if isinstance(data, FrequencySeries):
         N = 2 * (len(data) - 1)
     else:  # Two sided transform OR time series
         N = len(data)

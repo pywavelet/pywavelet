@@ -6,7 +6,7 @@ import numpy as np
 from scipy.signal import spectrogram
 from xarray_dataclasses import AsDataArray, Coordof, Data, Name
 
-from .common import TIME, TimeAxis, _len_check
+from .common import TIME, TimeAxis, _len_check, is_documented_by
 from .plotting import plot_spectrogram, plot_timeseries
 
 __all__ = ["TimeSeries"]
@@ -21,9 +21,11 @@ class TimeSeries(AsDataArray):
     def __post_init__(self):
         _len_check(self.data)
 
+    @is_documented_by(plot_timeseries)
     def plot(self, ax=None, **kwargs) -> Tuple[plt.Figure, plt.Axes]:
         return plot_timeseries(self.data, self.time, ax=ax, **kwargs)
 
+    @is_documented_by(plot_spectrogram)
     def plot_spectrogram(
         self,
         ax=None,

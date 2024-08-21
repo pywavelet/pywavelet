@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from xarray_dataclasses import AsDataArray, Coordof, Data, Name
 
-from .common import FREQ, FreqAxis
+from .common import FREQ, FreqAxis, is_documented_by
 from .plotting import plot_freqseries, plot_periodogram
 
 __all__ = ["FrequencySeries"]
@@ -17,11 +17,13 @@ class FrequencySeries(AsDataArray):
     freq: Coordof[FreqAxis] = 0
     name: Name[str] = "Frequency Series"
 
+    @is_documented_by(plot_freqseries)
     def plot(self, ax=None, **kwargs) -> Tuple[plt.Figure, plt.Axes]:
         return plot_freqseries(
             self.data, self.freq, self.nyquist_frequency, ax=ax, **kwargs
         )
 
+    @is_documented_by(plot_periodogram)
     def plot_periodogram(
         self, ax=None, **kwargs
     ) -> Tuple[plt.Figure, plt.Axes]:
