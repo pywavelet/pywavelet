@@ -75,7 +75,7 @@ class FrequencySeries(AsDataArray):
 
     @property
     def is_two_sided(self) -> bool:
-        return np.all(self.freq >= 0)
+        return np.all(self.freq.data >= 0)
 
     def __repr__(self):
         return f"FrequencySeries(n={len(self)}, frange=[{min(self.freq):.2f}, {max(self.freq):.2f}] Hz, T={self.duration:.2f}s, fs={self.fs:.2f} Hz)"
