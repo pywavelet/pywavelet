@@ -1,19 +1,11 @@
 from dataclasses import dataclass
-from typing import Literal, Optional, Tuple, Union
+from typing import Optional, Tuple, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
 import xarray as xr
 from matplotlib.colors import LogNorm, TwoSlopeNorm
-from scipy.signal import spectrogram
-from xarray_dataclasses import (
-    AsDataArray,
-    Attr,
-    Coordof,
-    Data,
-    DataOptions,
-    Name,
-)
+from xarray_dataclasses import AsDataArray, Coordof, Data, DataOptions, Name
 
 from .common import FREQ, TIME, FreqAxis, TimeAxis
 

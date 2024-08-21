@@ -1,9 +1,7 @@
-from typing import Optional, Union
+from typing import Union
 
 import numpy as np
 from scipy.interpolate import interp1d
-
-from pywavelet.transforms.types import Wavelet
 
 from .transforms.types import FrequencySeries, TimeSeries, Wavelet
 

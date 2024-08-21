@@ -1,3 +1,4 @@
+# TODO: do we need to keep this class? if we do, lets nuke the bilby dependency (#https://github.com/pywavelet/pywavelet/issues/14)
 import matplotlib.pyplot as plt
 import numpy as np
 from bilby.core.utils import PropertyAccessor

@@ -1,18 +1,8 @@
 from dataclasses import dataclass
-from typing import Literal, Tuple
+from typing import Literal
 
-import matplotlib.pyplot as plt
 import numpy as np
-import xarray as xr
-from scipy.signal import spectrogram
-from xarray_dataclasses import (
-    AsDataArray,
-    Attr,
-    Coordof,
-    Data,
-    DataOptions,
-    Name,
-)
+from xarray_dataclasses import Attr, Data
 
 from ...logger import logger
 

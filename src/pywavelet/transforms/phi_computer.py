@@ -42,7 +42,6 @@ def phitilde_vec(omega: np.ndarray, Nf: int, dt: float, d=4.0) -> np.ndarray:
     if B <= 0:
         raise ValueError("B must be greater than 0")
 
-    # breakpoint()
     phi = np.zeros(omega.size)
     mask = (A <= np.abs(omega)) & (np.abs(omega) < A + B)  # Minor changes
     vd = (PI / 2.0) * __nu_d(omega[mask], A, B, d=d)  # different from paper

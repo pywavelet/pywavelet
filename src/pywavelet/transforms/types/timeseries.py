@@ -1,18 +1,10 @@
 from dataclasses import dataclass
-from typing import Literal, Tuple
+from typing import Tuple
 
 import matplotlib.pyplot as plt
 import numpy as np
-import xarray as xr
 from scipy.signal import spectrogram
-from xarray_dataclasses import (
-    AsDataArray,
-    Attr,
-    Coordof,
-    Data,
-    DataOptions,
-    Name,
-)
+from xarray_dataclasses import AsDataArray, Coordof, Data, Name
 
 from .common import TIME, TimeAxis, _len_check
 
