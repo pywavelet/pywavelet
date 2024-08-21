@@ -171,10 +171,10 @@ class CoupledData(object):
         wavelet: Wavelet,
         minimum_frequency=0,
         maximum_frequency=np.inf,
-        roll_off=0.2,
-        nx=4.0,
-        mult=32.0,
-        dt=None,
+        roll_off: float = 0.2,
+        nx: float = 4.0,
+        mult: float = 32.0,
+        dt: float = None,
     ):
         strain_data = cls(
             minimum_frequency=minimum_frequency,

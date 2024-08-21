@@ -55,5 +55,5 @@ def compute_snr(h: Wavelet, PSD: Wavelet) -> float:
         The SNR of the model h given freqseries d and PSD.
 
     """
-    snr_sqrd = np.nansum((h * h) / PSD)
+    snr_sqrd = np.nansum((h.data * h.data) / PSD.data)
     return np.sqrt(snr_sqrd)
