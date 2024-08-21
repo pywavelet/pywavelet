@@ -16,7 +16,7 @@ from .transforms.types import FrequencySeries, TimeSeries, Wavelet
 
 
 class CoupledData(object):
-    """A class to hold data that is coupled in the time, frequency, wavelet domains"""
+    """A class to hold freqseries that is coupled in the time, frequency, wavelet domains"""
 
     duration = PropertyAccessor("_coupled_timefreq_data", "duration")
     sampling_frequency = PropertyAccessor(
@@ -46,7 +46,7 @@ class CoupledData(object):
     ):
         """Initiate a CoupledData object
 
-        The initialised object contains no data, this should be added using one
+        The initialised object contains no freqseries, this should be added using one
         of the `set_from..` methods.
 
         Parameters
@@ -119,7 +119,7 @@ class CoupledData(object):
             start_time=timeseries.t0,
         )
         strain_data._wavelet = from_time_to_wavelet(
-            data=timeseries,
+            timeseries=timeseries,
             Nf=strain_data.Nf,
             Nt=strain_data.Nt,
             nx=strain_data.nx,

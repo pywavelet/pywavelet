@@ -21,7 +21,9 @@ class _Wavelet(xr.DataArray):
         """Custom method."""
         kwargs["time_grid"] = kwargs.get("time_grid", self.time.data)
         kwargs["freq_grid"] = kwargs.get("freq_grid", self.freq.data)
-        return plot_wavelet_grid(self.data, ax=ax, *args, **kwargs)
+        return plot_wavelet_grid(
+            wavelet_data=self.data, ax=ax, *args, **kwargs
+        )
 
     @property
     def Nt(self) -> int:
@@ -131,13 +133,13 @@ def plot_wavelet_grid(
     Parameters
     ----------
     wavelet_data : np.ndarray
-        The wavelet data to plot.
+        The wavelet freqseries to plot.
 
     time_grid : np.ndarray, optional
-        The time grid for the wavelet data.
+        The time grid for the wavelet freqseries.
 
     freq_grid : np.ndarray, optional
-        The frequency grid for the wavelet data.
+        The frequency grid for the wavelet freqseries.
 
     ax : plt.Axes, optional
         The axes to plot on.
@@ -149,7 +151,7 @@ def plot_wavelet_grid(
         The scale for the frequency axis.
 
     absolute : bool, optional
-        Whether to plot the absolute value of the wavelet data.
+        Whether to plot the absolute value of the wavelet freqseries.
 
     freq_range : Tuple[float, float], optional
         The frequency range to plot.

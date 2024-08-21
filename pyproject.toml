@@ -115,3 +115,8 @@ ignore_errors = true
 
 [tool.coverage.html]
 title = "pywavelet Coverage Test Report"
+
+
+[[tool.mypy.overrides]]
+module = "matplotlib.*,scipy.*,numba.*,bilby.*"
+ignore_missing_imports = true

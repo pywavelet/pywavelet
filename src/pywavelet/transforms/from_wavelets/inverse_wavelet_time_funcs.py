@@ -32,7 +32,13 @@ def inverse_wavelet_time_helper_fast(
 
 @njit()
 def unpack_time_wave_helper(
-    n: int, Nf: int, Nt: int, K: int, phis: np.ndarray, fft_fin_real, res
+    n: int,
+    Nf: int,
+    Nt: int,
+    K: int,
+    phis: np.ndarray,
+    fft_fin_real: np.ndarray,
+    res: np.ndarray,
 ) -> None:
     """helper for time domain wavelet transform to unpack wavelet domain coefficients"""
     ND = Nf * Nt
@@ -91,7 +97,7 @@ def unpack_time_wave_helper_compact(
 @njit()
 def pack_wave_time_helper(
     n: int, Nf: int, Nt: int, wave_in: np.ndarray, afins: np.ndarray
-):
+) -> None:
     """helper for time domain transform to pack wavelet domain coefficients
 
     IN-PLACE EDITS afins

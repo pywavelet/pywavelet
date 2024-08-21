@@ -6,7 +6,7 @@ from numpy import fft
 
 def inverse_wavelet_freq_helper_fast(
     wave_in: np.ndarray, phif: np.ndarray, Nf: int, Nt: int
-):
+) -> np.ndarray:
     """jit compatible loop for inverse_wavelet_freq"""
     wave_in = wave_in.T
     ND = Nf * Nt
@@ -24,7 +24,9 @@ def inverse_wavelet_freq_helper_fast(
 
 
 @njit()
-def __pack_wave_inverse(m, Nt, Nf, prefactor2s, wave_in) -> None:
+def __pack_wave_inverse(
+    m: int, Nt: int, Nf: int, prefactor2s: np.ndarray, wave_in: np.ndarray
+) -> None:
     """helper for fast frequency domain inverse transform to prepare for fourier transform"""
     if m == 0:
         for n in range(0, Nt):

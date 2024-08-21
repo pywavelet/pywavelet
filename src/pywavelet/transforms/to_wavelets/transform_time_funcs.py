@@ -8,22 +8,22 @@ def transform_wavelet_time_helper(
     data: np.ndarray, Nf: int, Nt: int, phi: np.ndarray, mult: int
 ) -> np.ndarray:
     """helper function to do the wavelet transform in the time domain"""
-    # the time domain data stream
+    # the time domain freqseries stream
     ND = Nf * Nt
     K = mult * 2 * Nf
     assert len(data) == ND, f"len(data)={len(data)} != Nf*Nt={ND}"
 
-    # windowed data packets
+    # windowed freqseries packets
     wdata = np.zeros(K)
     wave = np.zeros((Nt, Nf))  # wavelet wavepacket transform of the signal
     data_pad = np.concatenate((data, data[:K]))
 
-    for i in range(0, Nt):
-        t_bin = __fill_wave_1(i, K, ND, Nf, wdata, data_pad, phi)
+    for time_bin_i in range(0, Nt):
+        __fill_wave_1(time_bin_i, K, ND, Nf, wdata, data_pad, phi)
         wdata_trans = fft.rfft(
             wdata, K
         )  # A fix because numba doesn't support np.fft
-        __fill_wave_2(t_bin, wave, wdata_trans, Nf, mult)
+        __fill_wave_2(time_bin_i, wave, wdata_trans, Nf, mult)
 
     return wave
 
@@ -39,17 +39,18 @@ def __fill_wave_1(
     phi: np.ndarray,
 ) -> None:
     """Assign wdata to be FFT'd in a loop with K extra values on the right to loop."""
-    # wrapping the data is needed to make the sum in Eq 13 in Cornish paper from [-K/2, K/2]
-    jj = (t_bin * Nf - K // 2) % ND  # Periodically wrap the data
+    # wrapping the freqseries is needed to make the sum in Eq 13 in Cornish paper from [-K/2, K/2]
+    jj = (t_bin * Nf - K // 2) % ND  # Periodically wrap the freqseries
     for j in range(K):
         # Eq 13 from Cornish paper
         wdata[j] = data_pad[jj] * phi[j]  # Apply the window
-        jj = (jj + 1) % ND  # Periodically wrap the data
-    return t_bin
+        jj = (jj + 1) % ND  # Periodically wrap the freqseries
 
 
 @njit()
-def __fill_wave_2(t_bin, wave, wdata_trans, Nf, mult):
+def __fill_wave_2(
+    t_bin: int, wave: np.ndarray, wdata_trans: np.ndarray, Nf: int, mult: int
+) -> None:
     # wdata_trans = np.sum(wdata) * np.exp(1j * np.pi * np.arange(0, 1+K//2) / K)
 
     # pack fft'd wdata into wave array

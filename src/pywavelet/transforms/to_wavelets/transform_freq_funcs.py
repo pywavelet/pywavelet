@@ -1,6 +1,6 @@
 """helper functions for transform_freq"""
 import numpy as np
-from numba import jit, njit
+from numba import njit
 from numpy import fft
 
 
@@ -11,10 +11,12 @@ def transform_wavelet_freq_helper(
     wave = np.zeros((Nt, Nf))  # wavelet wavepacket transform of the signal
 
     DX = np.zeros(Nt, dtype=np.complex128)
-    freq_strain = data.data.copy()  # Convert
+    freq_strain = data.copy()  # Convert
     for f_bin in range(0, Nf + 1):
         __fill_wave_1(f_bin, Nt, Nf, DX, freq_strain, phif)
-        DX_trans = fft.ifft(DX, Nt)
+        DX_trans = fft.ifft(
+            DX, Nt
+        )  # A fix because numba doesn't support np.fft
         __fill_wave_2(f_bin, DX_trans, wave, Nt, Nf)
 
     return wave
@@ -55,7 +57,9 @@ def __fill_wave_1(
 
 
 @njit()
-def __fill_wave_2(f_bin, DX_trans, wave, Nt, Nf):
+def __fill_wave_2(
+    f_bin: int, DX_trans: np.ndarray, wave: np.ndarray, Nt: int, Nf: int
+) -> None:
     if f_bin == 0:
         # half of lowest and highest frequency bin pixels are redundant, so store them in even and odd components of f_bin=0 respectively
         for n in range(0, Nt, 2):

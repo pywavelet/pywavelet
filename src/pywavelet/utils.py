@@ -36,7 +36,7 @@ def evolutionary_psd_from_stationary_psd(
 
 
 def compute_snr(h: Wavelet, PSD: Wavelet) -> float:
-    """Compute the SNR of a model h[ti,fi] given data d[ti,fi] and PSD[ti,fi].
+    """Compute the SNR of a model h[ti,fi] given freqseries d[ti,fi] and PSD[ti,fi].
 
     SNR(h) = Sum_{ti,fi} [ h_hat[ti,fi] d[ti,fi] / PSD[ti,fi]
 
@@ -45,14 +45,14 @@ def compute_snr(h: Wavelet, PSD: Wavelet) -> float:
     h : np.ndarray
         The model in the wavelet domain (binned in [ti,fi]).
     d : np.ndarray
-        The data in the wavelet domain (binned in [ti,fi]).
+        The freqseries in the wavelet domain (binned in [ti,fi]).
     PSD : np.ndarray
         The PSD in the wavelet domain (binned in [ti,fi]).
 
     Returns
     -------
     float
-        The SNR of the model h given data d and PSD.
+        The SNR of the model h given freqseries d and PSD.
 
     """
     snr_sqrd = np.nansum((h * h) / PSD)

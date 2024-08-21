@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Tuple, Union
 
 import numpy as np
 
@@ -7,7 +7,7 @@ from ..types import FrequencySeries, TimeSeries
 
 def _preprocess_bins(
     data: Union[TimeSeries, FrequencySeries], Nf=None, Nt=None
-):
+) -> Tuple[int, int]:
     """preprocess the bins"""
 
     if data.name == "Frequency Series" and np.all(data.freq >= 0):
@@ -27,7 +27,11 @@ def _preprocess_bins(
     return Nf, Nt
 
 
-def _get_bins(data: Union[TimeSeries, FrequencySeries], Nf=None, Nt=None):
+def _get_bins(
+    data: Union[TimeSeries, FrequencySeries],
+    Nf: Union[int, None] = None,
+    Nt: Union[int, None] = None,
+) -> Tuple[np.ndarray, np.ndarray]:
     """Get the bins for the wavelet transform
     Eq 4-6 in Wavelets paper
     """

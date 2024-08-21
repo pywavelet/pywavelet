@@ -1,11 +1,13 @@
 import numpy as np
-import scipy
 from numpy import fft
+from scipy.special import betainc
 
 PI = np.pi
 
 
-def phitilde_vec(omega: np.ndarray, Nf: int, dt: float, d=4.0) -> np.ndarray:
+def phitilde_vec(
+    omega: np.ndarray, Nf: int, dt: float, d: float = 4.0
+) -> np.ndarray:
     """Compute phi_tilde(omega_i) array, nx is filter steepness, defaults to 4.
 
     Eq 11 of https://arxiv.org/pdf/2009.00043.pdf (Cornish et al. 2020)
@@ -50,7 +52,9 @@ def phitilde_vec(omega: np.ndarray, Nf: int, dt: float, d=4.0) -> np.ndarray:
     return phi
 
 
-def __nu_d(omega, A, B, d=4.0):
+def __nu_d(
+    omega: np.ndarray, A: float, B: float, d: float = 4.0
+) -> np.ndarray:
     """Compute the normalized incomplete beta function.
 
     Parameters
@@ -74,12 +78,10 @@ def __nu_d(omega, A, B, d=4.0):
 
     """
     x = (np.abs(omega) - A) / B
-    numerator = scipy.special.betainc(d, d, x)
-    denominator = scipy.special.betainc(d, d, 1)
-    return numerator / denominator
+    return betainc(d, d, x) / betainc(d, d, 1)
 
 
-def phitilde_vec_norm(Nf: int, Nt: int, dt: float, d: int) -> np.ndarray:
+def phitilde_vec_norm(Nf: int, Nt: int, dt: float, d: float) -> np.ndarray:
     """Normalize phitilde for inverse frequency domain transform."""
 
     # Calculate the frequency values
