@@ -374,10 +374,14 @@ document.write(`
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#time-domain-signal">Time domain signal</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#define-data-sizes">Define data-sizes</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#wdm-transform">WDM transform</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#plots">Plots</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#time-to-wavelet-to-time">Time to Wavelet to Time</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#time-domain-chirp">Time domain chirp</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#define-data-sizes">Define data-sizes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wdm-transform">WDM transform</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#plots">Plots</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#freq-to-wavelet-to-freq">Freq to Wavelet to Freq</a></li>
 </ul>
             </nav>
         </div>
@@ -391,10 +395,11 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="roundtrip-transfomation">
 <h1>Roundtrip transfomation<a class="headerlink" href="#roundtrip-transfomation" title="Permalink to this heading">#</a></h1>
-<p><em>Time to Wavelet to Time</em></p>
+<section id="time-to-wavelet-to-time">
+<h2>Time to Wavelet to Time<a class="headerlink" href="#time-to-wavelet-to-time" title="Permalink to this heading">#</a></h2>
 <p>Let’s transform a time-domain signal to wavelet-domain and back to time-domain and compare the original and reconstructed signals.</p>
-<section id="time-domain-signal">
-<h2>Time domain signal<a class="headerlink" href="#time-domain-signal" title="Permalink to this heading">#</a></h2>
+<section id="time-domain-chirp">
+<h3>Time domain chirp<a class="headerlink" href="#time-domain-chirp" title="Permalink to this heading">#</a></h3>
 <p>To start, lets define a function to generate the time-domain signal.</p>
 <div class="cell tag_hide-cell docutils container">
 <details class="hide above-input">
@@ -435,7 +440,7 @@ document.write(`
 </div>
 </section>
 <section id="define-data-sizes">
-<h2>Define data-sizes<a class="headerlink" href="#define-data-sizes" title="Permalink to this heading">#</a></h2>
+<h3>Define data-sizes<a class="headerlink" href="#define-data-sizes" title="Permalink to this heading">#</a></h3>
 <p>We can now generate the timeseries.
 We need to be careful about the length of the timeseries (<span class="math notranslate nohighlight">\(ND\)</span>), and the number of time bins (<span class="math notranslate nohighlight">\(N_t\)</span>) and number of frequency bins (<span class="math notranslate nohighlight">\(N_f\)</span>) to use for our transform.</p>
 <p>We must have <span class="math notranslate nohighlight">\(ND=N_t\times N_f\)</span>.</p>
@@ -457,7 +462,7 @@ We need to be careful about the length of the timeseries (<span class="math notr
 </div>
 </section>
 <section id="wdm-transform">
-<h2>WDM transform<a class="headerlink" href="#wdm-transform" title="Permalink to this heading">#</a></h2>
+<h3>WDM transform<a class="headerlink" href="#wdm-transform" title="Permalink to this heading">#</a></h3>
 <p>With the timeseries, the selection for <span class="math notranslate nohighlight">\(\{ND, N_t, N_f\}\)</span>, we can transform the timeseries into the WDM domain.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -474,7 +479,7 @@ We need to be careful about the length of the timeseries (<span class="math notr
 </div>
 </section>
 <section id="plots">
-<h2>Plots<a class="headerlink" href="#plots" title="Permalink to this heading">#</a></h2>
+<h3>Plots<a class="headerlink" href="#plots" title="Permalink to this heading">#</a></h3>
 <p>Finally, we can plot the WDM-transform of the timeseries, along with residuals from the round-trip transform back to time-domain.</p>
 <div class="cell tag_hide-cell docutils container">
 <details class="hide above-input">
@@ -518,13 +523,13 @@ We need to be careful about the length of the timeseries (<span class="math notr
 <span class="n">axes</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Residuals&quot;</span><span class="p">)</span>
 <span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">3</span><span class="p">]:</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="o">*</span><span class="n">freq_range</span><span class="p">)</span>
-<span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;roundtrip_demo.png&quot;</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;roundtrip_time.png&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 </details>
 </div>
-<p><img alt="" src="_images/roundtrip_demo.png" /></p>
+<p><img alt="" src="roundtrip_time.png" /></p>
 <p>Note: <code class="docutils literal notranslate"><span class="pre">pywavelet</span></code> provides some useful wavelet plotting utilities, availible from the <code class="docutils literal notranslate"><span class="pre">Wavelet</span></code> object:</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -536,11 +541,80 @@ We need to be careful about the length of the timeseries (<span class="math notr
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Help on method plot in module pywavelet.transforms.types.wavelet:
 
 plot(ax=None, *args, **kwargs) -&gt; matplotlib.figure.Figure method of pywavelet.transforms.types.wavelet._Wavelet instance
-    Custom method.
+    Plot a 2D grid of wavelet coefficients.
+    
+    Parameters
+    ----------
+    wavelet_data : np.ndarray
+        The wavelet freqseries to plot.
+    
+    time_grid : np.ndarray, optional
+        The time grid for the wavelet freqseries.
+    
+    freq_grid : np.ndarray, optional
+        The frequency grid for the wavelet freqseries.
+    
+    ax : plt.Axes, optional
+        The axes to plot on.
+    
+    zscale : str, optional
+        The scale for the colorbar.
+    
+    freq_scale : str, optional
+        The scale for the frequency axis.
+    
+    absolute : bool, optional
+        Whether to plot the absolute value of the wavelet freqseries.
+    
+    freq_range : Tuple[float, float], optional
+        The frequency range to plot.
+    
+    kwargs : dict, optional
+        Additional keyword arguments for the plot.
 </pre></div>
 </div>
 </div>
 </div>
+</section>
+</section>
+<section id="freq-to-wavelet-to-freq">
+<h2>Freq to Wavelet to Freq<a class="headerlink" href="#freq-to-wavelet-to-freq" title="Permalink to this heading">#</a></h2>
+<p>Lets try again, but this time, using a sine-wave in the frequency domain.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">pywavelet.transforms.types</span> <span class="kn">import</span> <span class="n">FrequencySeries</span><span class="p">,</span> <span class="n">FreqAxis</span>
+<span class="kn">from</span> <span class="nn">pywavelet.transforms</span> <span class="kn">import</span> <span class="n">from_freq_to_wavelet</span><span class="p">,</span> <span class="n">from_wavelet_to_freq</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="n">Nf</span> <span class="o">=</span> <span class="mi">64</span>
+<span class="n">Nt</span> <span class="o">=</span> <span class="mi">8</span>
+<span class="n">mult</span> <span class="o">=</span> <span class="mi">16</span>
+<span class="n">ND</span> <span class="o">=</span> <span class="n">Nf</span> <span class="o">*</span> <span class="n">Nt</span>
+<span class="n">freq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">512</span><span class="p">,</span> <span class="n">ND</span><span class="p">)</span>
+<span class="n">true_freq</span> <span class="o">=</span> <span class="mi">126</span>
+<span class="c1"># get bin number for true_freq</span>
+<span class="n">amplitudes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">ND</span><span class="p">)</span>
+<span class="n">amplitudes</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">freq</span> <span class="o">-</span> <span class="n">true_freq</span><span class="p">))]</span> <span class="o">=</span> <span class="mi">1</span>
+
+
+<span class="n">h_freq</span> <span class="o">=</span> <span class="n">FrequencySeries</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">amplitudes</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="n">FreqAxis</span><span class="p">(</span><span class="n">freq</span><span class="p">))</span>
+<span class="n">h_wavelet</span> <span class="o">=</span> <span class="n">from_freq_to_wavelet</span><span class="p">(</span><span class="n">h_freq</span><span class="p">,</span> <span class="n">Nf</span><span class="o">=</span><span class="n">Nf</span><span class="p">,</span> <span class="n">Nt</span><span class="o">=</span><span class="n">Nt</span><span class="p">)</span>
+<span class="n">h_reconstructed</span> <span class="o">=</span> <span class="n">from_wavelet_to_freq</span><span class="p">(</span><span class="n">h_wavelet</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="n">h_freq</span><span class="o">.</span><span class="n">df</span><span class="p">)</span>
+
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+<span class="n">_</span> <span class="o">=</span> <span class="n">h_freq</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">_</span> <span class="o">=</span> <span class="n">h_wavelet</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">absolute</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;Reds&quot;</span><span class="p">)</span>
+<span class="n">_</span> <span class="o">=</span> <span class="n">h_reconstructed</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+<span class="c1"># _ = plot_residuals(axes[2], h_freq.data - h_reconstructed.data)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;roundtrip_freq.png&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p><img alt="" src="roundtrip_freq.png" /></p>
+<p>&#64;Ollie – Do we have to ensure 2-sided frequency spectrum for the input frequency series?</p>
 </section>
 </section>
 
@@ -598,10 +672,14 @@ plot(ax=None, *args, **kwargs) -&gt; matplotlib.figure.Figure method of pywavele
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#time-domain-signal">Time domain signal</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#define-data-sizes">Define data-sizes</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#wdm-transform">WDM transform</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#plots">Plots</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#time-to-wavelet-to-time">Time to Wavelet to Time</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#time-domain-chirp">Time domain chirp</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#define-data-sizes">Define data-sizes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wdm-transform">WDM transform</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#plots">Plots</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#freq-to-wavelet-to-freq">Freq to Wavelet to Freq</a></li>
 </ul>
   </nav></div>
 
