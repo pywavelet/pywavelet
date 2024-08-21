@@ -167,10 +167,16 @@ const thebe_selector_output = ".output, .cell_output"
                 </a>
             </li>
         </ul>
-        <ul class="nav bd-sidenav">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text"> </span></p>
+<ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="demos/roundtrip_demo.html">Roundtrip transfomation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="demos/lisa_mcmc_demo.html">LISA MCMC demo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="roundtrip_demo.html">Roundtrip transfomation</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Case Studies</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference external" href="https://www.youtube.com/watch?v=dQw4w9WgXcQ&amp;themeRefresh=1">LISA white-dwarf</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://www.youtube.com/watch?v=dQw4w9WgXcQ&amp;themeRefresh=1">LVK compact binary</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://www.youtube.com/watch?v=dQw4w9WgXcQ&amp;themeRefresh=1">Analysis with gaps</a></li>
 </ul>
 
     </div>
@@ -366,8 +372,10 @@ document.write(`
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#table-of-contents">Table of contents</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#relevant-sources">Relevant sources</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#table-of-contents">Table of contents</a><ul class="nav section-nav flex-column">
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#acknowledging-pywavelet-and">Acknowledging PyWavelet and</a></li>
 </ul>
             </nav>
         </div>
@@ -381,40 +389,46 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="pywavelet-documentation">
 <h1>PyWavelet Documentation<a class="headerlink" href="#pywavelet-documentation" title="Permalink to this heading">#</a></h1>
-<p>PyWavelet is a python package designed to help work with GW waveforms in the WDM wavelet domain.</p>
-<p>Currently, PyWavelet is in the early stages of development and is based entirely off <span id="id1">[<a class="reference internal" href="#id8" title="MC Digman. Wdmwavelettransforms. 2023. URL: https://github.com/XGI-MSU/WDMWaveletTransforms.">Dig23</a>]</span>.</p>
-<p>The package is not yet available on PyPI, but can be installed from source. The source code is available on <a class="reference external" href="https://github.com/avivajpeyi/pywavelet">GitHub</a></p>
+<p>PyWavelet is a python package for transforming time-domain and frequency-domain data into the wavelet domain.</p>
 <section id="table-of-contents">
 <h2>Table of contents<a class="headerlink" href="#table-of-contents" title="Permalink to this heading">#</a></h2>
 <div class="toctree-wrapper compound">
+<p aria-level="2" class="caption" role="heading"><span class="caption-text"> </span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="demos/roundtrip_demo.html">Roundtrip transfomation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="demos/lisa_mcmc_demo.html">LISA MCMC demo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="roundtrip_demo.html">Roundtrip transfomation</a></li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Case Studies</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://www.youtube.com/watch?v=dQw4w9WgXcQ&amp;themeRefresh=1">LISA white-dwarf</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://www.youtube.com/watch?v=dQw4w9WgXcQ&amp;themeRefresh=1">LVK compact binary</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://www.youtube.com/watch?v=dQw4w9WgXcQ&amp;themeRefresh=1">Analysis with gaps</a></li>
 </ul>
 </div>
 </section>
-<section id="relevant-sources">
-<h2>Relevant sources<a class="headerlink" href="#relevant-sources" title="Permalink to this heading">#</a></h2>
-<p>The following papers are relevant to the use of PyWavelet:</p>
-<ul class="simple">
-<li><p><span id="id2">[<a class="reference internal" href="#id6" title="Neil J. Cornish. Time-frequency analysis of gravitational wave data. \prd , 102(12):124038, December 2020. URL: https://arxiv.org/abs/2009.00043, arXiv:2009.00043, doi:10.1103/PhysRevD.102.124038.">Cornish20</a>]</span>: Cornish’s paper on the WDM transform for GW data analysis.</p></li>
-<li><p><span id="id3">[<a class="reference internal" href="#id7" title="Neil Cornish. Wdm_transform. 2020. URL: https://github.com/eXtremeGravityInstitute/WDM_Transform.">Cor20</a>]</span>: Cornish’s WDM transform repository.</p></li>
-<li><p><span id="id4">[<a class="reference internal" href="#id8" title="MC Digman. Wdmwavelettransforms. 2023. URL: https://github.com/XGI-MSU/WDMWaveletTransforms.">Dig23</a>]</span>: Digman’s WDM transform repository.</p></li>
-</ul>
-<div class="docutils container" id="id5">
-<div class="citation" id="id7" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id3">Cor20</a><span class="fn-bracket">]</span></span>
+<section id="acknowledging-pywavelet-and">
+<h2>Acknowledging PyWavelet and<a class="headerlink" href="#acknowledging-pywavelet-and" title="Permalink to this heading">#</a></h2>
+<p>If you use PyWavelet in your research, please acknowledge it by citing the following work:</p>
+<div class="highlight-bibtex notranslate"><div class="highlight"><pre><span></span><span class="nc">@article</span><span class="p">{</span>
+<span class="w">    </span><span class="nl">TODO</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>This work is based on the WDM transform code developed by <span id="id1">[<a class="reference internal" href="#id4" title="Neil Cornish. Wdm_transform. 2020. URL: https://github.com/eXtremeGravityInstitute/WDM_Transform.">Cor20</a>, <a class="reference internal" href="#id5" title="MC Digman. Wdmwavelettransforms. 2023. URL: https://github.com/XGI-MSU/WDMWaveletTransforms.">Dig23</a>, <a class="reference internal" href="#id3" title="Neil J. Cornish. Time-frequency analysis of gravitational wave data. Physical Review D, 102(12):124038, December 2020. URL: https://arxiv.org/abs/2009.00043, arXiv:2009.00043, doi:10.1103/PhysRevD.102.124038.">Cornish20</a>]</span>.</p>
+<div class="docutils container" id="id2">
+<div class="citation" id="id4" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">Cor20</a><span class="fn-bracket">]</span></span>
 <p>Neil Cornish. Wdm_transform. 2020. URL: <a class="github reference external" href="https://github.com/eXtremeGravityInstitute/WDM_Transform">eXtremeGravityInstitute/WDM_Transform</a>.</p>
 </div>
-<div class="citation" id="id8" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span>Dig23<span class="fn-bracket">]</span></span>
-<span class="backrefs">(<a role="doc-backlink" href="#id1">1</a>,<a role="doc-backlink" href="#id4">2</a>)</span>
+<div class="citation" id="id5" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">Dig23</a><span class="fn-bracket">]</span></span>
 <p>MC Digman. Wdmwavelettransforms. 2023. URL: <a class="github reference external" href="https://github.com/XGI-MSU/WDMWaveletTransforms">XGI-MSU/WDMWaveletTransforms</a>.</p>
 </div>
-<div class="citation" id="id6" role="doc-biblioentry">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">Cornish20</a><span class="fn-bracket">]</span></span>
-<p>Neil J. Cornish. Time-frequency analysis of gravitational wave data. <em>\prd </em>, 102(12):124038, December 2020. URL: <a class="reference external" href="https://arxiv.org/abs/2009.00043">https://arxiv.org/abs/2009.00043</a>, <a class="reference external" href="https://arxiv.org/abs/2009.00043">arXiv:2009.00043</a>, <a class="reference external" href="https://doi.org/10.1103/PhysRevD.102.124038">doi:10.1103/PhysRevD.102.124038</a>.</p>
+<div class="citation" id="id3" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">Cornish20</a><span class="fn-bracket">]</span></span>
+<p>Neil J. Cornish. Time-frequency analysis of gravitational wave data. <em>Physical Review D</em>, 102(12):124038, December 2020. URL: <a class="reference external" href="https://arxiv.org/abs/2009.00043">https://arxiv.org/abs/2009.00043</a>, <a class="reference external" href="https://arxiv.org/abs/2009.00043">arXiv:2009.00043</a>, <a class="reference external" href="https://doi.org/10.1103/PhysRevD.102.124038">doi:10.1103/PhysRevD.102.124038</a>.</p>
 </div>
 </div>
 </div>
@@ -475,8 +489,10 @@ document.write(`
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#table-of-contents">Table of contents</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#relevant-sources">Relevant sources</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#table-of-contents">Table of contents</a><ul class="nav section-nav flex-column">
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#acknowledging-pywavelet-and">Acknowledging PyWavelet and</a></li>
 </ul>
   </nav></div>
 
