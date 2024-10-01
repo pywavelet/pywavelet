@@ -12,9 +12,16 @@ class Wavelet:
             time: xp.ndarray,
             freq: xp.ndarray,
     ):
+        nf, nt = data.shape
+        assert len(time) == nt, f"len(time)={len(time)} != nt={nt}"
+        assert len(freq) == nf, f"len(freq)={len(freq)} != nf={nf}"
+
         self.data = data
         self.time = time
         self.freq = freq
+
+
+
 
 
     @is_documented_by(plot_wavelet_grid)
@@ -76,4 +83,4 @@ class Wavelet:
         return self.sample_rate / 2
 
     def __repr__(self):
-        return f"Wavelet(NtxNf={self.shape[0]}x{self.shape[1]})"
+        return f"Wavelet(NfxNt={self.shape[0]}x{self.shape[1]})"

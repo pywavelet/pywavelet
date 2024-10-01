@@ -55,11 +55,11 @@ def plot_wavelet_grid(
         ax = fig.gca()
     fig = ax.get_figure()
 
-    Nt, Nf = wavelet_data.shape
+    Nf, Nt = wavelet_data.shape
     assert Nf == len(freq_grid), f"Nf={Nf} != len(freq_grid)={len(freq_grid)}"
     assert Nt == len(time_grid), f"Nt={Nt} != len(time_grid)={len(time_grid)}"
 
-    z = np.rot90(wavelet_data)
+    z = np.rot90(wavelet_data.T)
     if absolute:
         z = np.abs(z)
 

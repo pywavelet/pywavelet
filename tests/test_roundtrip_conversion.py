@@ -119,8 +119,7 @@ def __run_freqdomain_checks(hf, Nf, dt, make_plots, fname):
 
 def __run_timedomain_checks(ht, Nt, mult, dt, fname):
     wavelet = from_time_to_wavelet(ht, Nt=Nt, mult=mult)
-    assert wavelet.shape == (Nt, Nf)
-    assert wavelet.__repr__() == f"Wavelet(NtxNf={Nt}x{Nf})"
+    assert wavelet.__repr__() == f"Wavelet(NfxNt={Nf}x{Nt})"
     assert len(wavelet.freq) == Nf
     assert len(wavelet.time) == Nt
     h_reconstructed = from_wavelet_to_time(wavelet, mult=mult, dt=dt)
@@ -130,7 +129,7 @@ def __run_timedomain_checks(ht, Nt, mult, dt, fname):
 def _make_time_domain_plots(ht, h_reconstructed, wavelet, fname):
     fig, axes = plt.subplots(1, 3, figsize=(15, 5))
     ht.plot(ax=axes[0], label="Original")
-    h_reconstructed.plot(ax=axes[0], label="Reconstructed", linestyle="--", color="tab:orange")
+    h_reconstructed.plot(ax=axes[0], label="Reconstructed", linestyle="--", color="tab:orange", alpha=0.5)
     axes[0].legend()
     wavelet.plot(ax=axes[1])
 
