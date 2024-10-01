@@ -22,7 +22,6 @@ def transform_wavelet_freq_helper(
     return wave
 
 
-@njit()
 def __fill_wave_1(
     f_bin: int,
     Nt: int,
@@ -54,7 +53,6 @@ def __fill_wave_1(
             DX[i] = phif[j] * data[jj]
 
 
-@njit()
 def __fill_wave_2(
     f_bin: int, DX_trans: np.ndarray, wave: np.ndarray, Nt: int, Nf: int
 ) -> None:

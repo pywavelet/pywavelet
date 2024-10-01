@@ -1,39 +1,10 @@
-from dataclasses import dataclass
 from typing import Literal
 
-import numpy as np
-from xarray_dataclasses import Attr, Data
+import numpy as xp
+from numpy.fft import irfft, fft, rfft, rfftfreq
 
 from ...logger import logger
 
-TIME = Literal["time"]
-FREQ = Literal["freq"]
-
-
-@dataclass
-class TimeAxis:
-    data: Data[TIME, float]
-    long_name: Attr[str] = "Time"
-    units: Attr[str] = "s"
-
-    def __len__(self):
-        return len(self.data)
-
-    def __getitem__(self, item):
-        return self.data[item]
-
-
-@dataclass
-class FreqAxis:
-    data: Data[FREQ, float]
-    long_name: Attr[str] = "Frequency"
-    units: Attr[str] = "Hz"
-
-    def __len__(self):
-        return len(self.data)
-
-    def __getitem__(self, item):
-        return self.data[item]
 
 
 def _len_check(d):

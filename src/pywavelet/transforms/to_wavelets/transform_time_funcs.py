@@ -28,7 +28,6 @@ def transform_wavelet_time_helper(
     return wave
 
 
-@njit()
 def __fill_wave_1(
     t_bin: int,
     K: int,
@@ -47,7 +46,7 @@ def __fill_wave_1(
         jj = (jj + 1) % ND  # Periodically wrap the freqseries
 
 
-@njit()
+# @njit()
 def __fill_wave_2(
     t_bin: int, wave: np.ndarray, wdata_trans: np.ndarray, Nf: int, mult: int
 ) -> None:
