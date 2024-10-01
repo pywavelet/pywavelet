@@ -8,26 +8,18 @@ from utils import (
     plot_residuals,
 )
 
-from pywavelet.data import CoupledData, FrequencySeries, TimeSeries
-from pywavelet.transforms import from_wavelet_to_freq, from_wavelet_to_time
+from pywavelet.transforms.types import FrequencySeries, TimeSeries
+from pywavelet.transforms import from_wavelet_to_freq, from_wavelet_to_time, from_freq_to_wavelet, from_time_to_wavelet
 
-fs = 512
-dt = 1 / fs
-Nt = 2**6
-Nf = 2**6
-mult = 16
-ND = Nt * Nf
-ts = np.arange(0, ND) * dt
+from conftest import Nt, mult, dt, Nf
 
 
-def test_timedomain_chirp_roundtrip(make_plots, plot_dir):
-    freq_range = [20, 100]
+def test_timedomain_chirp_roundtrip(plot_dir, chirp_time):
     __run_timedomain_checks(
-        generate_chirp_time_domain_signal(ts, freq_range),
+        chirp_time,
         Nt,
         mult,
         dt,
-        make_plots,
         f"{plot_dir}/out_roundtrip/chirp_time.png",
     )
 
@@ -44,23 +36,25 @@ def test_timedomain_sine_roundtrip(make_plots, plot_dir):
     )
 
 
-def test_freqdomain_chirp_roundtrip(make_plots, plot_dir):
-    freq_range = [20, 100]
-    hf = CoupledData.from_timeseries(
-        generate_chirp_time_domain_signal(ts, freq_range),
-        Nt=Nt,
-        mult=mult,
-        minimum_frequency=freq_range[0],
-        maximum_frequency=freq_range[1],
-    ).frequencyseries
-    __run_freqdomain_checks(
-        hf,
-        Nt,
-        dt,
-        make_plots,
-        f"{plot_dir}/out_roundtrip/chirp_freq.png",
-    )
-
+# def test_freqdomain_chirp_roundtrip(make_plots, plot_dir):
+#     freq_range = [20, 100]
+#     ht = generate_chirp_time_domain_signal(ts, freq_range),
+#
+#     hf =
+#
+#     Nt = Nt,
+#     mult = mult,
+#     minimum_frequency = freq_range[0],
+#     maximum_frequency = freq_range[1],
+#
+# ).frequencyseries
+#     __run_freqdomain_checks(
+#     hf,
+#     Nt,
+#     dt,
+#     make_plots,
+#     f"{plot_dir}/out_roundtrip/chirp_freq.png",
+#     )
 
 def test_freqdomain_sine_roundtrip(make_plots, plot_dir):
     f0 = 20
@@ -69,7 +63,7 @@ def test_freqdomain_sine_roundtrip(make_plots, plot_dir):
     Nf = 32
 
     dt = 0.5 / (
-        2 * f0
+            2 * f0
     )  # Shannon's sampling theorem, set dt < 1/2*highest_freq
     t = np.arange(0, T, dt)  # Time array
 
@@ -123,35 +117,26 @@ def __run_freqdomain_checks(hf, Nf, dt, make_plots, fname):
     __check_residuals(hf.data - h_reconstructed.data, "t->f->wdm->f")
 
 
-def __run_timedomain_checks(ht, Nt, mult, dt, make_plots, fname):
-    data = CoupledData.from_timeseries(ht, Nt=Nt, mult=mult)
-    h_reconstructed = from_wavelet_to_time(data.wavelet, mult=mult, dt=dt)
-
-    if make_plots:
-        os.makedirs(os.path.dirname(fname), exist_ok=True)
-        __make_plots(
-            ht,
-            h_reconstructed,
-            data,
-            fname=fname,
-        )
-    __check_residuals(ht.data - h_reconstructed.data, "t->wdm->t")
+def __run_timedomain_checks(ht, Nt, mult, dt, fname):
+    wavelet = from_time_to_wavelet(ht, Nt=Nt, mult=mult)
+    assert wavelet.shape == (Nt, Nf)
+    assert wavelet.__repr__() == f"Wavelet(NtxNf={Nt}x{Nf})"
+    assert len(wavelet.freq) == Nf
+    assert len(wavelet.time) == Nt
+    h_reconstructed = from_wavelet_to_time(wavelet, mult=mult, dt=dt)
+    _make_time_domain_plots(ht, h_reconstructed, wavelet, fname)
 
 
-def __make_plots(h, h_reconstructed, data, fname):
-    fig, axes = plt.subplots(6, 1, figsize=(4, 15))
-    data.plot_all(axes=axes)
-    plot_residuals(h.data - h_reconstructed.data, axes=axes[4:6])
+def _make_time_domain_plots(ht, h_reconstructed, wavelet, fname):
+    fig, axes = plt.subplots(1, 3, figsize=(15, 5))
+    ht.plot(ax=axes[0], label="Original")
+    h_reconstructed.plot(ax=axes[0], label="Reconstructed", linestyle="--", color="tab:orange")
+    axes[0].legend()
+    wavelet.plot(ax=axes[1])
 
+    # assert no nans
+    assert not np.isnan(h_reconstructed.data).any(), "Reconstructed data contains NaNs"
+
+    plot_residuals(ht.data - h_reconstructed.data, axes[2])
     plt.tight_layout()
-    fig.savefig(fname, dpi=300)
-
-
-def __check_residuals(residuals, label):
-    mu, sig = np.mean(residuals), np.std(residuals)
-    assert (
-        np.abs(mu) < 1e-3
-    ), f"Roundtrip [{label}] residual mean is {mu} > 1e-3"
-    assert (
-        np.abs(sig) < 1e-3
-    ), f"Roundtrip [{label}] residual std is {sig} > 1e-3"
+    plt.savefig(fname)

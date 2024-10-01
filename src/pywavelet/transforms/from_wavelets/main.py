@@ -30,11 +30,11 @@ def from_wavelet_to_time(
     TimeSeries
         Time domain signal
     """
-    wave_in = wave_in.T
+
     mult = min(mult, wave_in.Nt // 2)  # make sure K isn't bigger than ND
     phi = phi_vec(wave_in.Nf, d=nx, q=mult, dt=dt) / 2
     h_t = inverse_wavelet_time_helper_fast(
-        wave_in.data, phi, wave_in.Nf, wave_in.Nt, mult
+        wave_in.data.T, phi, wave_in.Nf, wave_in.Nt, mult
     )
     h_t *= 2 ** -(
         1 / 2

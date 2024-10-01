@@ -30,7 +30,6 @@ def inverse_wavelet_time_helper_fast(
     return res[:ND]
 
 
-@njit()
 def unpack_time_wave_helper(
     n: int,
     Nf: int,
@@ -58,7 +57,6 @@ def unpack_time_wave_helper(
             k = 0
 
 
-@njit()
 def unpack_time_wave_helper_compact(
     n: int,
     Nf: int,

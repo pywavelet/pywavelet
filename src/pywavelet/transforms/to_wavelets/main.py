@@ -66,8 +66,8 @@ def from_time_to_wavelet(
 
     wave = wave * np.sqrt(2)
 
-    return Wavelet.from_data(
-        wave, time_grid=t_bins, freq_grid=f_bins, **kwargs
+    return Wavelet(
+        wave, t_bins, f_bins, **kwargs
     )
 
 
@@ -108,5 +108,5 @@ def from_freq_to_wavelet(
     )
     wave = wave * 2 ** (1 / 2)
     return Wavelet.from_data(
-        wave, time_grid=t_bins, freq_grid=f_bins, **kwargs
+        wave.T, time_grid=t_bins, freq_grid=f_bins, **kwargs
     )

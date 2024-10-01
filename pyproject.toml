@@ -29,9 +29,7 @@ dependencies = [
     "tqdm",
     "loguru",
     "astropy>=5.2.1",
-    "bilby",
     "pycbc",
-    "xarray-dataclasses"
 ]
 
 [project.optional-dependencies]
