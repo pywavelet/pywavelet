@@ -28,7 +28,20 @@ def zero_pad(data):
     return np.pad(data, (0, int((2**pow_2) - N)), "constant")
 
 
-def plot_residuals(residuals, ax:plt.Axes):
+def symlog_bins(data, lin_thresh=None, log_base=10, num_lin=5, num_log=10):
+    if lin_thresh is None:
+        lin_thresh= 0.05 * np.std(data)
+    lin_bins = np.linspace(-lin_thresh, lin_thresh, num_lin)
+    log_bins_pos = np.logspace(np.log10(lin_thresh), np.log10(np.max(np.abs(data))), num=num_log, base=log_base)
+    log_bins_neg = -np.logspace(np.log10(lin_thresh), np.log10(np.max(np.abs(data))), num=num_log, base=log_base)[::-1]
+    bins = np.concatenate([log_bins_neg, lin_bins, log_bins_pos])
+
+    bins = np.concatenate([log_bins_neg, lin_bins[1:-1], log_bins_pos])
+    bins = np.sort(np.unique(bins))
+    return bins, lin_thresh
+
+
+def plot_residuals(residuals, ax:plt.Axes, symlog=True):
     mean, std = np.mean(residuals), np.std(residuals)
     ax.text(
         0.05,
@@ -43,7 +56,12 @@ def plot_residuals(residuals, ax:plt.Axes):
     num_nans = np.sum(np.isnan(residuals))
     assert num_nans == 0, f"Found {num_nans} NaNs in residuals."
 
-    ax.hist(residuals, bins=50, density=True)
+    if symlog:
+        bins, lin_thresh = symlog_bins(residuals)
+        ax.hist(residuals, bins=bins, density=False)
+        ax.set_xscale("symlog", linthresh=lin_thresh)
+    else:
+        ax.hist(residuals, bins=100, density=False)
     ax.set_xlabel("Residuals")
     ax.set_ylabel("Density")
 

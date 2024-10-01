@@ -73,5 +73,5 @@ def from_wavelet_to_freq(
         -1 / 2
     )  # Normalise to get the proper backwards transformation
 
-    freqs = np.fft.rfftfreq(wave_in.ND, d=dt)
+    freqs = np.fft.rfftfreq(wave_in.ND*2, d=dt)[1:]
     return FrequencySeries(data=freq_data, freq=freqs)

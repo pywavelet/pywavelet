@@ -11,7 +11,7 @@ class FrequencySeries:
         if xp.any(freq < 0):
             raise ValueError("FrequencySeries must be one-sided (only non-negative frequencies)")
         if len(data) != len(freq):
-            raise ValueError("data and freq must have the same length")
+            raise ValueError(f"data and freq must have the same length ({len(data)} != {len(freq)})")
         self.data = data
         self.freq = freq
 

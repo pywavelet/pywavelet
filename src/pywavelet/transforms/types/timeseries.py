@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 from typing import Tuple, Union
 from scipy.signal.spectral import spectrogram
 
-from .common import is_documented_by, xp
+from .common import is_documented_by, xp, rfft, rfftfreq
 from .plotting import plot_timeseries, plot_spectrogram
 
 __all__ = ["TimeSeries"]
@@ -72,8 +72,8 @@ class TimeSeries:
 
     def to_frequencyseries(self) -> 'FrequencySeries':
         """Convert time series to frequency series using Fourier transform."""
-        from jax.scipy.fft import rfft, rfftfreq
-        freq = rfftfreq(len(self), d=self.dt)
-        data = rfft(self.data)
-        from .frequency_series import FrequencySeries  # Avoid circular import
+        freq = rfftfreq(len(self), d=self.dt)[1:]
+        data = rfft(self.data)[1:]
+        # This is all the +ive frequencies
+        from .frequencyseries import FrequencySeries  # Avoid circular import
         return FrequencySeries(data, freq)

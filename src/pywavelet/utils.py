@@ -31,8 +31,7 @@ def evolutionary_psd_from_stationary_psd(
 
     # repeat the PSD for each time bin
     psd_grid = np.repeat(psd_grid[None, :], Nt, axis=0) / dt
-    w = Wavelet.from_data(psd_grid, time_grid=t_grid, freq_grid=f_grid)
-    return w
+    return Wavelet(psd_grid.T, time=t_grid, freq=f_grid)
 
 
 def compute_snr(h: Wavelet, PSD: Wavelet) -> float:

@@ -100,10 +100,12 @@ def from_freq_to_wavelet(
     t_bins, f_bins = _get_bins(freqseries, Nf, Nt)
     dt = freqseries.dt
     phif = phitilde_vec_norm(Nf, Nt, dt=dt, d=nx)
-    wave = (2 / Nf) * transform_wavelet_freq_helper(
+    wave =  transform_wavelet_freq_helper(
         freqseries.data, Nf, Nt, phif
     )
 
-    return Wavelet.from_data(
-        wave* np.sqrt(2), time=t_bins, freq=f_bins
+    return Wavelet(
+        (2 / Nf) * wave.T * np.sqrt(2),
+        time=t_bins,
+        freq=f_bins
     )
