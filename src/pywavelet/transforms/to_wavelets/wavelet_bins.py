@@ -10,10 +10,9 @@ def _preprocess_bins(
 ) -> Tuple[int, int]:
     """preprocess the bins"""
 
-    if isinstance(data, FrequencySeries) and data.is_two_sided:
+    if isinstance(data, FrequencySeries):
         N = 2 * (len(data) - 1)
-    else:  # Two sided transform OR time series
-        N = len(data)
+
 
     if Nt is not None and Nf is None:
         assert 1 <= Nt <= N, f"Nt={Nt} must be between 1 and N={N}"
@@ -36,10 +35,8 @@ def _get_bins(
     Eq 4-6 in Wavelets paper
     """
     T = data.duration
-    if isinstance(data, FrequencySeries) and data.is_two_sided:
+    if isinstance(data, FrequencySeries):
         N = 2 * (len(data) - 1)
-    else:  # Two sided transform OR time series
-        N = len(data)
 
     fs = N / T
     fmax = fs / 2

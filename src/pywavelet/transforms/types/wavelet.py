@@ -1,31 +1,30 @@
-from dataclasses import dataclass
-from typing import Optional, Tuple, Union
-
+import jax.numpy as jnp
 import matplotlib.pyplot as plt
-import numpy as np
-import xarray as xr
-from matplotlib.colors import LogNorm, TwoSlopeNorm
-from xarray_dataclasses import AsDataArray, Coordof, Data, DataOptions, Name
-
-from .common import FREQ, TIME, FreqAxis, TimeAxis, is_documented_by
+from typing import Optional, Tuple, Union
+from .common import is_documented_by
 from .plotting import plot_wavelet_grid
 
-__all__ = ["Wavelet"]
 
 
-class _Wavelet(xr.DataArray):
-    """Custom DataArray."""
+class Wavelet:
+    def __init__(
+            self,
+            data: jnp.ndarray,
+            time: jnp.ndarray,
+            freq: jnp.ndarray,
+    ):
+        self.data = data
+        self.time = time
+        self.freq = freq
 
-    __slots__ = ()
 
     @is_documented_by(plot_wavelet_grid)
     def plot(self, ax=None, *args, **kwargs) -> plt.Figure:
         """Plot the wavelet grid."""
-        kwargs["time_grid"] = kwargs.get("time_grid", self.time.data)
-        kwargs["freq_grid"] = kwargs.get("freq_grid", self.freq.data)
-        return plot_wavelet_grid(
-            wavelet_data=self.data, ax=ax, *args, **kwargs
-        )
+        from .plotting import plot_wavelet_grid  # Import here to avoid circular imports
+        kwargs["time_grid"] = kwargs.get("time_grid", self.time)
+        kwargs["freq_grid"] = kwargs.get("freq_grid", self.freq)
+        return plot_wavelet_grid(wavelet_data=self.data, ax=ax, *args, **kwargs)
 
     @property
     def Nt(self) -> int:
@@ -43,7 +42,6 @@ class _Wavelet(xr.DataArray):
 
     @property
     def delta_T(self):
-        # TODO: call these TIME BINs not time --> reserve time for the 'time-domain' time axis
         return self.time[1] - self.time[0]
 
     @property
@@ -52,11 +50,11 @@ class _Wavelet(xr.DataArray):
 
     @property
     def duration(self) -> float:
-        return self.Nt * self.delta_T
+        return float(self.Nt * self.delta_T)
 
     @property
     def delta_t(self) -> float:
-        return self.duration / self.ND
+        return float(self.duration / self.ND)
 
     @property
     def delta_f(self) -> float:
@@ -64,7 +62,7 @@ class _Wavelet(xr.DataArray):
 
     @property
     def shape(self) -> Tuple[int, int]:
-        """Shape of the wavelet grid."""
+        """Shape of the wavelet grid. (Nf, Nt)"""
         return self.data.shape
 
     @property
@@ -79,41 +77,34 @@ class _Wavelet(xr.DataArray):
     def nyquist_frequency(self) -> float:
         return self.sample_rate / 2
 
-
-@dataclass
-class Wavelet(AsDataArray):
-    data: Data[Tuple[FREQ, TIME], float]
-    time: Coordof[TimeAxis] = 0.0
-    freq: Coordof[FreqAxis] = 0.0
-    name: Name[str] = "Wavelet Amplitude"
-
-    __dataoptions__ = DataOptions(_Wavelet)
+    def __repr__(self):
+        return f"Wavelet(NfxNt={self.shape[0]}x{self.shape[1]})"
 
     @classmethod
     def from_data(
         cls,
-        data: np.ndarray,
-        time_grid: Optional[Union[np.array, None]] = None,
-        freq_grid: Optional[Union[np.array, None]] = None,
-        freq_range: Optional[Union[np.array, None]] = None,
-        time_range: Optional[Union[np.array, None]] = None,
+        data: jnp.ndarray,
+        time_grid: Optional[jnp.ndarray] = None,
+        freq_grid: Optional[jnp.ndarray] = None,
+        freq_range: Optional[Tuple[float, float]] = None,
+        time_range: Optional[Tuple[float, float]] = None,
     ) -> "Wavelet":
-        """Create a dataset with wavelet coefficients.
+        """Create a Wavelet instance from data."""
+        if time_grid is None:
+            time_grid = jnp.arange(data.shape[1])
+        if freq_grid is None:
+            freq_grid = jnp.arange(data.shape[0])
 
-        Parameters
-        ----------
-        data : np.ndarray
-            Wavelet coefficients.
-
-        Returns
-        -------
-        Wavelet
-
-        """
-        w = cls.new(data.T, time=time_grid, freq=freq_grid)
+        w = cls(data, time_grid, freq_grid)
 
         if freq_range is not None:
-            w = w.sel(freq=slice(*freq_range))
+            freq_mask = (w.freq >= freq_range[0]) & (w.freq <= freq_range[1])
+            w.data = w.data[freq_mask]
+            w.freq = w.freq[freq_mask]
+
         if time_range is not None:
-            w = w.sel(time=slice(*time_range))
+            time_mask = (w.time >= time_range[0]) & (w.time <= time_range[1])
+            w.data = w.data[:, time_mask]
+            w.time = w.time[time_mask]
+
         return w

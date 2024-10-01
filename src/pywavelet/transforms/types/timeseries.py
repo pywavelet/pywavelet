@@ -1,25 +1,19 @@
-from dataclasses import dataclass
-from typing import Tuple
-
+import jax.numpy as jnp
 import matplotlib.pyplot as plt
-import numpy as np
-from scipy.signal import spectrogram
-from xarray_dataclasses import AsDataArray, Coordof, Data, Name
+from typing import Tuple, Union
+from scipy.signal.spectral import spectrogram
 
-from .common import TIME, TimeAxis, _len_check, is_documented_by
-from .plotting import plot_spectrogram, plot_timeseries
+from .common import is_documented_by
+from .plotting import plot_timeseries, plot_spectrogram
 
 __all__ = ["TimeSeries"]
 
-
-@dataclass
-class TimeSeries(AsDataArray):
-    data: Data[TIME, float]
-    time: Coordof[TimeAxis] = 0.0
-    name: Name[str] = "Time Series"
-
-    def __post_init__(self):
-        _len_check(self.data)
+class TimeSeries:
+    def __init__(self, data: jnp.ndarray, time: jnp.ndarray):
+        if len(data) != len(time):
+            raise ValueError("data and time must have the same length")
+        self.data = data
+        self.time = time
 
     @is_documented_by(plot_timeseries)
     def plot(self, ax=None, **kwargs) -> Tuple[plt.Figure, plt.Axes]:
@@ -48,7 +42,7 @@ class TimeSeries(AsDataArray):
 
     @property
     def sample_rate(self) -> float:
-        return np.round(1.0 / self.dt, decimals=14)
+        return float(jnp.round(1.0 / self.dt, decimals=14))
 
     @property
     def fs(self):
@@ -60,7 +54,7 @@ class TimeSeries(AsDataArray):
 
     @property
     def dt(self):
-        return self.time[1] - self.time[0]
+        return float(self.time[1] - self.time[0])
 
     @property
     def nyquist_frequency(self):
@@ -68,14 +62,59 @@ class TimeSeries(AsDataArray):
 
     @property
     def t0(self):
-        return self.time[0]
+        return float(self.time[0])
 
     @property
     def tend(self):
-        return self.time[-1]
-
-    def __sub__(self, other):
-        return TimeSeries(data=self.data - other.data, time=self.time)
+        return float(self.time[-1]) + self.dt
 
     def __repr__(self):
-        return f"TimeSeries(n={len(self)}, trange=[{self.time[0]:.2f}, {self.time[-1]:.2f}] s, T={self.duration:.2f}s, fs={self.fs:.2f} Hz)"
+        return f"TimeSeries(n={len(self)}, trange=[{self.t0:.2f}, {self.tend:.2f}] s, T={self.duration:.2f}s, fs={self.fs:.2f} Hz)"
+
+    def __add__(self, other: Union['TimeSeries', float, int]) -> 'TimeSeries':
+        if isinstance(other, (float, int)):
+            return TimeSeries(self.data + other, self.time)
+        elif isinstance(other, TimeSeries):
+            if not jnp.allclose(self.time, other.time):
+                raise ValueError("Time grids must be the same for addition")
+            return TimeSeries(self.data + other.data, self.time)
+        else:
+            return NotImplemented
+
+    def __sub__(self, other: Union['TimeSeries', float, int]) -> 'TimeSeries':
+        if isinstance(other, (float, int)):
+            return TimeSeries(self.data - other, self.time)
+        elif isinstance(other, TimeSeries):
+            if not jnp.allclose(self.time, other.time):
+                raise ValueError("Time grids must be the same for subtraction")
+            return TimeSeries(self.data - other.data, self.time)
+        else:
+            return NotImplemented
+
+    def __mul__(self, other: Union['TimeSeries', float, int]) -> 'TimeSeries':
+        if isinstance(other, (float, int)):
+            return TimeSeries(self.data * other, self.time)
+        elif isinstance(other, TimeSeries):
+            if not jnp.allclose(self.time, other.time):
+                raise ValueError("Time grids must be the same for multiplication")
+            return TimeSeries(self.data * other.data, self.time)
+        else:
+            return NotImplemented
+
+    def __truediv__(self, other: Union['TimeSeries', float, int]) -> 'TimeSeries':
+        if isinstance(other, (float, int)):
+            return TimeSeries(self.data / other, self.time)
+        elif isinstance(other, TimeSeries):
+            if not jnp.allclose(self.time, other.time):
+                raise ValueError("Time grids must be the same for division")
+            return TimeSeries(self.data / other.data, self.time)
+        else:
+            return NotImplemented
+
+    def to_frequencyseries(self) -> 'FrequencySeries':
+        """Convert time series to frequency series using Fourier transform."""
+        from jax.scipy.fft import rfft, rfftfreq
+        freq = rfftfreq(len(self), d=self.dt)
+        data = rfft(self.data)
+        from .frequency_series import FrequencySeries  # Avoid circular import
+        return FrequencySeries(data, freq)

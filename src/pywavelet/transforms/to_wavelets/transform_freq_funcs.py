@@ -1,89 +1,59 @@
-"""helper functions for transform_freq"""
 import jax
 import jax.numpy as jnp
-import numpy as np
+from functools import partial
 from jax import jit
-from jax.numpy.fft import fft, ifft
+from jax.numpy.fft import ifft
 
-
+@partial(jit, static_argnames=('Nf', 'Nt'))
 def transform_wavelet_freq_helper(
-    data: np.ndarray, Nf: int, Nt: int, phif: jnp.ndarray
-) -> np.ndarray:
-    """helper to do the wavelet transform using the fast wavelet domain transform"""
-    wave = jnp.zeros((Nt, Nf))  # wavelet wavepacket transform of the signal
-
-    DX = jnp.zeros(Nt, dtype=jnp.complex128)
-    freq_strain = data.copy()  # Convert
-
-    for f_bin in range(0, Nf + 1):
-        DX = fill_wave_1(f_bin, Nt, Nf, DX, freq_strain, phif)
-        DX_trans = ifft(DX, Nt)
-        wave = fill_wave_2(f_bin, DX_trans, wave, Nt, Nf)
-
-    return np.array(wave.tolist())
-
-
-@jit
-def fill_wave_1(
-    f_bin: int,
-    Nt: int,
-    Nf: int,
-    DX: jnp.ndarray,
-    data: jnp.ndarray,
-    phif: jnp.ndarray,
+        data: jnp.ndarray,
+        phif: jnp.ndarray,
+        Nf: int, Nt: int,
 ) -> jnp.ndarray:
-    """helper for assigning DX in the main loop"""
+    wave = jnp.zeros((Nt, Nf))
+    f_bins = jnp.arange(Nf)
+
     i_base = Nt // 2
-    jj_base = f_bin * Nt // 2
+    jj_base = f_bins * Nt // 2
 
-    def set_initial_value(DX):
-        value = jnp.where(
-            (f_bin == 0) | (f_bin == Nf),
-            phif[0] * data[f_bin * Nt // 2] / 2.0,
-            phif[0] * data[f_bin * Nt // 2],
-        )
-        return DX.at[Nt // 2].set(value)
-
-    DX = set_initial_value(DX)
-
-    def body_fun(jj, DX):
-        j = jnp.abs(jj - jj_base)
-        i = i_base - jj_base + jj
-        cond1 = (f_bin == Nf) & (jj > jj_base)
-        cond2 = (f_bin == 0) & (jj < jj_base)
-        cond3 = j == 0
-        val = jnp.where(cond1 | cond2, 0.0, phif[j] * data[jj])
-        DX = DX.at[i].set(jnp.where(cond3, DX[i], val))
-        return DX
-
-    return jax.lax.fori_loop(
-        jj_base + 1 - Nt // 2, jj_base + Nt // 2, body_fun, DX
+    initial_values = jnp.where(
+        (f_bins == 0) | (f_bins == Nf),
+        phif[0] * data[f_bins * Nt // 2] / 2.0,
+        phif[0] * data[f_bins * Nt // 2]
     )
 
+    DX = jnp.zeros((Nf, Nt), dtype=jnp.complex64)
+    DX = DX.at[:, Nt // 2].set(initial_values)
 
-@jit
-def fill_wave_2(
-    f_bin: int, DX_trans: jnp.ndarray, wave: jnp.ndarray, Nt: int, Nf: int
-) -> jnp.ndarray:
-    def case_0(wave):
-        return wave.at[::2, 0].set(jnp.real(DX_trans[::2] * jnp.sqrt(2)))
+    j_range = jnp.arange(1 - Nt // 2, Nt // 2)
+    j = jnp.abs(j_range)
+    i = i_base + j_range
 
-    def case_Nf(wave):
-        return wave.at[1::2, 0].set(jnp.real(DX_trans[::2] * jnp.sqrt(2)))
+    cond1 = (f_bins[:, None] == Nf) & (j_range[None, :] > 0)
+    cond2 = (f_bins[:, None] == 0) & (j_range[None, :] < 0)
+    cond3 = j[None, :] == 0
 
-    def case_other(wave):
-        n_range = jnp.arange(wave.shape[0])
-        cond1 = (n_range + f_bin) % 2 == 1
-        cond2 = f_bin % 2 == 1
+    jj = jj_base[:, None] + j_range[None, :]
+    val = jnp.where(cond1 | cond2, 0.0, phif[j] * data[jj])
+    DX = DX.at[:, i].set(jnp.where(cond3, DX[:, i], val))
 
-        real_part = jnp.where(cond2, -jnp.imag(DX_trans), jnp.real(DX_trans))
-        imag_part = jnp.where(cond2, jnp.real(DX_trans), jnp.imag(DX_trans))
+    # Vectorized ifft
+    DX_trans = ifft(DX, axis=1)
 
-        return wave.at[:, f_bin].set(jnp.where(cond1, imag_part, real_part))
+    n_range = jnp.arange(Nt)
+    cond1 = (n_range[:, None] + f_bins[None, :]) % 2 == 1
+    cond2 = f_bins % 2 == 1
 
-    return jax.lax.cond(
-        f_bin == 0,
-        case_0,
-        lambda w: jax.lax.cond(f_bin == Nf, case_Nf, case_other, w),
-        wave,
-    )
+    real_part = jnp.where(cond2, -jnp.imag(DX_trans), jnp.real(DX_trans))
+    imag_part = jnp.where(cond2, jnp.real(DX_trans), jnp.imag(DX_trans))
+
+    wave = jnp.where(cond1, imag_part, real_part)
+
+    # Special cases for f_bin 0 and Nf
+    wave = wave.at[::2, 0].set(jnp.real(DX_trans[0, ::2] * jnp.sqrt(2)))
+    wave = wave.at[1::2, -1].set(jnp.real(DX_trans[-1, ::2] * jnp.sqrt(2)))
+
+    return wave
+
+
+

@@ -1,85 +1,67 @@
-"""functions for computing the inverse wavelet transforms"""
-import numpy as np
-from numba import njit
-from numpy import fft
+import jax
+import jax.numpy as jnp
+from jax import jit
+from jax.numpy.fft import fft
+
+from functools import partial
 
 
-def inverse_wavelet_freq_helper_fast(
-    wave_in: np.ndarray, phif: np.ndarray, Nf: int, Nt: int
-) -> np.ndarray:
-    """jit compatible loop for inverse_wavelet_freq"""
+@partial(jit, static_argnums=(2, 3))
+def inverse_wavelet_freq_helper(
+    wave_in: jnp.ndarray, phif: jnp.ndarray, Nf: int, Nt: int
+) -> jnp.ndarray:
+    """JAX vectorized function for inverse_wavelet_freq"""
     wave_in = wave_in.T
     ND = Nf * Nt
 
-    prefactor2s = np.zeros(Nt, np.complex128)
-    res = np.zeros(ND // 2 + 1, dtype=np.complex128)
+    m_range = jnp.arange(Nf + 1)
+    prefactor2s = jnp.zeros((Nf + 1, Nt), dtype=jnp.complex128)
 
-    for m in range(0, Nf + 1):
-        __pack_wave_inverse(m, Nt, Nf, prefactor2s, wave_in)
-        # with numba.objmode(fft_prefactor2s="complex128[:]"):
-        fft_prefactor2s = fft.fft(prefactor2s)
-        __unpack_wave_inverse(m, Nt, Nf, phif, fft_prefactor2s, res)
+    n_range = jnp.arange(Nt)
+    
+    # m == 0 case
+    prefactor2s = prefactor2s.at[0].set(2**(-1/2) * wave_in[(2 * n_range) % Nt, 0])
+    
+    # m == Nf case
+    prefactor2s = prefactor2s.at[Nf].set(2**(-1/2) * wave_in[(2 * n_range) % Nt + 1, 0])
+    
+    # Other m cases
+    m_mid = m_range[1:Nf]
+    n_grid, m_grid = jnp.meshgrid(n_range, m_mid)
+    val = wave_in[n_grid, m_grid]
+    mult2 = jnp.where((n_grid + m_grid) % 2, -1j, 1)
+    prefactor2s = prefactor2s.at[1:Nf].set(mult2 * val)
+
+    # Vectorized FFT
+    fft_prefactor2s = fft(prefactor2s, axis=1)
+
+    # Vectorized __unpack_wave_inverse
+    res = jnp.zeros(ND // 2 + 1, dtype=jnp.complex128)
+
+    # m == 0 or m == Nf cases
+    i_ind_range = jnp.arange(Nt // 2)
+    i_0 = jnp.abs(i_ind_range)
+    i_Nf = jnp.abs(Nf * Nt // 2 - i_ind_range)
+    ind3_0 = (2 * i_0) % Nt
+    ind3_Nf = (2 * i_Nf) % Nt
+
+    res = res.at[i_0].add(fft_prefactor2s[0, ind3_0] * phif[i_ind_range])
+    res = res.at[i_Nf].add(fft_prefactor2s[Nf, ind3_Nf] * phif[i_ind_range])
+
+    # Special case for m == Nf
+    res = res.at[Nf * Nt // 2].add(fft_prefactor2s[Nf, 0] * phif[Nt // 2])
+
+    # Other m cases
+    m_mid = m_range[1:Nf]
+    i_ind_range = jnp.arange(Nt // 2 + 1)
+    m_grid, i_ind_grid = jnp.meshgrid(m_mid, i_ind_range)
+
+    i1 = Nt // 2 * m_grid - i_ind_grid
+    i2 = Nt // 2 * m_grid + i_ind_grid
+    ind31 = (Nt // 2 * m_grid - i_ind_grid) % Nt
+    ind32 = (Nt // 2 * m_grid + i_ind_grid) % Nt
+
+    res = res.at[i1].add(fft_prefactor2s[m_grid, ind31] * phif[i_ind_grid])
+    res = res.at[i2].add(fft_prefactor2s[m_grid, ind32] * phif[i_ind_grid])
 
     return res
-
-
-@njit()
-def __pack_wave_inverse(
-    m: int, Nt: int, Nf: int, prefactor2s: np.ndarray, wave_in: np.ndarray
-) -> None:
-    """helper for fast frequency domain inverse transform to prepare for fourier transform"""
-    if m == 0:
-        for n in range(0, Nt):
-            prefactor2s[n] = 2 ** (-1 / 2) * wave_in[(2 * n) % Nt, 0]
-    elif m == Nf:
-        for n in range(0, Nt):
-            prefactor2s[n] = 2 ** (-1 / 2) * wave_in[(2 * n) % Nt + 1, 0]
-    else:
-        for n in range(0, Nt):
-            val = wave_in[n, m]  # bug is here
-            if (n + m) % 2:
-                mult2 = -1j
-            else:
-                mult2 = 1
-
-            prefactor2s[n] = mult2 * val
-
-
-@njit()
-def __unpack_wave_inverse(
-    m: int,
-    Nt: int,
-    Nf: int,
-    phif: np.ndarray,
-    fft_prefactor2s: np.ndarray,
-    res: np.ndarray,
-) -> None:
-    """helper for unpacking results of frequency domain inverse transform"""
-
-    if m == 0 or m == Nf:
-        for i_ind in range(0, Nt // 2):
-            i = np.abs(m * Nt // 2 - i_ind)  # i_off+i_min2
-            ind3 = (2 * i) % Nt
-            res[i] += fft_prefactor2s[ind3] * phif[i_ind]
-        if m == Nf:
-            i_ind = Nt // 2
-            i = np.abs(m * Nt // 2 - i_ind)  # i_off+i_min2
-            ind3 = 0
-            res[i] += fft_prefactor2s[ind3] * phif[i_ind]
-    else:
-        ind31 = (Nt // 2 * m) % Nt
-        ind32 = (Nt // 2 * m) % Nt
-        for i_ind in range(0, Nt // 2):
-            i1 = Nt // 2 * m - i_ind
-            i2 = Nt // 2 * m + i_ind
-            # assert ind31 == i1%Nt
-            # assert ind32 == i2%Nt
-            res[i1] += fft_prefactor2s[ind31] * phif[i_ind]
-            res[i2] += fft_prefactor2s[ind32] * phif[i_ind]
-            ind31 -= 1
-            ind32 += 1
-            if ind31 < 0:
-                ind31 = Nt - 1
-            if ind32 == Nt:
-                ind32 = 0
-        res[Nt // 2 * m] = fft_prefactor2s[(Nt // 2 * m) % Nt] * phif[0]

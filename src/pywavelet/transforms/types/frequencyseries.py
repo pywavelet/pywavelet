@@ -1,21 +1,21 @@
-from dataclasses import dataclass
-from typing import Tuple
-
+import jax.numpy as jnp
 import matplotlib.pyplot as plt
-import numpy as np
-from xarray_dataclasses import AsDataArray, Coordof, Data, Name
+from typing import Tuple, Union
+from jax.numpy.fft import irfft
 
-from .common import FREQ, FreqAxis, is_documented_by
+from .common import is_documented_by
 from .plotting import plot_freqseries, plot_periodogram
 
 __all__ = ["FrequencySeries"]
 
-
-@dataclass
-class FrequencySeries(AsDataArray):
-    data: Data[FREQ, float]
-    freq: Coordof[FreqAxis] = 0
-    name: Name[str] = "Frequency Series"
+class FrequencySeries:
+    def __init__(self, data: jnp.ndarray, freq: jnp.ndarray):
+        if jnp.any(freq < 0):
+            raise ValueError("FrequencySeries must be one-sided (only non-negative frequencies)")
+        if len(data) != len(freq):
+            raise ValueError("data and freq must have the same length")
+        self.data = data
+        self.freq = freq
 
     @is_documented_by(plot_freqseries)
     def plot(self, ax=None, **kwargs) -> Tuple[plt.Figure, plt.Axes]:
@@ -24,11 +24,9 @@ class FrequencySeries(AsDataArray):
         )
 
     @is_documented_by(plot_periodogram)
-    def plot_periodogram(
-        self, ax=None, **kwargs
-    ) -> Tuple[plt.Figure, plt.Axes]:
+    def plot_periodogram(self, ax=None, **kwargs) -> Tuple[plt.Figure, plt.Axes]:
         return plot_periodogram(
-            self.data, self.freq, self.nyquist_frequency, ax=ax, **kwargs
+            self.data, self.freq, self.fs, ax=ax, **kwargs
         )
 
     def __len__(self):
@@ -39,7 +37,7 @@ class FrequencySeries(AsDataArray):
 
     @property
     def df(self):
-        return self.freq[1] - self.freq[0]
+        return float(self.freq[1] - self.freq[0])
 
     @property
     def dt(self):
@@ -47,7 +45,7 @@ class FrequencySeries(AsDataArray):
 
     @property
     def sample_rate(self):
-        return self.nyquist_frequency * 2
+        return 2 * float(self.freq[-1])
 
     @property
     def fs(self):
@@ -55,27 +53,77 @@ class FrequencySeries(AsDataArray):
 
     @property
     def nyquist_frequency(self):
-        return self.freq[-1]
+        return float(self.freq[-1]) if self.freq[-1] <= self.sample_rate / 2 else self.sample_rate / 2
 
     @property
     def duration(self):
-        return 2 * self.dt * (len(self) - 1)
+        return (len(self) - 1) / self.sample_rate
 
     @property
     def minimum_frequency(self):
-        return min(self.freq)
+        return float(self.freq[0])
 
     @property
     def maximum_frequency(self):
-        return max(self.freq)
+        return float(self.freq[-1])
 
     @property
-    def freq_range(self) -> Tuple[float, float]:
+    def range(self) -> Tuple[float, float]:
         return (self.minimum_frequency, self.maximum_frequency)
 
-    @property
-    def is_two_sided(self) -> bool:
-        return np.all(self.freq >= 0)
-
     def __repr__(self):
-        return f"FrequencySeries(n={len(self)}, frange=[{min(self.freq):.2f}, {max(self.freq):.2f}] Hz, T={self.duration:.2f}s, fs={self.fs:.2f} Hz)"
+        return f"FrequencySeries(n={len(self)}, frange=[{self.range[0]:.2f}, {self.range[1]:.2f}] Hz, T={self.duration:.2f}s, fs={self.fs:.2f} Hz)"
+
+
+    def __add__(self, other: Union['FrequencySeries', float, int]) -> 'FrequencySeries':
+        if isinstance(other, (float, int)):
+            return FrequencySeries(self.data + other, self.freq)
+        elif isinstance(other, FrequencySeries):
+            if not jnp.allclose(self.freq, other.freq):
+                raise ValueError("Frequency grids must be the same for addition")
+            return FrequencySeries(self.data + other.data, self.freq)
+        else:
+            return NotImplemented
+
+    def __sub__(self, other: Union['FrequencySeries', float, int]) -> 'FrequencySeries':
+        if isinstance(other, (float, int)):
+            return FrequencySeries(self.data - other, self.freq)
+        elif isinstance(other, FrequencySeries):
+            if not jnp.allclose(self.freq, other.freq):
+                raise ValueError("Frequency grids must be the same for subtraction")
+            return FrequencySeries(self.data - other.data, self.freq)
+        else:
+            return NotImplemented
+
+    def __mul__(self, other: Union['FrequencySeries', float, int]) -> 'FrequencySeries':
+        if isinstance(other, (float, int)):
+            return FrequencySeries(self.data * other, self.freq)
+        elif isinstance(other, FrequencySeries):
+            if not jnp.allclose(self.freq, other.freq):
+                raise ValueError("Frequency grids must be the same for multiplication")
+            return FrequencySeries(self.data * other.data, self.freq)
+        else:
+            return NotImplemented
+
+    def __truediv__(self, other: Union['FrequencySeries', float, int]) -> 'FrequencySeries':
+        if isinstance(other, (float, int)):
+            return FrequencySeries(self.data / other, self.freq)
+        elif isinstance(other, FrequencySeries):
+            if not jnp.allclose(self.freq, other.freq):
+                raise ValueError("Frequency grids must be the same for division")
+            return FrequencySeries(self.data / other.data, self.freq)
+        else:
+            return NotImplemented
+
+    def to_timeseries(self) -> "TimeSeries":
+        """Convert frequency series to time series using inverse Fourier transform."""
+        # Perform the inverse FFT
+        time_data = irfft(self.data, n=2 * (len(self) - 1))
+
+        # Calculate the time array
+        dt = 1 / (2 * self.nyquist_frequency)
+        time = jnp.arange(len(time_data)) * dt
+
+        # Create and return a TimeSeries object
+        from .timeseries import TimeSeries
+        return TimeSeries(time_data, time)

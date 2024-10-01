@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.colors import LogNorm, TwoSlopeNorm
 from scipy.signal import spectrogram
+from scipy.signal import periodogram
 
 
 def plot_wavelet_grid(
@@ -140,14 +141,17 @@ def plot_freqseries(
 def plot_periodogram(
     data: np.ndarray,
     freq: np.ndarray,
-    nyquist_frequency: float,
+    fs: float,
     ax=None,
     **kwargs,
 ):
     if ax == None:
         fig, ax = plt.subplots()
 
-    ax.loglog(freq, np.abs(data) ** 2, **kwargs)
+    nyquist_frequency = fs / 2
+    mask = (freq >= 0 ) & (freq <= nyquist_frequency)
+
+    ax.semilogy(freq[mask], (np.abs(data) ** 2)[mask], **kwargs)
     flow = np.min(np.abs(freq))
     ax.set_xlabel("Frequency [Hz]")
     ax.set_ylabel("Periodigram")
