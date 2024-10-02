@@ -17,28 +17,28 @@ from conftest import Nt, mult, dt, Nf
 def test_timedomain_chirp_roundtrip(plot_dir, chirp_time):
     __run_timedomain_checks(
         chirp_time,
-        f"{plot_dir}/out_roundtrip/chirp_time.png",
+        f"{plot_dir}/roundtrip_chirp_time.png",
     )
 
 
 def test_timedomain_sine_roundtrip(plot_dir, sine_time):
     __run_timedomain_checks(
         sine_time,
-        f"{plot_dir}/out_roundtrip/sine_time.png",
+        f"{plot_dir}/roundtrip_sine_time.png",
     )
 
 
 def test_freqdomain_chirp_roundtrip(plot_dir, chirp_freq):
     __run_freqdomain_checks(
         chirp_freq,
-        f"{plot_dir}/out_roundtrip/chirp_freq.png",
+        f"{plot_dir}/roundtrip_chirp_freq.png",
     )
 
 
 def test_freqdomain_sine_roundtrip(plot_dir, sine_freq):
     __run_freqdomain_checks(
         sine_freq,
-        f"{plot_dir}/out_roundtrip/sine_freq.png",
+        f"{plot_dir}/roundtrip_sine_freq.png",
     )
 
 
