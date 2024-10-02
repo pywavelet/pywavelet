@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-import jax.numpy as jnp
+import numpy as np
 
 from pywavelet.transforms.phi_computer import (
     phi_vec,

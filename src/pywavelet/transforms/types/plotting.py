@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 
 from matplotlib.colors import LogNorm, TwoSlopeNorm
 
+import numpy as np
 import jax.numpy as jnp
 
 from scipy.signal.spectral import spectrogram
@@ -142,20 +143,17 @@ def plot_freqseries(
 
 
 def plot_periodogram(
-    data: jnp.ndarray,
-    freq: jnp.ndarray,
-    fs: float,
+    data: np.ndarray,
+    freq: np.ndarray,
+    nyquist_frequency: float,
     ax=None,
     **kwargs,
 ):
     if ax == None:
         fig, ax = plt.subplots()
 
-    nyquist_frequency = fs / 2
-    mask = (freq >= 0 ) & (freq <= nyquist_frequency)
-
-    ax.semilogy(freq[mask], (jnp.abs(data) ** 2)[mask], **kwargs)
-    flow = jnp.min(jnp.abs(freq))
+    ax.loglog(freq, np.abs(data) ** 2, **kwargs)
+    flow = np.min(np.abs(freq))
     ax.set_xlabel("Frequency [Hz]")
     ax.set_ylabel("Periodigram")
     ax.set_xlim(left=flow, right=nyquist_frequency)
