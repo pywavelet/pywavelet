@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-import numpy as np
+import jax.numpy as jnp
 import pytest
 import jax.numpy as jnp
 from jax import random

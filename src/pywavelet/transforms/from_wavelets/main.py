@@ -1,4 +1,5 @@
-import numpy as np
+import jax.numpy as jnp
+from jax.numpy.fft import rfftfreq
 
 from ...transforms.phi_computer import phi_vec, phitilde_vec_norm
 from ..types import FrequencySeries, TimeSeries, Wavelet
@@ -30,17 +31,17 @@ def from_wavelet_to_time(
     TimeSeries
         Time domain signal
     """
-    wave_in = wave_in.T
+
     mult = min(mult, wave_in.Nt // 2)  # make sure K isn't bigger than ND
-    phi = phi_vec(wave_in.Nf, d=nx, q=mult, dt=dt) / 2
+    phi = jnp.array(phi_vec(wave_in.Nf, d=nx, q=mult, dt=dt) / 2)
     h_t = inverse_wavelet_time_helper(
-        wave_in.data, phi, wave_in.Nf, wave_in.Nt, mult
+        wave_in.data.T, phi, wave_in.Nf, wave_in.Nt, mult
     )
     h_t *= 2 ** -(
         1 / 2
     )  # We must normalise by this to get proper backwards transformation
 
-    ts = np.arange(0, wave_in.Nf * wave_in.Nt) * dt
+    ts = jnp.arange(0, wave_in.ND) * dt
     return TimeSeries(data=h_t, time=ts)
 
 
@@ -64,14 +65,14 @@ def from_wavelet_to_freq(
         Frequency domain signal
 
     """
-    phif = phitilde_vec_norm(wave_in.Nf, wave_in.Nt, dt=dt, d=nx)
+    phif = jnp.array(phitilde_vec_norm(wave_in.Nf, wave_in.Nt, dt=dt, d=nx))
     freq_data = inverse_wavelet_freq_helper(
-        wave_in.data, phif, wave_in.Nf, wave_in.Nt
+        wave_in.data, phif=phif, Nf=wave_in.Nf, Nt=wave_in.Nt
     )
 
     freq_data *= 2 ** (
         -1 / 2
     )  # Normalise to get the proper backwards transformation
 
-    freqs = np.fft.rfftfreq(wave_in.ND, d=dt)
+    freqs = rfftfreq(wave_in.ND, d=dt)[1:]
     return FrequencySeries(data=freq_data, freq=freqs)

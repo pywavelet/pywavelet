@@ -4,9 +4,9 @@ from jax import jit
 from jax.numpy.fft import rfft
 from functools import partial
 
-@partial(jit, static_argnums=(1, 2, 4))
+@partial(jit, static_argnames=('Nf', 'Nt', 'mult'))
 def transform_wavelet_time_helper(
-    data: jnp.ndarray, Nf: int, Nt: int, phi: jnp.ndarray, mult: int
+    data: jnp.ndarray, phi: jnp.ndarray, Nf: int, Nt: int,  mult: int
 ) -> jnp.ndarray:
     """Helper function to do the wavelet transform in the time domain using JAX"""
     ND = Nf * Nt

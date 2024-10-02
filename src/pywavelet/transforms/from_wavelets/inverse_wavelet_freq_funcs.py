@@ -36,7 +36,10 @@ def inverse_wavelet_freq_helper(
     fft_prefactor2s = fft(prefactor2s, axis=1)
 
     # Vectorized __unpack_wave_inverse
-    res = jnp.zeros(ND // 2 + 1, dtype=jnp.complex128)
+    ## TODO: Check with Giorgio
+    # ND or ND // 2 + 1?
+    # https://github.com/pywavelet/pywavelet/blob/63151a47cde9edc14f1e7e0bf17f554e78ad257c/src/pywavelet/transforms/from_wavelets/inverse_wavelet_freq_funcs.py
+    res = jnp.zeros(ND, dtype=jnp.complex128)
 
     # m == 0 or m == Nf cases
     i_ind_range = jnp.arange(Nt // 2)

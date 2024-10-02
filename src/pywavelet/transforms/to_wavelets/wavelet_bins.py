@@ -1,6 +1,6 @@
 from typing import Tuple, Union
 
-import numpy as np
+import jax.numpy as jnp
 
 from ..types import FrequencySeries, TimeSeries
 
@@ -10,9 +10,7 @@ def _preprocess_bins(
 ) -> Tuple[int, int]:
     """preprocess the bins"""
 
-    if isinstance(data, FrequencySeries):
-        N = 2 * (len(data) - 1)
-
+    N = len(data)
 
     if Nt is not None and Nf is None:
         assert 1 <= Nt <= N, f"Nt={Nt} must be between 1 and N={N}"
@@ -30,13 +28,12 @@ def _get_bins(
     data: Union[TimeSeries, FrequencySeries],
     Nf: Union[int, None] = None,
     Nt: Union[int, None] = None,
-) -> Tuple[np.ndarray, np.ndarray]:
+) -> Tuple[jnp.ndarray, jnp.ndarray]:
     """Get the bins for the wavelet transform
     Eq 4-6 in Wavelets paper
     """
     T = data.duration
-    if isinstance(data, FrequencySeries):
-        N = 2 * (len(data) - 1)
+    N = len(data)
 
     fs = N / T
     fmax = fs / 2
@@ -46,8 +43,8 @@ def _get_bins(
 
     # assert delta_f == fmax / Nf, f"delta_f={delta_f} != fmax/Nf={fmax/Nf}"
 
-    f_bins = np.arange(0, Nf) * delta_F
-    t_bins = np.arange(0, Nt) * delta_T
+    f_bins = jnp.arange(0, Nf) * delta_F
+    t_bins = jnp.arange(0, Nt) * delta_T
 
     if isinstance(data, TimeSeries):
         t_bins += data.time[0]

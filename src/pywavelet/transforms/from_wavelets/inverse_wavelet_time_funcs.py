@@ -4,7 +4,7 @@ from jax import jit
 from jax.numpy.fft import fft
 from functools import partial
 
-@partial(jit, static_argnums=(2, 3, 4))
+@partial(jit, static_argnames=('Nf', 'Nt', 'mult'))
 def inverse_wavelet_time_helper(wave_in: jnp.ndarray, phi: jnp.ndarray, Nf: int, Nt: int, mult: int) -> jnp.ndarray:
     """Perform inverse wavelet transform in time domain."""
     ND = Nf * Nt

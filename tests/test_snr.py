@@ -1,4 +1,4 @@
-import numpy as np
+import jax.numpy as jnp
 import pytest
 
 from pywavelet.transforms.to_wavelets import from_time_to_wavelet

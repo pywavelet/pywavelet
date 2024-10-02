@@ -1,14 +1,17 @@
 from typing import Tuple
 
 import matplotlib.pyplot as plt
-import numpy as np
+
 from matplotlib.colors import LogNorm, TwoSlopeNorm
-from scipy.signal import spectrogram
-from scipy.signal import periodogram
+
+import jax.numpy as jnp
+
+from scipy.signal.spectral import spectrogram
+
 
 
 def plot_wavelet_grid(
-    wavelet_data: np.ndarray,
+    wavelet_data: jnp.ndarray,
     time_grid=None,
     freq_grid=None,
     ax=None,
@@ -22,13 +25,13 @@ def plot_wavelet_grid(
 
     Parameters
     ----------
-    wavelet_data : np.ndarray
+    wavelet_data : jnp.ndarray
         The wavelet freqseries to plot.
 
-    time_grid : np.ndarray, optional
+    time_grid : jnp.ndarray, optional
         The time grid for the wavelet freqseries.
 
-    freq_grid : np.ndarray, optional
+    freq_grid : jnp.ndarray, optional
         The frequency grid for the wavelet freqseries.
 
     ax : plt.Axes, optional
@@ -60,16 +63,16 @@ def plot_wavelet_grid(
     assert Nf == len(freq_grid), f"Nf={Nf} != len(freq_grid)={len(freq_grid)}"
     assert Nt == len(time_grid), f"Nt={Nt} != len(time_grid)={len(time_grid)}"
 
-    z = np.rot90(wavelet_data.T)
+    z = jnp.rot90(wavelet_data.T)
     if absolute:
-        z = np.abs(z)
+        z = jnp.abs(z)
 
     norm = None
     if not absolute:
         try:
             cmap = "bwr"
             norm = TwoSlopeNorm(
-                vmin=np.min(wavelet_data), vcenter=0, vmax=np.max(wavelet_data)
+                vmin=jnp.min(wavelet_data), vcenter=0, vmax=jnp.max(wavelet_data)
             )
         except Exception:
             cmap = "viridis"
@@ -77,7 +80,7 @@ def plot_wavelet_grid(
         cmap = kwargs.get("cmap", "viridis")
 
     if zscale == "log":
-        norm = LogNorm(vmin=np.nanmin(z), vmax=np.nanmax(z))
+        norm = LogNorm(vmin=jnp.nanmin(z), vmax=jnp.nanmax(z))
 
     extents = [0, Nt, 0, Nf]
     if time_grid is not None:
@@ -123,8 +126,8 @@ def plot_wavelet_grid(
 
 
 def plot_freqseries(
-    data: np.ndarray,
-    freq: np.ndarray,
+    data: jnp.ndarray,
+    freq: jnp.ndarray,
     nyquist_frequency: float,
     ax=None,
     **kwargs,
@@ -139,8 +142,8 @@ def plot_freqseries(
 
 
 def plot_periodogram(
-    data: np.ndarray,
-    freq: np.ndarray,
+    data: jnp.ndarray,
+    freq: jnp.ndarray,
     fs: float,
     ax=None,
     **kwargs,
@@ -151,8 +154,8 @@ def plot_periodogram(
     nyquist_frequency = fs / 2
     mask = (freq >= 0 ) & (freq <= nyquist_frequency)
 
-    ax.semilogy(freq[mask], (np.abs(data) ** 2)[mask], **kwargs)
-    flow = np.min(np.abs(freq))
+    ax.semilogy(freq[mask], (jnp.abs(data) ** 2)[mask], **kwargs)
+    flow = jnp.min(jnp.abs(freq))
     ax.set_xlabel("Frequency [Hz]")
     ax.set_ylabel("Periodigram")
     ax.set_xlim(left=flow, right=nyquist_frequency)
@@ -160,7 +163,7 @@ def plot_periodogram(
 
 
 def plot_timeseries(
-    data: np.ndarray, time: np.ndarray, ax=None, **kwargs
+    data: jnp.ndarray, time: jnp.ndarray, ax=None, **kwargs
 ) -> Tuple[plt.Figure, plt.Axes]:
     """Custom method."""
     if ax == None:
@@ -173,7 +176,7 @@ def plot_timeseries(
 
 
 def plot_spectrogram(
-    timeseries_data: np.ndarray,
+    timeseries_data: jnp.ndarray,
     fs: float,
     ax=None,
     spec_kwargs={},

@@ -6,10 +6,9 @@ from jax.numpy.fft import ifft
 
 @partial(jit, static_argnames=('Nf', 'Nt'))
 def transform_wavelet_freq_helper(
-        data: jnp.ndarray,
-        phif: jnp.ndarray,
-        Nf: int, Nt: int,
+        data: jnp.ndarray, Nf: int, Nt: int, phif: jnp.ndarray
 ) -> jnp.ndarray:
+    # Initially all wrk being done in time-rws, freq-cols
     wave = jnp.zeros((Nt, Nf))
     f_bins = jnp.arange(Nf)
 
@@ -40,20 +39,18 @@ def transform_wavelet_freq_helper(
     # Vectorized ifft
     DX_trans = ifft(DX, axis=1)
 
+    # Vectorized __fill_wave_2_jax
     n_range = jnp.arange(Nt)
     cond1 = (n_range[:, None] + f_bins[None, :]) % 2 == 1
-    cond2 = f_bins % 2 == 1
+    cond2 = jnp.expand_dims(f_bins % 2 == 1, axis=-1) # shape: (Nf, 1)
 
     real_part = jnp.where(cond2, -jnp.imag(DX_trans), jnp.real(DX_trans))
     imag_part = jnp.where(cond2, jnp.real(DX_trans), jnp.imag(DX_trans))
 
-    wave = jnp.where(cond1, imag_part, real_part)
+    wave = jnp.where(cond1, imag_part.T, real_part.T)
 
-    # Special cases for f_bin 0 and Nf
+    ## Special cases for f_bin 0 and Nf
     wave = wave.at[::2, 0].set(jnp.real(DX_trans[0, ::2] * jnp.sqrt(2)))
     wave = wave.at[1::2, -1].set(jnp.real(DX_trans[-1, ::2] * jnp.sqrt(2)))
 
-    return wave
-
-
-
+    return wave.T

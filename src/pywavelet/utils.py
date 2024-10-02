@@ -1,6 +1,6 @@
 from typing import Union
 
-import numpy as np
+import jax.numpy as jnp
 from scipy.interpolate import interp1d
 
 from .transforms.types import FrequencySeries, TimeSeries, Wavelet
@@ -9,10 +9,10 @@ DATA_TYPE = Union[TimeSeries, FrequencySeries, Wavelet]
 
 
 def evolutionary_psd_from_stationary_psd(
-    psd: np.ndarray,
-    psd_f: np.ndarray,
-    f_grid: np.ndarray,
-    t_grid: np.ndarray,
+    psd: jnp.ndarray,
+    psd_f: jnp.ndarray,
+    f_grid: jnp.ndarray,
+    t_grid: jnp.ndarray,
     dt: float,
 ) -> Wavelet:
     """
@@ -20,7 +20,7 @@ def evolutionary_psd_from_stationary_psd(
     """
     Nt = len(t_grid)
     delta_f = f_grid[1] - f_grid[0]
-    nan_val = np.max(psd)
+    nan_val = jnp.max(psd)
     psd_grid = interp1d(
         psd_f,
         psd,
@@ -30,9 +30,8 @@ def evolutionary_psd_from_stationary_psd(
     )(f_grid)
 
     # repeat the PSD for each time bin
-    psd_grid = np.repeat(psd_grid[None, :], Nt, axis=0) / dt
-    w = Wavelet.from_data(psd_grid, time_grid=t_grid, freq_grid=f_grid)
-    return w
+    psd_grid = jnp.repeat(psd_grid[None, :], Nt, axis=0) / dt
+    return Wavelet(psd_grid.T, time=t_grid, freq=f_grid)
 
 
 def compute_snr(h: Wavelet, PSD: Wavelet) -> float:
@@ -42,11 +41,11 @@ def compute_snr(h: Wavelet, PSD: Wavelet) -> float:
 
     Parameters
     ----------
-    h : np.ndarray
+    h : jnp.ndarray
         The model in the wavelet domain (binned in [ti,fi]).
-    d : np.ndarray
+    d : jnp.ndarray
         The freqseries in the wavelet domain (binned in [ti,fi]).
-    PSD : np.ndarray
+    PSD : jnp.ndarray
         The PSD in the wavelet domain (binned in [ti,fi]).
 
     Returns
@@ -55,5 +54,5 @@ def compute_snr(h: Wavelet, PSD: Wavelet) -> float:
         The SNR of the model h given freqseries d and PSD.
 
     """
-    snr_sqrd = np.nansum((h.data * h.data) / PSD.data)
-    return np.sqrt(snr_sqrd)
+    snr_sqrd = jnp.nansum((h.data * h.data) / PSD.data)
+    return jnp.sqrt(snr_sqrd)
