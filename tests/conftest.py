@@ -3,6 +3,7 @@ import os
 import pytest
 import numpy as np
 from utils import generate_chirp_time_domain_signal, generate_sine_time_domain_signal
+import subprocess
 
 # set global env var "NUMBA_DISABLE_JIT=1"
 os.environ["NUMBA_DISABLE_JIT"] = "1"
@@ -23,7 +24,8 @@ ts = np.arange(0, ND) * dt
 
 @pytest.fixture()
 def plot_dir():
-    dirname = f"{HERE}/out_plots"
+    branch_name = subprocess.check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"]).strip().decode('utf-8')
+    dirname = f"{HERE}/out_plots_{branch_name}"
     os.makedirs(dirname, exist_ok=True)
     return dirname
 
