@@ -62,7 +62,7 @@ def from_time_to_wavelet(
 
     mult = min(mult, Nt // 2)  # make sure K isn't bigger than ND
     phi = jnp.array(phi_vec(Nf, dt=dt, d=nx, q=mult))
-    wave = transform_wavelet_time_helper(timeseries.data, Nf=Nf, Nt=Nt, phi=phi, mult=mult).T
+    wave = transform_wavelet_time_helper(timeseries.data, Nf=Nf, Nt=Nt, phi=phi, mult=mult)
     return Wavelet(
         wave* jnp.sqrt(2), time=t_bins, freq=f_bins
     )
