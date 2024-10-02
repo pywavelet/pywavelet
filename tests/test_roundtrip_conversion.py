@@ -1,12 +1,6 @@
-import os
-
 import matplotlib.pyplot as plt
 import numpy as np
-from utils import (
-    generate_chirp_time_domain_signal,
-    generate_sine_time_domain_signal,
-    plot_residuals,
-)
+from utils import plot_residuals
 
 from pywavelet.transforms.types import FrequencySeries, TimeSeries
 from pywavelet.transforms import from_wavelet_to_freq, from_wavelet_to_time, from_freq_to_wavelet, from_time_to_wavelet
