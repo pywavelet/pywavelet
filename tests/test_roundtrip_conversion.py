@@ -4,62 +4,55 @@ import matplotlib.pyplot as plt
 import numpy as np
 from utils import plot_residuals
 
-from pywavelet.transforms.types import FrequencySeries, TimeSeries
+from pywavelet.transforms.types import FrequencySeries, TimeSeries, Wavelet
 from pywavelet.transforms import from_wavelet_to_freq, from_wavelet_to_time, from_freq_to_wavelet, from_time_to_wavelet
 
-from conftest import Nt, mult, dt, Nf
+from conftest import Nt, mult, dt, Nf, DATA_DIR, BRANCH
+
 
 
 def test_timedomain_chirp_roundtrip(plot_dir, chirp_time):
-    __run_timedomain_checks(
-        chirp_time,
-        f"{plot_dir}/roundtrip_chirp_time.png",
-    )
+    __run_timedomain_checks(chirp_time, "roundtrip_chirp_time", plot_dir)
 
 
 def test_timedomain_sine_roundtrip(plot_dir, sine_time):
-    __run_timedomain_checks(
-        sine_time,
-        f"{plot_dir}/roundtrip_sine_time.png",
-    )
+    __run_timedomain_checks(sine_time, "roundtrip_sine_time", plot_dir)
 
 
 def test_freqdomain_chirp_roundtrip(plot_dir, chirp_freq):
-    __run_freqdomain_checks(
-        chirp_freq,
-        f"{plot_dir}/roundtrip_chirp_freq.png",
-    )
+    __run_freqdomain_checks(chirp_freq, "roundtrip_chirp_freq", plot_dir)
 
 
 def test_freqdomain_sine_roundtrip(plot_dir, sine_freq):
-    __run_freqdomain_checks(
-        sine_freq,
-        f"{plot_dir}/roundtrip_ssine_freq.png",
-    )
+    __run_freqdomain_checks(sine_freq, "roundtrip_sine_freq", plot_dir)
 
 
-def __run_freqdomain_checks(hf, fname):
+def __run_freqdomain_checks(hf, label, outdir):
     ND = len(hf)
     _Nt = ND // Nf
     wavelet = from_freq_to_wavelet(hf, Nf=Nf)
+    np.savez(f"{outdir}/{label}.npz", freq=wavelet.freq, time=wavelet.time, data=wavelet.data)
+    __compare_wavelet_to_cached(wavelet, label, outdir)
     assert wavelet.__repr__() == f"Wavelet(NfxNt={Nf}x{_Nt})"
     assert len(wavelet.freq) == Nf
     assert len(wavelet.time) == _Nt
     h_reconstructed = from_wavelet_to_freq(wavelet, dt=dt)
     assert len(h_reconstructed.data) == len(hf.data) == wavelet.ND
     assert not np.isnan(h_reconstructed.data).any(), "Reconstructed data contains NaNs"
-    _make_freqdomain_plots(hf, h_reconstructed, wavelet, fname)
+    _make_freqdomain_plots(hf, h_reconstructed, wavelet, f"{outdir}/{label}.png")
 
 
-def __run_timedomain_checks(ht, fname):
+def __run_timedomain_checks(ht, label, outdir):
     wavelet = from_time_to_wavelet(ht, Nt=Nt, mult=mult)
+    np.savez(f"{outdir}/{label}.npz", freq=wavelet.freq, time=wavelet.time, data=wavelet.data)
+    __compare_wavelet_to_cached(wavelet, label, outdir)
     assert wavelet.__repr__() == f"Wavelet(NfxNt={Nf}x{Nt})"
     assert len(wavelet.freq) == Nf, f"len(wavelet.freq)={len(wavelet.freq)} != Nf={Nf}"
     assert len(wavelet.time) == Nt, f"len(wavelet.time)={len(wavelet.time)} != Nt={Nt}"
     h_reconstructed = from_wavelet_to_time(wavelet, mult=mult, dt=dt)
     assert len(h_reconstructed.data) == len(ht.data) == wavelet.ND, f"len(h_reconstructed.data)={len(h_reconstructed.data)} != len(ht.data)={len(ht.data)} != wavelet.ND={wavelet.ND}"
     assert not np.isnan(h_reconstructed.data).any(), "Reconstructed data contains NaNs"
-    _make_timedomain_plots(ht, h_reconstructed, wavelet, fname)
+    _make_timedomain_plots(ht, h_reconstructed, wavelet, f"{outdir}/{label}.png")
 
 
 
@@ -103,3 +96,25 @@ def _make_freqdomain_plots(hf: FrequencySeries, h_reconstructed, wavelet, fname)
     assert np.mean(r) < 1e-3, "Mean residual is too large"
     assert np.std(r) < 1e-3, "Standard deviation of residuals is too large"
     assert np.max(np.abs(r)) < 1e-2, "Max residual is too large"
+
+
+
+def __compare_wavelet_to_cached(wavelet, label, outdir):
+    cached_data = np.load(f"{DATA_DIR}/{label}.npz")
+    cached_wavelet = Wavelet(data=cached_data["data"], freq=cached_data["freq"], time=cached_data["time"])
+
+    fig, axes = plt.subplots(1, 2, figsize=(10, 5))
+    axes[0].set_title(f"Branch: {BRANCH}")
+    axes[1].set_title("Cached (v0.0.1")
+    vmin = min(np.min(wavelet.data), np.min(cached_wavelet.data))
+    vmax = max(np.max(wavelet.data), np.max(cached_wavelet.data))
+    norm = plt.Normalize(vmin=vmin, vmax=vmax)
+    wavelet.plot(ax=axes[0], norm=norm)
+    cached_wavelet.plot(ax=axes[1], norm=norm)
+    plt.savefig(f"{outdir}/{label}_comparison.png")
+    assert wavelet.ND == cached_wavelet.ND
+    assert wavelet.Nf == cached_wavelet.Nf
+    assert wavelet.Nt == cached_wavelet.Nt
+    assert np.allclose(wavelet.freq, cached_wavelet.freq)
+    assert np.allclose(wavelet.time, cached_wavelet.time)
+    assert np.allclose(wavelet.data, cached_wavelet.data)

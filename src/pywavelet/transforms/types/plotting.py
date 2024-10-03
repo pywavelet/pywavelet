@@ -20,6 +20,7 @@ def plot_wavelet_grid(
     freq_scale="linear",
     absolute=False,
     freq_range=None,
+    norm=None,
     **kwargs,
 ) -> Tuple[plt.Figure, plt.Axes]:
     """Plot a 2D grid of wavelet coefficients.
@@ -50,6 +51,10 @@ def plot_wavelet_grid(
     freq_range : Tuple[float, float], optional
         The frequency range to plot.
 
+    norm : matplotlib.colors.Normalize, optional
+        The normalization for the colorbar. If None, a default normalization is used.
+        Useful for comparing different plots.
+
     kwargs : dict, optional
         Additional keyword arguments for the plot.
 
@@ -68,7 +73,6 @@ def plot_wavelet_grid(
     if absolute:
         z = jnp.abs(z)
 
-    norm = None
     if not absolute:
         try:
             cmap = "bwr"
