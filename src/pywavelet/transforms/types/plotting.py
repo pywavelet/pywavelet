@@ -15,7 +15,7 @@ def plot_wavelet_grid(
     freq_scale="linear",
     absolute=False,
     freq_range=None,
-    norm=None,
+    show_colorbar=True,
     **kwargs,
 ) -> Tuple[plt.Figure, plt.Axes]:
     """Plot a 2D grid of wavelet coefficients.
@@ -65,22 +65,19 @@ def plot_wavelet_grid(
     assert Nt == len(time_grid), f"Nt={Nt} != len(time_grid)={len(time_grid)}"
 
     z = np.rot90(wavelet_data.T)
-    if absolute:
-        z = np.abs(z)
+    z = z if not absolute else np.abs(z)
 
-    if not absolute and norm is None:
-        try:
-            cmap = "bwr"
-            norm = TwoSlopeNorm(
-                vmin=np.min(wavelet_data), vcenter=0, vmax=np.max(wavelet_data)
-            )
-        except Exception:
-            cmap = "viridis"
-    else:
-        cmap = kwargs.get("cmap", "viridis")
-
-    if zscale == "log" and norm is None:
-        norm = LogNorm(vmin=np.nanmin(z), vmax=np.nanmax(z))
+    _norm = None
+    _cmap = 'viridis'
+    if not absolute:
+        _cmap = "bwr"
+        _norm = TwoSlopeNorm(
+            vmin=np.min(z), vcenter=0, vmax=np.max(z)
+        )
+    if zscale == "log":
+        _norm = LogNorm(vmin=np.nanmin(z), vmax=np.nanmax(z))
+    norm = kwargs.get("norm", _norm)
+    cmap = kwargs.get("cmap", _cmap)
 
     extents = [0, Nt, 0, Nf]
     if time_grid is not None:
@@ -91,12 +88,10 @@ def plot_wavelet_grid(
         extents[3] = freq_grid[-1]
 
     im = ax.imshow(z, aspect="auto", extent=extents, cmap=cmap, norm=norm)
-    try:
+    if show_colorbar:
         cbar = plt.colorbar(im, ax=ax)
         cl = "Absolute Wavelet Amplitude" if absolute else "Wavelet Amplitude"
         cbar.set_label(cl)
-    except Exception:
-        pass
 
     # add a text box with the Nt and Nf values
     ax.text(

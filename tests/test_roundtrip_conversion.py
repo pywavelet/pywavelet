@@ -5,8 +5,9 @@ from utils import plot_residuals
 from pywavelet.transforms.types import FrequencySeries, TimeSeries, Wavelet
 from pywavelet.transforms import from_wavelet_to_freq, from_wavelet_to_time, from_freq_to_wavelet, from_time_to_wavelet
 
-from conftest import Nt, mult, dt, Nf, DATA_DIR, BRANCH
+from matplotlib.colors import TwoSlopeNorm
 
+from conftest import Nt, mult, dt, Nf, DATA_DIR, BRANCH
 
 
 def test_timedomain_chirp_roundtrip(plot_dir, chirp_time):
@@ -53,7 +54,6 @@ def __run_timedomain_checks(ht, label, outdir):
     _make_timedomain_plots(ht, h_reconstructed, wavelet, f"{outdir}/{label}.png")
 
 
-
 def _make_timedomain_plots(ht: TimeSeries, h_reconstructed, wavelet, fname):
     fig, axes = plt.subplots(1, 3, figsize=(15, 5))
     ht.plot(ax=axes[0], label="Original")
@@ -71,6 +71,7 @@ def _make_timedomain_plots(ht: TimeSeries, h_reconstructed, wavelet, fname):
     assert np.mean(r) < 1e-3, "Mean residual is too large"
     assert np.std(r) < 1e-3, "Standard deviation of residuals is too large"
     assert np.max(np.abs(r)) < 1e-2, "Max residual is too large"
+
 
 def _make_freqdomain_plots(hf: FrequencySeries, h_reconstructed, wavelet, fname):
     minf, maxf = wavelet.freq[1], wavelet.freq[-1] / 2
@@ -96,19 +97,28 @@ def _make_freqdomain_plots(hf: FrequencySeries, h_reconstructed, wavelet, fname)
     assert np.max(np.abs(r)) < 1e-2, "Max residual is too large"
 
 
-
 def __compare_wavelet_to_cached(cur, label, outdir):
     cached_data = np.load(f"{DATA_DIR}/{label}.npz")
     cached = Wavelet(data=cached_data["data"], freq=cached_data["freq"], time=cached_data["time"])
+    err = Wavelet(data=(cached.data - cur.data) / (cur.data), freq=cur.freq, time=cur.time)
 
-    fig, axes = plt.subplots(1, 2, figsize=(10, 5))
+    fig, axes = plt.subplots(1, 3, figsize=(15, 4))
     axes[0].set_title(f"Branch: {BRANCH}")
-    axes[1].set_title("Cached (v0.0.1")
+    axes[1].set_title("Cached (v0.0.1)")
+    axes[2].set_title("Relative error")
     vmin = min(np.min(cur.data), np.min(cached.data))
     vmax = max(np.max(cur.data), np.max(cached.data))
-    norm = plt.Normalize(vmin=vmin, vmax=vmax)
-    cur.plot(ax=axes[0], norm=norm)
-    cached.plot(ax=axes[1], norm=norm)
+
+    if vmin == vmax:
+        vmin = -1
+        vmax = 1
+    norm = TwoSlopeNorm(
+        vmin=vmin, vcenter=0, vmax=vmax
+    )
+
+    cur.plot(ax=axes[0], norm=norm, cmap='bwr', show_colorbar=False)
+    cached.plot(ax=axes[1], norm=norm, cmap='bwr', show_colorbar=False)
+    err.plot(ax=axes[2], absolute=True, norm=norm, cmap='bwr', show_colorbar=True)
     plt.savefig(f"{outdir}/{label}_comparison.png")
     assert cur.shape == cached.shape, f"Wavelets dont match current: {cur}, old: {cached}"
     assert np.allclose(cur.freq, cached.freq), f"Freqs dont match current: {cur.freq}, old: {cached.freq}"
