@@ -24,12 +24,11 @@ classifiers = [
 ]
 dependencies = [
     "numpy",
-    "numba",
     "matplotlib",
     "tqdm",
     "loguru",
-    "astropy>=5.2.1",
     "pycbc",
+    "jax"
 ]
 
 [project.optional-dependencies]

@@ -1,14 +1,17 @@
 import matplotlib.pyplot as plt
-from typing import Tuple, Union
-from scipy.signal.spectral import spectrogram
+from typing import Tuple
 
-from .common import is_documented_by, xp, rfft, rfftfreq
+
+import jax.numpy as jnp
+from jax.numpy.fft import rfft, rfftfreq
+
 from .plotting import plot_timeseries, plot_spectrogram
+from .common import is_documented_by
 
 __all__ = ["TimeSeries"]
 
 class TimeSeries:
-    def __init__(self, data: xp.ndarray, time: xp.ndarray):
+    def __init__(self, data: jnp.ndarray, time: jnp.ndarray):
         if len(data) != len(time):
             raise ValueError("data and time must have the same length")
         self.data = data
@@ -41,7 +44,7 @@ class TimeSeries:
 
     @property
     def sample_rate(self) -> float:
-        return float(xp.round(1.0 / self.dt, decimals=14))
+        return float(jnp.round(1.0 / self.dt, decimals=14))
 
     @property
     def fs(self):

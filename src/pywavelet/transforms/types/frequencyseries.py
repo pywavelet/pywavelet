@@ -1,14 +1,16 @@
 import matplotlib.pyplot as plt
-from typing import Tuple, Union
+from typing import Tuple
 
-from .common import is_documented_by, xp, irfft
+import jax.numpy as jnp
+from jax.numpy.fft import irfft
+from .common import is_documented_by
 from .plotting import plot_freqseries, plot_periodogram
 
 __all__ = ["FrequencySeries"]
 
 class FrequencySeries:
-    def __init__(self, data: xp.ndarray, freq: xp.ndarray):
-        if xp.any(freq < 0):
+    def __init__(self, data: jnp.ndarray, freq: jnp.ndarray):
+        if jnp.any(freq < 0):
             raise ValueError("FrequencySeries must be one-sided (only non-negative frequencies)")
         if len(data) != len(freq):
             raise ValueError(f"data and freq must have the same length ({len(data)} != {len(freq)})")
@@ -79,7 +81,7 @@ class FrequencySeries:
 
         # Calculate the time array
         dt = 1 / (2 * self.nyquist_frequency)
-        time = xp.arange(len(time_data)) * dt
+        time = jnp.arange(len(time_data)) * dt
 
         # Create and return a TimeSeries object
         from .timeseries import TimeSeries

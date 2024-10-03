@@ -1,4 +1,4 @@
-import numpy as np
+import jax.numpy as jnp
 
 from pywavelet.utils import evolutionary_psd_from_stationary_psd
 

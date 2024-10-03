@@ -1,16 +1,17 @@
 import matplotlib.pyplot as plt
-from typing import Optional, Tuple, Union
-from .common import is_documented_by, xp
+from typing import  Tuple
+from .common import is_documented_by
 from .plotting import plot_wavelet_grid
+import jax.numpy as jnp
 
 
 
 class Wavelet:
     def __init__(
             self,
-            data: xp.ndarray,
-            time: xp.ndarray,
-            freq: xp.ndarray,
+            data: jnp.ndarray,
+            time: jnp.ndarray,
+            freq: jnp.ndarray,
     ):
         nf, nt = data.shape
         assert len(time) == nt, f"len(time)={len(time)} != nt={nt}"

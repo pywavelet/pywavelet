@@ -1,66 +1,51 @@
-"""helper functions for transform_time.py"""
-import numpy as np
-from numba import njit
-from numpy import fft
+import jax
+import jax.numpy as jnp
+from jax import jit
+from jax.numpy.fft import rfft
+from functools import partial
 
-
+@partial(jit, static_argnames=('Nf', 'Nt', 'mult'))
 def transform_wavelet_time_helper(
-    data: np.ndarray, Nf: int, Nt: int, phi: np.ndarray, mult: int
-) -> np.ndarray:
-    """helper function to do the wavelet transform in the time domain"""
-    # the time domain freqseries stream
+    data: jnp.ndarray, phi: jnp.ndarray, Nf: int, Nt: int,  mult: int
+) -> jnp.ndarray:
+    """Helper function to do the wavelet transform in the time domain using JAX"""
+    # Define constants
     ND = Nf * Nt
     K = mult * 2 * Nf
-    assert len(data) == ND, f"len(data)={len(data)} != Nf*Nt={ND}"
 
-    # windowed freqseries packets
-    wdata = np.zeros(K)
-    wave = np.zeros((Nt, Nf))  # wavelet wavepacket transform of the signal
-    data_pad = np.concatenate((data, data[:K]))
+    # Pad the data with K extra values
+    data_pad = jnp.concatenate((data, data[:K]))
 
-    for time_bin_i in range(0, Nt):
-        __fill_wave_1(time_bin_i, K, ND, Nf, wdata, data_pad, phi)
-        wdata_trans = fft.rfft(
-            wdata, K
-        )  # A fix because numba doesn't support np.fft
-        __fill_wave_2(time_bin_i, wave, wdata_trans, Nf, mult)
+    # Generate time bin indices
+    time_bins = jnp.arange(Nt)
+    jj_base = (time_bins[:, None] * Nf - K // 2) % ND
+    jj = (jj_base + jnp.arange(K)[None, :]) % ND
 
-    return wave
+    # Apply the window (phi) to the data
+    wdata = data_pad[jj] * phi[None, :]
 
+    # Perform FFT on the windowed data
+    wdata_trans = rfft(wdata, axis=1)
 
-def __fill_wave_1(
-    t_bin: int,
-    K: int,
-    ND: int,
-    Nf: int,
-    wdata: np.ndarray,
-    data_pad: np.ndarray,
-    phi: np.ndarray,
-) -> None:
-    """Assign wdata to be FFT'd in a loop with K extra values on the right to loop."""
-    # wrapping the freqseries is needed to make the sum in Eq 13 in Cornish paper from [-K/2, K/2]
-    jj = (t_bin * Nf - K // 2) % ND  # Periodically wrap the freqseries
-    for j in range(K):
-        # Eq 13 from Cornish paper
-        wdata[j] = data_pad[jj] * phi[j]  # Apply the window
-        jj = (jj + 1) % ND  # Periodically wrap the freqseries
+    # Initialize the wavelet transform result
+    wave = jnp.zeros((Nt, Nf))
 
+    # Handle m=0 case for even time bins
+    even_mask = (time_bins % 2 == 0) & (time_bins < Nt - 1)
+    even_indices = jnp.nonzero(even_mask, size=even_mask.shape[0])[0]
 
-# @njit()
-def __fill_wave_2(
-    t_bin: int, wave: np.ndarray, wdata_trans: np.ndarray, Nf: int, mult: int
-) -> None:
-    # wdata_trans = np.sum(wdata) * np.exp(1j * np.pi * np.arange(0, 1+K//2) / K)
+    # Update wave for m=0 using even time bins
+    wave = wave.at[even_indices, 0].set(jnp.real(wdata_trans[even_indices, 0]) / jnp.sqrt(2))
+    wave = wave.at[even_indices + 1, 0].set(jnp.real(wdata_trans[even_indices, Nf * mult]) / jnp.sqrt(2))
 
-    # pack fft'd wdata into wave array
-    if t_bin % 2 == 0 and t_bin < wave.shape[0] - 1:  # if EVEN t_bin
-        # m=0 value at even Nt and
-        wave[t_bin, 0] = np.real(wdata_trans[0]) / np.sqrt(2)
-        wave[t_bin + 1, 0] = np.real(wdata_trans[Nf * mult]) / np.sqrt(2)
+    # Handle other cases (j > 0) using vectorized operations
+    j_range = jnp.arange(1, Nf)
+    odd_condition = ((time_bins[:, None] + j_range[None, :]) % 2 == 1)
 
-    # Cnm in eq 13
-    for j in range(1, Nf):
-        if (t_bin + j) % 2:
-            wave[t_bin, j] = -np.imag(wdata_trans[j * mult])
-        else:
-            wave[t_bin, j] = np.real(wdata_trans[j * mult])
+    wave = wave.at[:, 1:].set(
+        jnp.where(odd_condition,
+                  -jnp.imag(wdata_trans[:, j_range * mult]),
+                  jnp.real(wdata_trans[:, j_range * mult]))
+    )
+
+    return wave.T

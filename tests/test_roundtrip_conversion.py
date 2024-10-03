@@ -1,3 +1,5 @@
+import os
+
 import matplotlib.pyplot as plt
 import numpy as np
 from utils import plot_residuals
@@ -45,10 +47,10 @@ def __run_timedomain_checks(ht, label, outdir):
     np.savez(f"{outdir}/{label}.npz", freq=wavelet.freq, time=wavelet.time, data=wavelet.data)
     __compare_wavelet_to_cached(wavelet, label, outdir)
     assert wavelet.__repr__() == f"Wavelet(NfxNt={Nf}x{Nt})"
-    assert len(wavelet.freq) == Nf
-    assert len(wavelet.time) == Nt
+    assert len(wavelet.freq) == Nf, f"len(wavelet.freq)={len(wavelet.freq)} != Nf={Nf}"
+    assert len(wavelet.time) == Nt, f"len(wavelet.time)={len(wavelet.time)} != Nt={Nt}"
     h_reconstructed = from_wavelet_to_time(wavelet, mult=mult, dt=dt)
-    assert len(h_reconstructed.data) == len(ht.data) == wavelet.ND
+    assert len(h_reconstructed.data) == len(ht.data) == wavelet.ND, f"len(h_reconstructed.data)={len(h_reconstructed.data)} != len(ht.data)={len(ht.data)} != wavelet.ND={wavelet.ND}"
     assert not np.isnan(h_reconstructed.data).any(), "Reconstructed data contains NaNs"
     _make_timedomain_plots(ht, h_reconstructed, wavelet, f"{outdir}/{label}.png")
 

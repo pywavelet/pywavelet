@@ -1,6 +1,6 @@
 from typing import Union
 
-import numpy as np
+import jax.numpy as jnp
 
 from ...logger import logger
 from ..phi_computer import phi_vec, phitilde_vec_norm
@@ -61,10 +61,10 @@ def from_time_to_wavelet(
         )
 
     mult = min(mult, Nt // 2)  # make sure K isn't bigger than ND
-    phi = phi_vec(Nf, dt=dt, d=nx, q=mult)
-    wave = transform_wavelet_time_helper(timeseries.data, Nf, Nt, phi, mult).T
+    phi = jnp.array(phi_vec(Nf, dt=dt, d=nx, q=mult))
+    wave = transform_wavelet_time_helper(timeseries.data, Nf=Nf, Nt=Nt, phi=phi, mult=mult)
     return Wavelet(
-        wave* np.sqrt(2), time=t_bins, freq=f_bins
+        wave* jnp.sqrt(2), time=t_bins, freq=f_bins
     )
 
 
@@ -99,13 +99,13 @@ def from_freq_to_wavelet(
     Nf, Nt = _preprocess_bins(freqseries, Nf, Nt)
     t_bins, f_bins = _get_bins(freqseries, Nf, Nt)
     dt = freqseries.dt
-    phif = phitilde_vec_norm(Nf, Nt, dt=dt, d=nx)
+    phif = jnp.array(phitilde_vec_norm(Nf, Nt, dt=dt, d=nx))
     wave =  transform_wavelet_freq_helper(
-        freqseries.data, Nf, Nt, phif
+        freqseries.data, Nf=Nf, Nt=Nt, phif=phif
     )
 
     return Wavelet(
-        (2 / Nf) * wave.T * np.sqrt(2),
+        (2 / Nf) * wave * jnp.sqrt(2),
         time=t_bins,
         freq=f_bins
     )
