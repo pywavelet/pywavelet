@@ -9,6 +9,11 @@ import subprocess
 os.environ["NUMBA_DISABLE_JIT"] = "1"
 
 HERE = os.path.abspath(os.path.dirname(__file__))
+DATA_DIR = f"{HERE}/test_data"
+try:
+    BRANCH = subprocess.check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"]).strip().decode('utf-8')
+except Exception as e:
+    BRANCH = "main"
 
 fs = 1024
 fmax = 50
@@ -21,11 +26,9 @@ ND = Nt * Nf
 ts = np.arange(0, ND) * dt
 
 
-
 @pytest.fixture()
 def plot_dir():
-    branch_name = subprocess.check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"]).strip().decode('utf-8')
-    dirname = f"{HERE}/out_plots_{branch_name}"
+    dirname = f"{HERE}/out_plots_{BRANCH}"
     os.makedirs(dirname, exist_ok=True)
     return dirname
 
@@ -42,10 +45,12 @@ def chirp_freq():
     hf = ht.to_frequencyseries()
     return hf
 
+
 @pytest.fixture()
 def sine_time():
     ht = generate_sine_time_domain_signal(ts, ND, f_true=10)
     return ht
+
 
 @pytest.fixture()
 def sine_freq():
