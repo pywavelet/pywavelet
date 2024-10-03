@@ -71,8 +71,13 @@ def plot_wavelet_grid(
     _cmap = 'viridis'
     if not absolute:
         _cmap = "bwr"
+        vmin = np.min(z)
+        vmax = np.max(z)
+        if vmin == vmax:
+            vmin = -1
+            vmax = 1
         _norm = TwoSlopeNorm(
-            vmin=np.min(z), vcenter=0, vmax=np.max(z)
+            vmin=vmin, vcenter=0, vmax=vmax
         )
     if zscale == "log":
         _norm = LogNorm(vmin=np.nanmin(z), vmax=np.nanmax(z))
@@ -90,7 +95,8 @@ def plot_wavelet_grid(
     im = ax.imshow(z, aspect="auto", extent=extents, cmap=cmap, norm=norm)
     if show_colorbar:
         cbar = plt.colorbar(im, ax=ax)
-        cl = "Absolute Wavelet Amplitude" if absolute else "Wavelet Amplitude"
+        _cbar_label = "Absolute Wavelet Amplitude" if absolute else "Wavelet Amplitude"
+        cl = kwargs.get("cbar_label", _cbar_label)
         cbar.set_label(cl)
 
     # add a text box with the Nt and Nf values

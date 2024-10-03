@@ -97,7 +97,7 @@ def _make_freqdomain_plots(hf: FrequencySeries, h_reconstructed, wavelet, fname)
     assert np.max(np.abs(r)) < 1e-2, "Max residual is too large"
 
 
-def __compare_wavelet_to_cached(cur, label, outdir):
+def __compare_wavelet_to_cached(cur:Wavelet, label, outdir):
     cached_data = np.load(f"{DATA_DIR}/{label}.npz")
     cached = Wavelet(data=cached_data["data"], freq=cached_data["freq"], time=cached_data["time"])
     err = Wavelet(data=(cached.data - cur.data) / (cur.data), freq=cur.freq, time=cur.time)
@@ -117,8 +117,8 @@ def __compare_wavelet_to_cached(cur, label, outdir):
     )
 
     cur.plot(ax=axes[0], norm=norm, cmap='bwr', show_colorbar=False)
-    cached.plot(ax=axes[1], norm=norm, cmap='bwr', show_colorbar=False)
-    err.plot(ax=axes[2], absolute=True, norm=norm, cmap='bwr', show_colorbar=True)
+    cached.plot(ax=axes[1], norm=norm, cmap='bwr', show_colorbar=True)
+    err.plot(ax=axes[2],  cmap='bwr', show_colorbar=True, cbar_label="Relative error")
     plt.savefig(f"{outdir}/{label}_comparison.png")
     assert cur.shape == cached.shape, f"Wavelets dont match current: {cur}, old: {cached}"
     assert np.allclose(cur.freq, cached.freq), f"Freqs dont match current: {cur.freq}, old: {cached.freq}"
