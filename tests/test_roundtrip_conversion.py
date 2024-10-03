@@ -78,7 +78,7 @@ def _make_freqdomain_plots(hf: FrequencySeries, h_reconstructed, wavelet, fname)
     hf.plot_periodogram(ax=axes[0], label="Original")
     h_reconstructed.plot_periodogram(ax=axes[0], label="Reconstructed", linestyle="--", color="tab:orange", alpha=0.5)
     axes[0].axvline(hf.nyquist_frequency, linestyle="--", color="tab:red", label="Nyquist frequency")
-    axes[0].axvline(maxf, linestyle="--", color="tab:green", label="wavelet max-min f")
+    axes[0].axvline(maxf, linestyle="--", color="tab:green", label="cur max-min f")
     axes[0].axvline(minf, linestyle="--", color="tab:green")
     axes[0].legend()
     wavelet.plot(ax=axes[1])
@@ -97,22 +97,20 @@ def _make_freqdomain_plots(hf: FrequencySeries, h_reconstructed, wavelet, fname)
 
 
 
-def __compare_wavelet_to_cached(wavelet, label, outdir):
+def __compare_wavelet_to_cached(cur, label, outdir):
     cached_data = np.load(f"{DATA_DIR}/{label}.npz")
-    cached_wavelet = Wavelet(data=cached_data["data"], freq=cached_data["freq"], time=cached_data["time"])
+    cached = Wavelet(data=cached_data["data"], freq=cached_data["freq"], time=cached_data["time"])
 
     fig, axes = plt.subplots(1, 2, figsize=(10, 5))
     axes[0].set_title(f"Branch: {BRANCH}")
     axes[1].set_title("Cached (v0.0.1")
-    vmin = min(np.min(wavelet.data), np.min(cached_wavelet.data))
-    vmax = max(np.max(wavelet.data), np.max(cached_wavelet.data))
+    vmin = min(np.min(cur.data), np.min(cached.data))
+    vmax = max(np.max(cur.data), np.max(cached.data))
     norm = plt.Normalize(vmin=vmin, vmax=vmax)
-    wavelet.plot(ax=axes[0], norm=norm)
-    cached_wavelet.plot(ax=axes[1], norm=norm)
+    cur.plot(ax=axes[0], norm=norm)
+    cached.plot(ax=axes[1], norm=norm)
     plt.savefig(f"{outdir}/{label}_comparison.png")
-    assert wavelet.ND == cached_wavelet.ND
-    assert wavelet.Nf == cached_wavelet.Nf
-    assert wavelet.Nt == cached_wavelet.Nt
-    assert np.allclose(wavelet.freq, cached_wavelet.freq)
-    assert np.allclose(wavelet.time, cached_wavelet.time)
-    assert np.allclose(wavelet.data, cached_wavelet.data)
+    assert cur.shape == cached.shape, f"Wavelets dont match current: {cur}, old: {cached}"
+    assert np.allclose(cur.freq, cached.freq), f"Freqs dont match current: {cur.freq}, old: {cached.freq}"
+    assert np.allclose(cur.time, cached.time), f"Times dont match current: {cur.time}, old: {cached.time}"
+    assert np.allclose(cur.data, cached.data), f"Data doesnt match current: {cur.data}, old: {cached.data}"

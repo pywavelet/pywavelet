@@ -68,7 +68,7 @@ def plot_wavelet_grid(
     if absolute:
         z = np.abs(z)
 
-    if not absolute:
+    if not absolute and norm is None:
         try:
             cmap = "bwr"
             norm = TwoSlopeNorm(
@@ -79,7 +79,7 @@ def plot_wavelet_grid(
     else:
         cmap = kwargs.get("cmap", "viridis")
 
-    if zscale == "log":
+    if zscale == "log" and norm is None:
         norm = LogNorm(vmin=np.nanmin(z), vmax=np.nanmax(z))
 
     extents = [0, Nt, 0, Nf]
