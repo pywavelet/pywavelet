@@ -58,11 +58,6 @@ def plot_residuals(residuals: np.ndarray, ax: plt.Axes, symlog=True):
 def plot_wavelet_comparison(cur: Wavelet, cached: Wavelet, err: Wavelet, label: str, outdir: str):
     net_err = np.sum(np.abs(err.data))
     fig, axes = plt.subplots(1, 3, figsize=(15, 4), sharey=True, sharex=True)
-    axes[0].set_ylabel("Frequency [Hz]")
-    axes[1].set_ylabel("")
-    axes[2].set_ylabel("")
-    for ax in axes:
-        ax.set_xlabel("Time [s]")
     axes[0].set_title(f"Branch: {BRANCH}")
     axes[1].set_title("Cached (v0.0.1)")
     axes[2].set_title("Diff")
@@ -76,6 +71,11 @@ def plot_wavelet_comparison(cur: Wavelet, cached: Wavelet, err: Wavelet, label: 
     cur.plot(ax=axes[0], norm=norm, cmap='bwr', show_colorbar=False)
     cached.plot(ax=axes[1], norm=norm, cmap='bwr', show_colorbar=True)
     err.plot(ax=axes[2], cmap='bwr', show_colorbar=True, cbar_label="old-new")
+    axes[0].set_ylabel("Frequency [Hz]")
+    axes[1].set_ylabel("")
+    axes[2].set_ylabel("")
+    for ax in axes:
+        ax.set_xlabel("Time [s]")
     plt.savefig(f"{outdir}/{label}_comparison.png")
     return cached
 
