@@ -57,7 +57,8 @@ def __assert_roundtrip_valid(h_old, h_new, wavelet):
     assert std < 1e-3, f"Standard deviation of residuals is too large: {std}"
     assert np.max(np.abs(residuals)) < 1e-2, f"Max residual is too large: {np.max(np.abs(residuals))}"
     assert not np.isnan(residuals).any(), "Residuals contain NaNs"
-    assert len(h_new.data) == len(h_old.data) == wavelet.ND
+    assert len(h_new.data) == len(
+        h_old.data) == wavelet.ND, f"Lengths dont match: {len(h_new.data)}, {len(h_old.data)}, {wavelet.ND}"
 
 
 def __assert_wavelet_matches_cached_wavelet(cur: Wavelet, label, outdir):
@@ -70,7 +71,7 @@ def __assert_wavelet_matches_cached_wavelet(cur: Wavelet, label, outdir):
     plot_wavelet_comparison(cur, cached, err, label, outdir)
 
     assert net_err < 1e-3, f"Net error is too large: {net_err}"
-    assert cur.__repr__() == cached.__repr__()
+    assert cur.__repr__() == cached.__repr__(), f"Current[{cur.__repr__()}] != Old[{cached.__repr__()}]"
     assert cur.shape == cached.shape, f"Wavelets dont match current: {cur}, old: {cached}"
     assert np.allclose(cur.freq, cached.freq), f"Freqs dont match current: {cur.freq}, old: {cached.freq}"
     assert np.allclose(cur.time, cached.time), f"Times dont match current: {cur.time}, old: {cached.time}"
