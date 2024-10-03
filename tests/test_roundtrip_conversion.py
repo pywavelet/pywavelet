@@ -1,13 +1,17 @@
-import matplotlib.pyplot as plt
 import numpy as np
-from utils import plot_residuals
+from utils import (
+    plot_wavelet_comparison,
+    plot_freqdomain_comparisions,
+    plot_timedomain_comparisons
+)
 
-from pywavelet.transforms.types import FrequencySeries, TimeSeries, Wavelet
-from pywavelet.transforms import from_wavelet_to_freq, from_wavelet_to_time, from_freq_to_wavelet, from_time_to_wavelet
+from pywavelet.transforms.types import Wavelet
+from pywavelet.transforms import (
+    from_wavelet_to_freq, from_wavelet_to_time,
+    from_freq_to_wavelet, from_time_to_wavelet
+)
 
-from matplotlib.colors import TwoSlopeNorm
-
-from conftest import Nt, mult, dt, Nf, DATA_DIR, BRANCH
+from conftest import Nt, mult, dt, Nf, DATA_DIR
 
 
 def test_timedomain_chirp_roundtrip(plot_dir, chirp_time):
@@ -27,99 +31,46 @@ def test_freqdomain_sine_roundtrip(plot_dir, sine_freq):
 
 
 def __run_freqdomain_checks(hf, label, outdir):
-    ND = len(hf)
-    _Nt = ND // Nf
     wavelet = from_freq_to_wavelet(hf, Nf=Nf)
-    np.savez(f"{outdir}/{label}.npz", freq=wavelet.freq, time=wavelet.time, data=wavelet.data)
-    __compare_wavelet_to_cached(wavelet, label, outdir)
-    assert wavelet.__repr__() == f"Wavelet(NfxNt={Nf}x{_Nt})"
-    assert len(wavelet.freq) == Nf
-    assert len(wavelet.time) == _Nt
+    __assert_wavelet_matches_cached_wavelet(wavelet, label, outdir)
     h_reconstructed = from_wavelet_to_freq(wavelet, dt=dt)
-    assert len(h_reconstructed.data) == len(hf.data) == wavelet.ND
-    assert not np.isnan(h_reconstructed.data).any(), "Reconstructed data contains NaNs"
-    _make_freqdomain_plots(hf, h_reconstructed, wavelet, f"{outdir}/{label}.png")
+    plot_freqdomain_comparisions(hf, h_reconstructed, wavelet, f"{outdir}/{label}.png")
+    __assert_roundtrip_valid(hf, h_reconstructed, wavelet)
 
 
 def __run_timedomain_checks(ht, label, outdir):
     wavelet = from_time_to_wavelet(ht, Nt=Nt, mult=mult)
-    np.savez(f"{outdir}/{label}.npz", freq=wavelet.freq, time=wavelet.time, data=wavelet.data)
-    __compare_wavelet_to_cached(wavelet, label, outdir)
-    assert wavelet.__repr__() == f"Wavelet(NfxNt={Nf}x{Nt})"
-    assert len(wavelet.freq) == Nf
-    assert len(wavelet.time) == Nt
+    __assert_wavelet_matches_cached_wavelet(wavelet, label, outdir)
     h_reconstructed = from_wavelet_to_time(wavelet, mult=mult, dt=dt)
-    assert len(h_reconstructed.data) == len(ht.data) == wavelet.ND
-    assert not np.isnan(h_reconstructed.data).any(), "Reconstructed data contains NaNs"
-    _make_timedomain_plots(ht, h_reconstructed, wavelet, f"{outdir}/{label}.png")
+    plot_timedomain_comparisons(ht, h_reconstructed, wavelet, f"{outdir}/{label}.png")
+    __assert_roundtrip_valid(ht, h_reconstructed, wavelet)
 
 
-def _make_timedomain_plots(ht: TimeSeries, h_reconstructed, wavelet, fname):
-    fig, axes = plt.subplots(1, 3, figsize=(15, 5))
-    ht.plot(ax=axes[0], label="Original")
-    h_reconstructed.plot(ax=axes[0], label="Reconstructed", linestyle="--", color="tab:orange", alpha=0.5)
-    axes[0].legend()
-    wavelet.plot(ax=axes[1])
-    r = ht.data - h_reconstructed.data
-    plot_residuals(ht.data - h_reconstructed.data, axes[2])
-    axes[0].set_title("Timeseries")
-    axes[1].set_title("Wavelet")
-    axes[2].set_title("Residuals")
-    plt.tight_layout()
-    plt.savefig(fname)
-
-    assert np.mean(r) < 1e-3, "Mean residual is too large"
-    assert np.std(r) < 1e-3, "Standard deviation of residuals is too large"
-    assert np.max(np.abs(r)) < 1e-2, "Max residual is too large"
-
-
-def _make_freqdomain_plots(hf: FrequencySeries, h_reconstructed, wavelet, fname):
+def __assert_roundtrip_valid(h_old, h_new, wavelet):
     minf, maxf = wavelet.freq[1], wavelet.freq[-1] / 2
-    fig, axes = plt.subplots(1, 3, figsize=(15, 5))
-    hf.plot_periodogram(ax=axes[0], label="Original")
-    h_reconstructed.plot_periodogram(ax=axes[0], label="Reconstructed", linestyle="--", color="tab:orange", alpha=0.5)
-    axes[0].axvline(hf.nyquist_frequency, linestyle="--", color="tab:red", label="Nyquist frequency")
-    axes[0].axvline(maxf, linestyle="--", color="tab:green", label="cur max-min f")
-    axes[0].axvline(minf, linestyle="--", color="tab:green")
-    axes[0].legend()
-    wavelet.plot(ax=axes[1])
-    freq_mask = (minf < hf.freq) & (hf.freq < maxf)
-    r = (np.abs(hf.data) - np.abs(h_reconstructed.data))[freq_mask]
-    plot_residuals(r, axes[2])
-    axes[2].set_title("Residuals (in WDF f-range)")
-    axes[0].set_title("Periodogram")
-    axes[1].set_title("Wavelet")
-    plt.tight_layout()
-    plt.savefig(fname)
-
-    assert np.mean(r) < 1e-3, "Mean residual is too large"
-    assert np.std(r) < 1e-3, "Standard deviation of residuals is too large"
-    assert np.max(np.abs(r)) < 1e-2, "Max residual is too large"
+    residuals = np.abs(h_old.data - h_new.data)
+    if hasattr(h_old, "freq"):
+        freq_mask = (minf < h_old.freq) & (h_old.freq < maxf)
+        residuals = residuals[freq_mask]
+    mean, std = np.mean(residuals), np.std(residuals)
+    assert mean < 1e-3, f"Mean residual is too large: {mean}"
+    assert std < 1e-3, f"Standard deviation of residuals is too large: {std}"
+    assert np.max(np.abs(residuals)) < 1e-2, f"Max residual is too large: {np.max(np.abs(residuals))}"
+    assert not np.isnan(residuals).any(), "Residuals contain NaNs"
+    assert len(h_new.data) == len(h_old.data) == wavelet.ND
 
 
-def __compare_wavelet_to_cached(cur:Wavelet, label, outdir):
+def __assert_wavelet_matches_cached_wavelet(cur: Wavelet, label, outdir):
+    np.savez(f"{outdir}/{label}.npz", freq=cur.freq, time=cur.time, data=cur.data)
     cached_data = np.load(f"{DATA_DIR}/{label}.npz")
     cached = Wavelet(data=cached_data["data"], freq=cached_data["freq"], time=cached_data["time"])
-    err = Wavelet(data=(cached.data - cur.data) / (cur.data), freq=cur.freq, time=cur.time)
+    err = Wavelet(data=(cached.data - cur.data), freq=cur.freq, time=cur.time)
+    net_err = np.sum(np.abs(err.data))
 
-    fig, axes = plt.subplots(1, 3, figsize=(15, 4))
-    axes[0].set_title(f"Branch: {BRANCH}")
-    axes[1].set_title("Cached (v0.0.1)")
-    axes[2].set_title("Relative error")
-    vmin = min(np.min(cur.data), np.min(cached.data))
-    vmax = max(np.max(cur.data), np.max(cached.data))
+    plot_wavelet_comparison(cur, cached, err, label, outdir)
 
-    if vmin == vmax:
-        vmin = -1
-        vmax = 1
-    norm = TwoSlopeNorm(
-        vmin=vmin, vcenter=0, vmax=vmax
-    )
-
-    cur.plot(ax=axes[0], norm=norm, cmap='bwr', show_colorbar=False)
-    cached.plot(ax=axes[1], norm=norm, cmap='bwr', show_colorbar=True)
-    err.plot(ax=axes[2],  cmap='bwr', show_colorbar=True, cbar_label="Relative error")
-    plt.savefig(f"{outdir}/{label}_comparison.png")
+    assert net_err < 1e-3, f"Net error is too large: {net_err}"
+    assert cur.__repr__() == cached.__repr__()
     assert cur.shape == cached.shape, f"Wavelets dont match current: {cur}, old: {cached}"
     assert np.allclose(cur.freq, cached.freq), f"Freqs dont match current: {cur.freq}, old: {cached.freq}"
     assert np.allclose(cur.time, cached.time), f"Times dont match current: {cur.time}, old: {cached.time}"

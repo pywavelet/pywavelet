@@ -2,18 +2,18 @@ import os
 
 import pytest
 import numpy as np
-from utils import generate_chirp_time_domain_signal, generate_sine_time_domain_signal
-import subprocess
+from utils import (
+    generate_chirp_time_domain_signal,
+    generate_sine_time_domain_signal,
+    generate_sine_freq_domain_signal,
+    BRANCH
+)
 
 # set global env var "NUMBA_DISABLE_JIT=1"
 os.environ["NUMBA_DISABLE_JIT"] = "1"
 
 HERE = os.path.abspath(os.path.dirname(__file__))
 DATA_DIR = f"{HERE}/test_data"
-try:
-    BRANCH = subprocess.check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"]).strip().decode('utf-8')
-except Exception as e:
-    BRANCH = "main"
 
 fs = 1024
 fmax = 50
@@ -35,25 +35,19 @@ def plot_dir():
 
 @pytest.fixture()
 def chirp_time():
-    ht = generate_chirp_time_domain_signal(ts, frange)
-    return ht
+    return generate_chirp_time_domain_signal(ts, frange)
 
 
 @pytest.fixture()
 def chirp_freq():
-    ht = generate_chirp_time_domain_signal(ts, frange)
-    hf = ht.to_frequencyseries()
-    return hf
+    return generate_chirp_time_domain_signal(ts, frange).to_frequencyseries()
 
 
 @pytest.fixture()
 def sine_time():
-    ht = generate_sine_time_domain_signal(ts, ND, f_true=10)
-    return ht
+    return generate_sine_time_domain_signal(ts, ND, f_true=10)
 
 
 @pytest.fixture()
 def sine_freq():
-    ht = generate_sine_time_domain_signal(ts, ND, f_true=10)
-    hf = ht.to_frequencyseries()
-    return hf
+    return generate_sine_time_domain_signal(ts, ND, f_true=10).to_frequencyseries()
