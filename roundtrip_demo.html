@@ -537,6 +537,43 @@ We need to be careful about the length of the timeseries (<span class="math notr
 </pre></div>
 </div>
 </div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Help on method plot in module pywavelet.transforms.types.wavelet:
+
+plot(ax=None, *args, **kwargs) -&gt; matplotlib.figure.Figure method of pywavelet.transforms.types.wavelet._Wavelet instance
+    Plot a 2D grid of wavelet coefficients.
+    
+    Parameters
+    ----------
+    wavelet_data : np.ndarray
+        The wavelet freqseries to plot.
+    
+    time_grid : np.ndarray, optional
+        The time grid for the wavelet freqseries.
+    
+    freq_grid : np.ndarray, optional
+        The frequency grid for the wavelet freqseries.
+    
+    ax : plt.Axes, optional
+        The axes to plot on.
+    
+    zscale : str, optional
+        The scale for the colorbar.
+    
+    freq_scale : str, optional
+        The scale for the frequency axis.
+    
+    absolute : bool, optional
+        Whether to plot the absolute value of the wavelet freqseries.
+    
+    freq_range : Tuple[float, float], optional
+        The frequency range to plot.
+    
+    kwargs : dict, optional
+        Additional keyword arguments for the plot.
+</pre></div>
+</div>
+</div>
 </div>
 </section>
 </section>
@@ -577,6 +614,7 @@ We need to be careful about the length of the timeseries (<span class="math notr
 </div>
 </div>
 <p><img alt="" src="_images/roundtrip_freq.png" /></p>
+<p>&#64;Ollie – Do we have to ensure 2-sided frequency spectrum for the input frequency series?</p>
 </section>
 </section>
 
