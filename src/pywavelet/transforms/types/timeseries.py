@@ -72,8 +72,8 @@ class TimeSeries:
 
     def to_frequencyseries(self) -> 'FrequencySeries':
         """Convert time series to frequency series using Fourier transform."""
-        freq = rfftfreq(len(self), d=self.dt)[1:]
-        data = rfft(self.data)[1:]
+        freq = rfftfreq(len(self), d=self.dt)
+        data = rfft(self.data)
         # This is all the +ive frequencies
         from .frequencyseries import FrequencySeries  # Avoid circular import
         return FrequencySeries(data, freq)
