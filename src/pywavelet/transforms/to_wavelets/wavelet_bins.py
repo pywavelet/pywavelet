@@ -29,24 +29,26 @@ def _get_bins(
     Nf: Union[int, None] = None,
     Nt: Union[int, None] = None,
 ) -> Tuple[np.ndarray, np.ndarray]:
-    """Get the bins for the wavelet transform
-    Eq 4-6 in Wavelets paper
-    """
+
     T = data.duration
-    N = len(data)
+    t_bins, f_bins = compute_bins(Nf, Nt, T)
 
-    fs = N / T
-    fmax = fs / 2
-
-    delta_T = T / Nt
-    delta_F = 1 / (2 * delta_T)
-
+    # N = len(data)
+    # fs = N / T
     # assert delta_f == fmax / Nf, f"delta_f={delta_f} != fmax/Nf={fmax/Nf}"
-
-    f_bins = np.arange(0, Nf) * delta_F
-    t_bins = np.arange(0, Nt) * delta_T
 
     if isinstance(data, TimeSeries):
         t_bins += data.time[0]
 
     return t_bins, f_bins
+
+
+def compute_bins(Nf:int, Nt:int, T:float) -> Tuple[np.ndarray, np.ndarray]:
+    """Get the bins for the wavelet transform
+    Eq 4-6 in Wavelets paper
+    """
+    delta_T = T / Nt
+    delta_F = 1 / (2 * delta_T)
+    t_bins = np.arange(0, Nt) * delta_T
+    f_bins = np.arange(0, Nf) * delta_F
+    return  t_bins, f_bins

@@ -25,7 +25,7 @@ class Wavelet:
 
 
     @is_documented_by(plot_wavelet_grid)
-    def plot(self, ax=None, *args, **kwargs) -> plt.Figure:
+    def plot(self, ax=None, *args, **kwargs) -> Tuple[plt.Figure, plt.Axes]:
         """Plot the wavelet grid."""
         kwargs["time_grid"] = kwargs.get("time_grid", self.time)
         kwargs["freq_grid"] = kwargs.get("freq_grid", self.freq)

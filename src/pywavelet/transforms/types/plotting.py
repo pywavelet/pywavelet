@@ -76,6 +76,8 @@ def plot_wavelet_grid(
         if vmin == vmax:
             vmin = -1
             vmax = 1
+        if vmin == 0 :
+            vmin = -vmax
         _norm = TwoSlopeNorm(
             vmin=vmin, vcenter=0, vmax=vmax
         )
