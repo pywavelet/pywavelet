@@ -117,7 +117,7 @@ def test_toy_model_snr(plot_dir):
     axes[2].set_title("analytical wdm")
     for ax in axes:
         ax.set_xlim(0, 100)
-        ax.set_ylim(f0+2.5, f0-2.5)
+        # ax.set_ylim(f0+2.5, f0-2.5)
         ax.set_xlabel("Time [s]")
         ax.set_ylabel("")
     axes[0].set_ylabel("Frequency [Hz]")
