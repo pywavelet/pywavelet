@@ -105,9 +105,13 @@ def plot_freqdomain_comparisions(hf: FrequencySeries, h_reconstructed: Frequency
     axes[0].axvline(minf, linestyle="--", color="tab:green")
     axes[0].legend()
     wavelet.plot(ax=axes[1])
-    freq_mask = (minf < hf.freq) & (hf.freq < maxf)
-    r = (np.abs(hf.data) - np.abs(h_reconstructed.data))[freq_mask]
-    plot_residuals(r, axes[2])
+    try:
+        freq_mask = (minf < hf.freq) & (hf.freq < maxf)
+        r = (np.abs(hf.data) - np.abs(h_reconstructed.data))[freq_mask]
+        plot_residuals(r, axes[2])
+    except Exception as e:
+        print(e)
+
     axes[2].set_title("Residuals (in WDF f-range)")
     axes[0].set_title("Periodogram")
     axes[1].set_title("Wavelet")

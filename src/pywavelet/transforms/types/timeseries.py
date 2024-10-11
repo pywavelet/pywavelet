@@ -71,7 +71,7 @@ class TimeSeries:
         return f"TimeSeries(n={len(self)}, trange=[{self.t0:.2f}, {self.tend:.2f}] s, T={self.duration:.2f}s, fs={self.fs:.2f} Hz)"
 
     def to_frequencyseries(self) -> 'FrequencySeries':
-        """Convert time series to frequency series using Fourier transform."""
+        """Convert time series to frequency series using the ONE SIDED FFT transform."""
         freq = rfftfreq(len(self), d=self.dt)
         data = rfft(self.data)
         # This is all the +ive frequencies
