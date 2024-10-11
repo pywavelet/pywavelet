@@ -69,8 +69,6 @@ def from_wavelet_to_freq(
 
     freq_data *= INV_ROOT2
 
-
-    freqs = np.fft.rfftfreq(wave_in.ND*2, d=dt)[:-1]
-    # add 0 at the beginning to match the length of the frequency array
-    # freq_data = np.concatenate((np.zeros(1), freq_data))
+    flen = (2*wave_in.ND)-1
+    freqs = np.fft.rfftfreq(flen, d=dt)
     return FrequencySeries(data=freq_data, freq=freqs)
