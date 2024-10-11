@@ -94,7 +94,9 @@ def plot_wavelet_grid(
         extents[2] = freq_grid[0]
         extents[3] = freq_grid[-1]
 
-    im = ax.imshow(z, aspect="auto", extent=extents, cmap=cmap, norm=norm, interpolation="nearest")
+    im = ax.imshow(
+        z, aspect="auto", extent=extents, cmap=cmap, norm=norm, interpolation="nearest"
+    )
     if show_colorbar:
         cbar = plt.colorbar(im, ax=ax)
         _cbar_label = "Absolute Wavelet Amplitude" if absolute else "Wavelet Amplitude"

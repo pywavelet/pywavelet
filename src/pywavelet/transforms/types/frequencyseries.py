@@ -51,19 +51,19 @@ class FrequencySeries:
 
     @property
     def nyquist_frequency(self):
-        return float(self.freq[-1]) if self.freq[-1] <= self.sample_rate / 2 else self.sample_rate / 2
+        return self.sample_rate / 2
 
     @property
     def duration(self):
-        return (len(self) - 1) / self.sample_rate
+        return (2*(len(self)-1)) / self.fs
 
     @property
     def minimum_frequency(self):
-        return float(self.freq[0])
+        return float(xp.abs(self.freq).min())
 
     @property
     def maximum_frequency(self):
-        return float(self.freq[-1])
+        return float(xp.abs(self.freq).max())
 
     @property
     def range(self) -> Tuple[float, float]:

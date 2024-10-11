@@ -77,8 +77,9 @@ def test_toy_model_snr(plot_dir):
 
     # freq --> wavelet
     signal_freq = signal_timeseries.to_frequencyseries()
+
     # assert len(signal_freq) == (ND // 2 ) + 1 , f"Not one sided spectrum {len(signal_freq)}!={(ND // 2 ) + 1}"
-    signal_wavelet_f = from_freq_to_wavelet(signal_freq, Nf=Nf, Nt=ND // Nf)
+    signal_wavelet_f = from_freq_to_wavelet(signal_freq, Nf=Nf, Nt=Nt)
     psd_wavelet_freq = evolutionary_psd_from_stationary_psd(
         psd=PSD,
         psd_f=freq,
@@ -104,9 +105,6 @@ def test_toy_model_snr(plot_dir):
     ), f"SNRs dont match {analytical_wavelet_snr2:.2f}!={SNR2_t:.2f} (factor:{SNR2_t/analytical_wavelet_snr2:.2f})"
 
 
-
-
-
     #### PLOTTING
     fig, axes = plt.subplots(1, 3, figsize=(10, 5))
     signal_wavelet.plot(ax=axes[0], absolute=False)
@@ -118,9 +116,9 @@ def test_toy_model_snr(plot_dir):
     for ax in axes:
         ax.set_xlim(0, 50)
         # ax.set_ylim(f0+2.5, f0-2.5)
-        ax.set_xlabel("Time [s]")
-        ax.set_ylabel("")
-    axes[0].set_ylabel("Frequency [Hz]")
+    #     ax.set_xlabel("Time [s]")
+    #     ax.set_ylabel("")
+    # axes[0].set_ylabel("Frequency [Hz]")
     plt.tight_layout()
     fig.savefig(f"{plot_dir}/snr_comparison.png")
 
