@@ -10,7 +10,12 @@ def _preprocess_bins(
 ) -> Tuple[int, int]:
     """preprocess the bins"""
 
-    N = len(data)
+
+    if isinstance(data, TimeSeries):
+        N = len(data)
+    elif isinstance(data, FrequencySeries):
+        # len(d) =  N // 2 + 1
+        N = 2 * (len(data) - 1)
 
     if Nt is not None and Nf is None:
         assert 1 <= Nt <= N, f"Nt={Nt} must be between 1 and N={N}"

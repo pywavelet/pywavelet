@@ -8,4 +8,5 @@ def test_timefreq_type(sine_time):
     assert sine_freq.duration == sine_time.duration
     assert sine_freq.minimum_frequency == 0
     assert sine_freq.fs == sine_time.fs
+    assert sine_freq.ND == sine_time.ND
 

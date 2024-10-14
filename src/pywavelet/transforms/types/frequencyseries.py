@@ -69,6 +69,14 @@ class FrequencySeries:
     def range(self) -> Tuple[float, float]:
         return (self.minimum_frequency, self.maximum_frequency)
 
+    @property
+    def shape(self):
+        return self.data.shape
+
+    @property
+    def ND(self):
+        return 2*(len(self)-1)
+
     def __repr__(self):
         return f"FrequencySeries(n={len(self)}, frange=[{self.range[0]:.2f}, {self.range[1]:.2f}] Hz, T={self.duration:.2f}s, fs={self.fs:.2f} Hz)"
 

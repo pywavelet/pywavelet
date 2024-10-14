@@ -5,13 +5,14 @@ from utils import (
     plot_timedomain_comparisons
 )
 
-from pywavelet.transforms.types import Wavelet
+from pywavelet.transforms.types import Wavelet, FrequencySeries
 from pywavelet.transforms import (
     from_wavelet_to_freq, from_wavelet_to_time,
     from_freq_to_wavelet, from_time_to_wavelet
 )
 
 from conftest import Nt, mult, dt, Nf, DATA_DIR
+import matplotlib.pyplot as plt
 
 
 def test_timedomain_chirp_roundtrip(plot_dir, chirp_time):
@@ -30,15 +31,43 @@ def test_freqdomain_sine_roundtrip(plot_dir, sine_freq):
     __run_freqdomain_checks(sine_freq, "roundtrip_sine_freq", plot_dir)
 
 
-def __run_freqdomain_checks(hf, label, outdir):
+def test_freqdomain_pure_f0_transform(plot_dir):
+    f0 = 1
+    Nf = 8
+    Nt = 4
+    N = Nf * Nt
+    dt = 0.1
+    freq = np.fft.rfftfreq(N, dt)
+    hf = np.zeros_like(freq, dtype=np.complex128)
+    hf[np.argmin(np.abs(freq - f0))] = 1.0
+    hf = FrequencySeries(data=hf, freq=freq)
+    hf_1 = __run_freqdomain_checks(hf, "roundtrip_pure_f0_freq", plot_dir, Nf=Nf, dt=dt)
+    plt.figure()
+    plt.plot(
+        hf.freq, np.abs(hf.data), 'o-', label=f"Original {hf.shape}"
+    )
+    plt.plot(
+        hf_1.freq, np.abs(hf_1.data), '.', color='tab:red', label=f"Reconstructed {hf_1.shape}"
+    )
+    plt.legend()
+    plt.ylabel("Amplitude")
+    plt.xlabel("Frequency [Hz]")
+    plt.savefig(f"{plot_dir}/test_pure_f0_transform.png")
+
+
+
+
+
+def __run_freqdomain_checks(hf, label, outdir, Nf=Nf, dt=dt):
     wavelet = from_freq_to_wavelet(hf, Nf=Nf)
     __assert_wavelet_matches_cached_wavelet(wavelet, label, outdir)
     h_reconstructed = from_wavelet_to_freq(wavelet, dt=dt)
     plot_freqdomain_comparisions(hf, h_reconstructed, wavelet, f"{outdir}/{label}.png")
     __assert_roundtrip_valid(hf, h_reconstructed, wavelet)
+    return h_reconstructed
 
 
-def __run_timedomain_checks(ht, label, outdir):
+def __run_timedomain_checks(ht, label, outdir, Nt=Nt, mult=mult, dt=dt):
     wavelet = from_time_to_wavelet(ht, Nt=Nt, mult=mult)
     __assert_wavelet_matches_cached_wavelet(wavelet, label, outdir)
     h_reconstructed = from_wavelet_to_time(wavelet, mult=mult, dt=dt)
@@ -57,8 +86,9 @@ def __assert_roundtrip_valid(h_old, h_new, wavelet):
     assert std < 1e-3, f"Standard deviation of residuals is too large: {std}"
     assert np.max(np.abs(residuals)) < 1e-2, f"Max residual is too large: {np.max(np.abs(residuals))}"
     assert not np.isnan(residuals).any(), "Residuals contain NaNs"
-    assert len(h_new.data) == len(
-        h_old.data) == wavelet.ND, f"Lengths dont match: {len(h_new.data)}, {len(h_old.data)}, {wavelet.ND}"
+    assert np.allclose(h_old.shape, h_new.shape)
+    assert h_old.ND == h_old.ND == wavelet.ND, f"ND dont match: {h_old.ND}, {h_new.ND}, {wavelet.ND}"
+
 
 
 def __assert_wavelet_matches_cached_wavelet(cur: Wavelet, label, outdir):
@@ -70,9 +100,9 @@ def __assert_wavelet_matches_cached_wavelet(cur: Wavelet, label, outdir):
 
     plot_wavelet_comparison(cur, cached, err, label, outdir)
 
-    # assert net_err < 1e-3, f"Net error is too large: {net_err}"
-    # assert cur.__repr__() == cached.__repr__(), f"Current[{cur.__repr__()}] != Old[{cached.__repr__()}]"
-    # assert cur.shape == cached.shape, f"Wavelets dont match current: {cur}, old: {cached}"
-    # assert np.allclose(cur.freq, cached.freq), f"Freqs dont match current: {cur.freq}, old: {cached.freq}"
-    # assert np.allclose(cur.time, cached.time), f"Times dont match current: {cur.time}, old: {cached.time}"
-    # assert np.allclose(cur.data, cached.data), f"Data doesnt match current: {cur.data}, old: {cached.data}"
+    assert net_err < 1e-3, f"Net error is too large: {net_err}"
+    assert cur.__repr__() == cached.__repr__(), f"Current[{cur.__repr__()}] != Old[{cached.__repr__()}]"
+    assert cur.shape == cached.shape, f"Wavelets dont match current: {cur}, old: {cached}"
+    assert np.allclose(cur.freq, cached.freq), f"Freqs dont match current: {cur.freq}, old: {cached.freq}"
+    assert np.allclose(cur.time, cached.time), f"Times dont match current: {cur.time}, old: {cached.time}"
+    assert np.allclose(cur.data, cached.data), f"Data doesnt match current: {cur.data}, old: {cached.data}"

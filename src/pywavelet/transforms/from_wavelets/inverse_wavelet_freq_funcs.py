@@ -12,7 +12,7 @@ def inverse_wavelet_freq_helper_fast(
     ND = Nf * Nt
 
     prefactor2s = np.zeros(Nt, np.complex128)
-    res = np.zeros(ND, dtype=np.complex128)
+    res = np.zeros(ND//2 +1, dtype=np.complex128)
 
     for m in range(0, Nf + 1):
         __pack_wave_inverse(m, Nt, Nf, prefactor2s, wave_in)

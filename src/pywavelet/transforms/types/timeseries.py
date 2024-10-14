@@ -67,6 +67,15 @@ class TimeSeries:
     def tend(self):
         return float(self.time[-1]) + self.dt
 
+    @property
+    def shape(self):
+        return self.data.shape
+
+
+    @property
+    def ND(self):
+        return len(self)
+
     def __repr__(self):
         return f"TimeSeries(n={len(self)}, trange=[{self.t0:.2f}, {self.tend:.2f}] s, T={self.duration:.2f}s, fs={self.fs:.2f} Hz)"
 
