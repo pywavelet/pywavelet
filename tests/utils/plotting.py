@@ -10,6 +10,7 @@ __all__ = [
     "plot_timedomain_comparisons",
     "plot_freqdomain_comparisions",
     "BRANCH",
+    "plot_fft",
 ]
 
 
@@ -96,18 +97,13 @@ def plot_timedomain_comparisons(ht: TimeSeries, h_reconstructed: TimeSeries, wav
 
 
 def plot_freqdomain_comparisions(hf: FrequencySeries, h_reconstructed: FrequencySeries, wavelet: Wavelet, fname: str):
-    minf, maxf = wavelet.freq[1], wavelet.freq[-1] / 2
     fig, axes = plt.subplots(1, 3, figsize=(15, 5))
     hf.plot_periodogram(ax=axes[0], label="Original")
     h_reconstructed.plot_periodogram(ax=axes[0], label="Reconstructed", linestyle="--", color="tab:orange", alpha=0.5)
-    axes[0].axvline(hf.nyquist_frequency, linestyle="--", color="tab:red", label="Nyquist frequency")
-    axes[0].axvline(maxf, linestyle="--", color="tab:green", label="cur max-min f")
-    axes[0].axvline(minf, linestyle="--", color="tab:green")
     axes[0].legend()
     wavelet.plot(ax=axes[1])
     try:
-        freq_mask = (minf < hf.freq) & (hf.freq < maxf)
-        r = (np.abs(hf.data) - np.abs(h_reconstructed.data))[freq_mask]
+        r = (np.abs(hf.data) - np.abs(h_reconstructed.data))
         plot_residuals(r, axes[2])
     except Exception as e:
         print(e)
@@ -116,4 +112,18 @@ def plot_freqdomain_comparisions(hf: FrequencySeries, h_reconstructed: Frequency
     axes[0].set_title("Periodogram")
     axes[1].set_title("Wavelet")
     plt.tight_layout()
+    plt.savefig(fname)
+
+
+def plot_fft(hf, hf_1, fname):
+    plt.figure()
+    plt.plot(
+        hf.freq, np.abs(hf.data), 'o-', label=f"Original {hf.shape}"
+    )
+    plt.plot(
+        hf_1.freq, np.abs(hf_1.data), '.', color='tab:red', label=f"Reconstructed {hf_1.shape}"
+    )
+    plt.legend()
+    plt.ylabel("Amplitude")
+    plt.xlabel("Frequency [Hz]")
     plt.savefig(fname)

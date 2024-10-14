@@ -2,7 +2,9 @@ import numpy as np
 from utils import (
     plot_wavelet_comparison,
     plot_freqdomain_comparisions,
-    plot_timedomain_comparisons
+    plot_timedomain_comparisons,
+    plot_fft,
+    generate_pure_f0,
 )
 
 from pywavelet.transforms.types import Wavelet, FrequencySeries
@@ -32,27 +34,10 @@ def test_freqdomain_sine_roundtrip(plot_dir, sine_freq):
 
 
 def test_freqdomain_pure_f0_transform(plot_dir):
-    f0 = 1
-    Nf = 8
-    Nt = 4
-    N = Nf * Nt
-    dt = 0.1
-    freq = np.fft.rfftfreq(N, dt)
-    hf = np.zeros_like(freq, dtype=np.complex128)
-    hf[np.argmin(np.abs(freq - f0))] = 1.0
-    hf = FrequencySeries(data=hf, freq=freq)
+    Nf, Nt, dt = 8, 4, 0.1
+    hf = generate_pure_f0(Nf=Nf, Nt=Nt, dt=dt)
     hf_1 = __run_freqdomain_checks(hf, "roundtrip_pure_f0_freq", plot_dir, Nf=Nf, dt=dt)
-    plt.figure()
-    plt.plot(
-        hf.freq, np.abs(hf.data), 'o-', label=f"Original {hf.shape}"
-    )
-    plt.plot(
-        hf_1.freq, np.abs(hf_1.data), '.', color='tab:red', label=f"Reconstructed {hf_1.shape}"
-    )
-    plt.legend()
-    plt.ylabel("Amplitude")
-    plt.xlabel("Frequency [Hz]")
-    plt.savefig(f"{plot_dir}/test_pure_f0_transform.png")
+    plot_fft(hf, hf_1, f"{plot_dir}/test_pure_f0_transform.png")
 
 
 
@@ -76,11 +61,7 @@ def __run_timedomain_checks(ht, label, outdir, Nt=Nt, mult=mult, dt=dt):
 
 
 def __assert_roundtrip_valid(h_old, h_new, wavelet):
-    minf, maxf = wavelet.freq[1], wavelet.freq[-1] / 2
     residuals = np.abs(h_old.data - h_new.data)
-    if hasattr(h_old, "freq"):
-        freq_mask = (minf < h_old.freq) & (h_old.freq < maxf)
-        residuals = residuals[freq_mask]
     mean, std = np.mean(residuals), np.std(residuals)
     assert mean < 1e-3, f"Mean residual is too large: {mean}"
     assert std < 1e-3, f"Standard deviation of residuals is too large: {std}"

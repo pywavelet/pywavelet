@@ -9,8 +9,9 @@ from pywavelet.transforms.types import TimeSeries, FrequencySeries
 __all__ = [
     "generate_chirp_time_domain_signal",
     "generate_sine_time_domain_signal",
-    "generate_sine_freq_domain_signal",
+    "generate_pure_f0",
 ]
+
 
 def generate_chirp_time_domain_signal(
         t: np.ndarray, freq_range: List[float]
@@ -35,13 +36,7 @@ def generate_sine_time_domain_signal(ts, n, f_true=10):
     return TimeSeries(h_signal, time=ts)
 
 
-def generate_sine_freq_domain_signal(fs, f_true=10):
-    freq = np.fft.rfftfreq(fs, d=1 / fs)
-    hf = np.zeros_like(freq)
-    # closest frequency bin to f_true
-    idx = np.argmin(np.abs(freq - f_true))
-    hf[idx] = 1 / fs
-    return FrequencySeries(data=hf, freq=freq)
+
 
 
 def __zero_pad(data):
@@ -52,3 +47,16 @@ def __zero_pad(data):
     N = len(data)
     pow_2 = np.ceil(np.log2(N))
     return np.pad(data, (0, int((2 ** pow_2) - N)), "constant")
+
+
+def generate_pure_f0(
+        f0=1,
+        Nf=8,
+        Nt=4,
+        dt=0.1,
+)->FrequencySeries:
+    N = Nf * Nt
+    freq = np.fft.rfftfreq(N, dt)
+    hf = np.zeros_like(freq, dtype=np.complex128)
+    hf[np.argmin(np.abs(freq - f0))] = 1.0
+    return FrequencySeries(data=hf, freq=freq)

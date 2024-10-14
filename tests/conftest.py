@@ -5,7 +5,6 @@ import numpy as np
 from utils import (
     generate_chirp_time_domain_signal,
     generate_sine_time_domain_signal,
-    generate_sine_freq_domain_signal,
     BRANCH
 )
 
