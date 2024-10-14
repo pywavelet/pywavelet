@@ -1,15 +1,14 @@
 import sys
 import warnings
+from rich.logging import RichHandler
+import logging
 
-from loguru import logger
-
-logger.add(
-    sys.stderr,
-    format="|<blue>pywavelet</>|{time:DD/MM HH:mm:ss}|{level}| {message} ",
-    colorize=True,
-    level="INFO",
+FORMAT = "%(message)s"
+logging.basicConfig(
+    level="NOTSET", format=FORMAT, datefmt="[%X]", handlers=[RichHandler(rich_tracebacks=True)]
 )
 
+logger = logging.getLogger("pywavelet")
 
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 warnings.filterwarnings("ignore", category=UserWarning)
