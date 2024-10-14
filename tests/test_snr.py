@@ -1,11 +1,9 @@
 import numpy as np
-import pytest
 
-from pywavelet.transforms.to_wavelets import from_time_to_wavelet, from_freq_to_wavelet
+from pywavelet.transforms import from_time_to_wavelet, from_freq_to_wavelet, compute_bins
 from pywavelet.transforms.types import TimeSeries, Wavelet
 from pywavelet.utils import compute_snr, evolutionary_psd_from_stationary_psd
 import matplotlib.pyplot as plt
-from pywavelet.transforms.to_wavelets.wavelet_bins import compute_bins
 
 def monochromatic_wnm(f0:float, dt:float, A:float, T:float, Nt:int, Nf:int):
     N = Nt * Nf

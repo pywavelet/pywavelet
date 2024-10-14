@@ -142,7 +142,7 @@ def plot_freqseries(
     ax.plot(freq, data, **kwargs)
     ax.set_xlabel("Frequency Bin [Hz]")
     ax.set_ylabel("Amplitude")
-    ax.set_xlim(-nyquist_frequency, nyquist_frequency)
+    ax.set_xlim(0, nyquist_frequency)
     return ax.figure, ax
 
 

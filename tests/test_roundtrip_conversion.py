@@ -7,14 +7,13 @@ from utils import (
     generate_pure_f0,
 )
 
-from pywavelet.transforms.types import Wavelet, FrequencySeries
+from pywavelet.transforms.types import Wavelet
 from pywavelet.transforms import (
     from_wavelet_to_freq, from_wavelet_to_time,
     from_freq_to_wavelet, from_time_to_wavelet
 )
 
 from conftest import Nt, mult, dt, Nf, DATA_DIR
-import matplotlib.pyplot as plt
 
 
 def test_timedomain_chirp_roundtrip(plot_dir, chirp_time):
