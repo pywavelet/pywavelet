@@ -56,3 +56,7 @@ def compute_snr(h: Wavelet, PSD: Wavelet) -> float:
     """
     snr_sqrd = np.nansum((h.data * h.data) / PSD.data)
     return np.sqrt(snr_sqrd)
+
+
+def compute_likelihood(data:Wavelet, template:Wavelet, psd:Wavelet) -> float:
+    return -0.5 * np.nansum((data.data - template.data) ** 2 / psd.data)
