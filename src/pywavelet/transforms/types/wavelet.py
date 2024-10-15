@@ -210,3 +210,18 @@ class Wavelet:
             String containing information about the shape of the wavelet grid.
         """
         return f"Wavelet(NfxNt={self.shape[0]}x{self.shape[1]})"
+
+
+    def __mul__(self, other):
+        """Element-wise multiplication of two Wavelet objects."""
+        if isinstance(other, Wavelet):
+            return Wavelet(data=self.data * other.data, time=self.time, freq=self.freq)
+        elif isinstance(other, float):
+            return Wavelet(data=self.data * other, time=self.time, freq=self.freq)
+
+    def __truediv__(self, other):
+        """Element-wise division of two Wavelet objects."""
+        if isinstance(other, Wavelet):
+            return Wavelet(data=self.data / other.data, time=self.time, freq=self.freq)
+        elif isinstance(other, float):
+            return Wavelet(data=self.data / other, time=self.time, freq=self.freq)

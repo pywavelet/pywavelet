@@ -28,9 +28,7 @@ dependencies = [
     "matplotlib",
     "tqdm",
     "rich",
-    "loguru",
     "astropy>=5.2.1",
-    "pycbc",
 ]
 
 [project.optional-dependencies]
