@@ -42,8 +42,7 @@ def _get_bins(
     # fs = N / T
     # assert delta_f == fmax / Nf, f"delta_f={delta_f} != fmax/Nf={fmax/Nf}"
 
-    if isinstance(data, TimeSeries):
-        t_bins += data.time[0]
+    t_bins+= data.t0
 
     return t_bins, f_bins
 
