@@ -1,4 +1,5 @@
-from typing import Tuple
+import warnings
+from typing import Tuple, Optional, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -8,125 +9,157 @@ from scipy.signal import spectrogram
 
 def plot_wavelet_grid(
     wavelet_data: np.ndarray,
-    time_grid=None,
-    freq_grid=None,
-    ax=None,
-    zscale="linear",
-    freq_scale="linear",
-    absolute=False,
-    freq_range=None,
-    show_colorbar=True,
+    time_grid: np.ndarray,
+    freq_grid: np.ndarray,
+    ax: Optional[plt.Axes] = None,
+    zscale: str = "linear",
+    freq_scale: str = "linear",
+    absolute: bool = False,
+    freq_range: Optional[Tuple[float, float]] = None,
+    show_colorbar: bool = True,
+    cmap: Optional[str] = None,
+    norm: Optional[Union[LogNorm, TwoSlopeNorm]] = None,
+    cbar_label: Optional[str] = None,
+    detailed_axes:bool = False,
     **kwargs,
 ) -> Tuple[plt.Figure, plt.Axes]:
-    """Plot a 2D grid of wavelet coefficients.
+    """
+    Plot a 2D grid of wavelet coefficients.
 
     Parameters
     ----------
     wavelet_data : np.ndarray
-        The wavelet freqseries to plot.
+        A 2D array containing the wavelet coefficients with shape (Nf, Nt),
+        where Nf is the number of frequency bins and Nt is the number of time bins.
 
     time_grid : np.ndarray, optional
-        The time grid for the wavelet freqseries.
+        1D array of time values corresponding to the time bins. If None, uses np.arange(Nt).
 
     freq_grid : np.ndarray, optional
-        The frequency grid for the wavelet freqseries.
+        1D array of frequency values corresponding to the frequency bins. If None, uses np.arange(Nf).
 
     ax : plt.Axes, optional
-        The axes to plot on.
+        Matplotlib Axes object to plot on. If None, creates a new figure and axes.
 
     zscale : str, optional
-        The scale for the colorbar.
+        Scale for the color mapping. Options are 'linear' or 'log'. Default is 'linear'.
 
     freq_scale : str, optional
-        The scale for the frequency axis.
+        Scale for the frequency axis. Options are 'linear' or 'log'. Default is 'linear'.
 
     absolute : bool, optional
-        Whether to plot the absolute value of the wavelet freqseries.
+        If True, plots the absolute value of the wavelet coefficients. Default is False.
 
-    freq_range : Tuple[float, float], optional
-        The frequency range to plot.
+    freq_range : tuple of float, optional
+        Tuple specifying the (min, max) frequency range to display. If None, displays the full range.
+
+    show_colorbar : bool, optional
+        If True, displays a colorbar next to the plot. Default is True.
+
+    cmap : str, optional
+        Colormap to use for the plot. If None, uses 'viridis' for absolute values or 'bwr' for signed values.
 
     norm : matplotlib.colors.Normalize, optional
-        The normalization for the colorbar. If None, a default normalization is used.
-        Useful for comparing different plots.
+        Normalization instance to scale data values. If None, a suitable normalization is chosen based on `zscale`.
 
-    kwargs : dict, optional
-        Additional keyword arguments for the plot.
+    cbar_label : str, optional
+        Label for the colorbar. If None, a default label is used based on the `absolute` parameter.
 
+    **kwargs
+        Additional keyword arguments passed to `ax.imshow()`.
+
+    Returns
+    -------
+    Tuple[plt.Figure, plt.Axes]
+        The figure and axes objects of the plot.
+
+    Raises
+    ------
+    ValueError
+        If the dimensions of `wavelet_data` do not match the lengths of `freq_grid` and `time_grid`.
     """
 
-    if ax is None:
-        fig = plt.figure()
-        ax = fig.gca()
-    fig = ax.get_figure()
-
+    # Determine the dimensions of the data
     Nf, Nt = wavelet_data.shape
-    assert Nf == len(freq_grid), f"Nf={Nf} != len(freq_grid)={len(freq_grid)}"
-    assert Nt == len(time_grid), f"Nt={Nt} != len(time_grid)={len(time_grid)}"
 
-    z = np.rot90(wavelet_data.T)
-    z = z if not absolute else np.abs(z)
+    # Validate the dimensions
+    if (Nf, Nt) != (len(freq_grid), len(time_grid)):
+        raise ValueError(f"Wavelet shape {Nf, Nt} does not match provided grids {(len(freq_grid), len(time_grid))}.")
 
-    _norm = None
-    _cmap = 'viridis'
-    if not absolute:
-        _cmap = "bwr"
-        vmin = np.min(z)
-        vmax = np.max(z)
-        if vmin == vmax:
-            vmin = -1
-            vmax = 1
-        if vmin == 0 :
-            vmin = -vmax
-        _norm = TwoSlopeNorm(
-            vmin=vmin, vcenter=0, vmax=vmax
-        )
-    if zscale == "log":
-        _norm = LogNorm(vmin=np.nanmin(z), vmax=np.nanmax(z))
-    norm = kwargs.get("norm", _norm)
-    cmap = kwargs.get("cmap", _cmap)
+    # Prepare the data for plotting
+    z = wavelet_data.copy()
+    if absolute:
+        z = np.abs(z)
 
-    extents = [0, Nt, 0, Nf]
-    if time_grid is not None:
-        extents[0] = time_grid[0]
-        extents[1] = time_grid[-1]
-    if freq_grid is not None:
-        extents[2] = freq_grid[0]
-        extents[3] = freq_grid[-1]
+    # Determine normalization and colormap
+    if norm is None:
+        try:
+            if zscale == "log":
+                norm = LogNorm(vmin=np.nanmin(z[z > 0]), vmax=np.nanmax(z))
+            elif not absolute:
+                vmin, vmax = np.nanmin(z), np.nanmax(z)
+                vcenter = 0.0
+                norm = TwoSlopeNorm(vmin=vmin, vcenter=vcenter, vmax=vmax)
+            else:
+                norm = None  # Default linear scaling
+        except Exception as e:
+            warnings.warn(f"Error in determining normalization: {e}. Using default linear scaling.")
 
+
+    if cmap is None:
+        cmap = "viridis" if absolute else "bwr"
+
+    # Set up the plot
+    if ax is None:
+        fig, ax = plt.subplots()
+    else:
+        fig = ax.get_figure()
+
+    # Plot the data
     im = ax.imshow(
-        z, aspect="auto", extent=extents, cmap=cmap, norm=norm, interpolation="nearest"
+        z,
+        aspect="auto",
+        extent=[time_grid[0],time_grid[-1], freq_grid[0], freq_grid[-1]],
+        origin="lower",
+        cmap=cmap,
+        norm=norm,
+        interpolation="nearest",
+        **kwargs,
     )
-    if show_colorbar:
-        cbar = plt.colorbar(im, ax=ax)
-        _cbar_label = "Absolute Wavelet Amplitude" if absolute else "Wavelet Amplitude"
-        cl = kwargs.get("cbar_label", _cbar_label)
-        cbar.set_label(cl)
 
-    # add a text box with the Nt and Nf values
-    ax.text(
-        0.05,
-        0.95,
-        f"{Nt}x{Nf}",
-        transform=ax.transAxes,
-        fontsize=14,
-        verticalalignment="top",
-        bbox=dict(boxstyle="round", facecolor=None, alpha=0.2),
-    )
+    # Configure axes scales
     ax.set_yscale(freq_scale)
-    ax.set_xlabel(
-        r"Time Bins [$\Delta T$=" + f"{1 / Nt:.4f}s, Nt={Nt}]", fontsize=15
-    )
-    ax.set_ylabel(
-        r"Freq Bins [$\Delta F$=" + f"{1 / Nf:.4f}Hz, Nf={Nf}]", fontsize=15
-    )
-    ax.tick_params(axis="x", labelsize=10)
-    ax.tick_params(axis="y", labelsize=10)
+    ax.set_xlabel("Time [s]")
+    ax.set_ylabel("Frequency [Hz]")
+    if detailed_axes:
+        ax.set_xlabel(r"Time Bins [$\Delta T$=" + f"{1 / Nt:.4f}s, Nt={Nt}]")
+        ax.set_ylabel(r"Freq Bins [$\Delta F$=" + f"{1 / Nf:.4f}Hz, Nf={Nf}]")
+        # add a text box with the Nt and Nf values
+        ax.text(
+            0.05,
+            0.95,
+            f"{Nt}x{Nf}",
+            transform=ax.transAxes,
+            fontsize=14,
+            verticalalignment="top",
+            bbox=dict(boxstyle="round", facecolor=None, alpha=0.2),
+        )
 
+
+    # Set frequency range if specified
     if freq_range is not None:
         ax.set_ylim(freq_range)
 
-    plt.tight_layout()
+    # Add colorbar if requested
+    if show_colorbar:
+        cbar = fig.colorbar(im, ax=ax)
+        if cbar_label is None:
+            cbar_label = "Absolute Wavelet Amplitude" if absolute else "Wavelet Amplitude"
+        cbar.set_label(cbar_label)
+
+    # Adjust layout
+    fig.tight_layout()
+
     return fig, ax
 
 
