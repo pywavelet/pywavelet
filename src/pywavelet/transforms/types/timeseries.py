@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 from typing import Tuple
 from scipy.signal.spectral import spectrogram
 
-from .common import is_documented_by, xp, rfft, rfftfreq
+from .common import is_documented_by, xp, rfft, rfftfreq, fmt_timerange, fmt_time
 from .plotting import plot_timeseries, plot_spectrogram
 
 __all__ = ["TimeSeries"]
@@ -106,7 +106,7 @@ class TimeSeries:
         return float(self.time[-1]) + self.dt
 
     @property
-    def shape(self) -> Tuple[int]:
+    def shape(self) -> Tuple[int, ...]:
         """Return the shape of the data array."""
         return self.data.shape
 
@@ -117,7 +117,9 @@ class TimeSeries:
 
     def __repr__(self) -> str:
         """Return a string representation of the TimeSeries."""
-        return f"TimeSeries(n={len(self)}, trange=[{self.t0:.2f}, {self.tend:.2f}] s, T={self.duration:.2f}s, fs={self.fs:.2f} Hz)"
+        trange = fmt_timerange((self.t0, self.tend))
+        T = " ".join(fmt_time(self.duration, units=True))
+        return f"TimeSeries(n={len(self)}, trange={trange}, T={T}, fs={self.fs:.2f} Hz)"
 
     def to_frequencyseries(self) -> 'FrequencySeries':
         """
@@ -132,4 +134,4 @@ class TimeSeries:
         data = rfft(self.data)
 
         from .frequencyseries import FrequencySeries  # Avoid circular import
-        return FrequencySeries(data, freq)
+        return FrequencySeries(data, freq, t0=self.t0)

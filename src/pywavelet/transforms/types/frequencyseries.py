@@ -19,7 +19,7 @@ class FrequencySeries:
         Corresponding frequencies (must be non-negative).
     """
 
-    def __init__(self, data: xp.ndarray, freq: xp.ndarray):
+    def __init__(self, data: xp.ndarray, freq: xp.ndarray, t0: float = 0):
         """
         Initialize the FrequencySeries with data and frequencies.
 
@@ -29,6 +29,9 @@ class FrequencySeries:
             Frequency domain data.
         freq : xp.ndarray
             Array of frequencies. Must be non-negative.
+        t0 : float, optional
+            Initial time of the time domain signal (default is 0).
+            (This is not used in this class, but is included for compatibility with TimeSeries.)
 
         Raises
         ------
@@ -41,6 +44,7 @@ class FrequencySeries:
             raise ValueError(f"data and freq must have the same length ({len(data)} != {len(freq)})")
         self.data = data
         self.freq = freq
+        self.t0 = t0
 
     @is_documented_by(plot_freqseries)
     def plot(self, ax=None, **kwargs) -> Tuple[plt.Figure, plt.Axes]:
@@ -136,6 +140,7 @@ class FrequencySeries:
         # Calculate the time array
         dt = 1 / (2 * self.nyquist_frequency)
         time = xp.arange(len(time_data)) * dt
+        time += self.t0
 
         # Create and return a TimeSeries object
         from .timeseries import TimeSeries
