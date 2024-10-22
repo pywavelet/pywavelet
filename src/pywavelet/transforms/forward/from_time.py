@@ -27,7 +27,7 @@ def transform_wavelet_time_helper(
 
     return wave
 
-
+@njit()
 def __fill_wave_1(
     t_bin: int,
     K: int,
@@ -46,7 +46,7 @@ def __fill_wave_1(
         jj = (jj + 1) % ND  # Periodically wrap the freqseries
 
 
-# @njit()
+@njit()
 def __fill_wave_2(
     t_bin: int, wave: np.ndarray, wdata_trans: np.ndarray, Nf: int, mult: int
 ) -> None:
@@ -55,12 +55,12 @@ def __fill_wave_2(
     # pack fft'd wdata into wave array
     if t_bin % 2 == 0 and t_bin < wave.shape[0] - 1:  # if EVEN t_bin
         # m=0 value at even Nt and
-        wave[t_bin, 0] = np.real(wdata_trans[0]) / np.sqrt(2)
-        wave[t_bin + 1, 0] = np.real(wdata_trans[Nf * mult]) / np.sqrt(2)
+        wave[t_bin, 0] = wdata_trans[0].real / np.sqrt(2)
+        wave[t_bin + 1, 0] = wdata_trans[Nf * mult].real / np.sqrt(2)
 
     # Cnm in eq 13
     for j in range(1, Nf):
         if (t_bin + j) % 2:
-            wave[t_bin, j] = -np.imag(wdata_trans[j * mult])
+            wave[t_bin, j] = -wdata_trans[j * mult].imag
         else:
-            wave[t_bin, j] = np.real(wdata_trans[j * mult])
+            wave[t_bin, j] = wdata_trans[j * mult].real

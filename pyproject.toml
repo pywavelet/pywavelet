@@ -25,9 +25,11 @@ classifiers = [
 dependencies = [
     "numpy",
     "numba",
+    "scipy",
     "matplotlib",
     "tqdm",
     "rich",
+#    "rocket-fft", # cant use rocket-fft as it doest support ifft
     "astropy>=5.2.1",
 ]
 

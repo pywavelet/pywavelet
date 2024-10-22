@@ -3,7 +3,6 @@ import numpy as np
 from numba import njit
 from numpy import fft
 
-
 def transform_wavelet_freq_helper(
     data: np.ndarray, Nf: int, Nt: int, phif: np.ndarray
 ) -> np.ndarray:
@@ -14,14 +13,15 @@ def transform_wavelet_freq_helper(
     freq_strain = data.copy()  # Convert
     for f_bin in range(0, Nf + 1):
         __fill_wave_1(f_bin, Nt, Nf, DX, freq_strain, phif)
-        DX_trans = fft.ifft(
-            DX, Nt
-        )  # A fix because numba doesn't support np.fft
+        # Numba doesn't support np.ifft so we cant jit this
+        DX_trans = fft.ifft(DX, Nt)
         __fill_wave_2(f_bin, DX_trans, wave, Nt, Nf)
-
     return wave
 
 
+
+
+@njit()
 def __fill_wave_1(
     f_bin: int,
     Nt: int,
@@ -52,26 +52,26 @@ def __fill_wave_1(
         else:
             DX[i] = phif[j] * data[jj]
 
-
+@njit()
 def __fill_wave_2(
     f_bin: int, DX_trans: np.ndarray, wave: np.ndarray, Nt: int, Nf: int
 ) -> None:
     if f_bin == 0:
         # half of lowest and highest frequency bin pixels are redundant, so store them in even and odd components of f_bin=0 respectively
         for n in range(0, Nt, 2):
-            wave[n, 0] = np.real(DX_trans[n] * np.sqrt(2))
+            wave[n, 0] = DX_trans[n].real * np.sqrt(2)
     elif f_bin == Nf:
         for n in range(0, Nt, 2):
-            wave[n + 1, 0] = np.real(DX_trans[n] * np.sqrt(2))
+            wave[n + 1, 0] = DX_trans[n].real * np.sqrt(2)
     else:
         for n in range(0, Nt):
             if f_bin % 2:
                 if (n + f_bin) % 2:
-                    wave[n, f_bin] = -np.imag(DX_trans[n])
+                    wave[n, f_bin] = -DX_trans[n].imag
                 else:
-                    wave[n, f_bin] = np.real(DX_trans[n])
+                    wave[n, f_bin] =  DX_trans[n].real
             else:
                 if (n + f_bin) % 2:
-                    wave[n, f_bin] = np.imag(DX_trans[n])
+                    wave[n, f_bin] = DX_trans[n].imag
                 else:
-                    wave[n, f_bin] = np.real(DX_trans[n])
+                    wave[n, f_bin] = DX_trans[n].real
