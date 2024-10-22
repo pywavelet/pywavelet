@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 from typing import Optional, Tuple
-from .common import is_documented_by, xp
+from .common import is_documented_by, xp, fmt_timerange
 from .plotting import plot_wavelet_grid
 
 
@@ -153,6 +153,30 @@ class Wavelet:
         return 1 / (2 * self.delta_t)
 
     @property
+    def t0(self) -> float:
+        """
+        Initial time point of the wavelet grid.
+
+        Returns
+        -------
+        float
+            First time point in the time array.
+        """
+        return float(self.time[0])
+
+    @property
+    def tend(self) -> float:
+        """
+        Final time point of the wavelet grid.
+
+        Returns
+        -------
+        float
+            Last time point in the time array.
+        """
+        return float(self.time[-1])
+
+    @property
     def shape(self) -> Tuple[int, int]:
         """
         Shape of the wavelet grid.
@@ -209,7 +233,10 @@ class Wavelet:
         str
             String containing information about the shape of the wavelet grid.
         """
-        return f"Wavelet(NfxNt={self.shape[0]}x{self.shape[1]})"
+
+        frange = ",".join([f"{f:.2e}" for f in (self.freq[0], self.freq[-1])])
+        trange = fmt_timerange((self.t0, self.tend))
+        return f"Wavelet(NfxNt={self.shape[0]}x{self.shape[1]}, {frange}Hz, {trange}s)"
 
 
     def __mul__(self, other):
