@@ -1,10 +1,9 @@
-from typing import Literal
+from typing import Literal, Tuple
 
 import numpy as xp
 from numpy.fft import irfft, fft, rfft, rfftfreq
 
 from ...logger import logger
-
 
 
 def _len_check(d):
@@ -18,3 +17,30 @@ def is_documented_by(original):
         return target
 
     return wrapper
+
+
+def fmt_time(seconds: float, units=False) -> Tuple[str, str]:
+    """Returns formatted time and units [ms, s, min, hr, day]"""
+    t, u = "", ""
+    if seconds < 1e-3:
+        t, u = f"{seconds * 1e6:.2f}", "µs"
+    elif seconds < 1:
+        t, u = f"{seconds * 1e3:.2f}", "ms"
+    elif seconds < 60:
+        t, u = f"{seconds:.2f}", "s"
+    elif seconds < 60 * 60:
+        t, u = f"{seconds / 60:.2f}", "min"
+    elif seconds < 60 * 60 * 24:
+        t, u = f"{seconds / 3600:.2f}", "hr"
+    else:
+        t, u = f"{seconds / 86400:.2f}", "day"
+
+    if units:
+        return t, u
+    return t
+
+
+def fmt_timerange(trange):
+    t0 = fmt_time(trange[0])
+    tend, units = fmt_time(trange[1], units = True)
+    return f"[{t0}, {tend}] {units}"
