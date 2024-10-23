@@ -16,18 +16,22 @@ def inverse_wavelet_time_helper_fast(
 
     afins = np.zeros(2 * Nf, dtype=np.complex128)
 
+    __core(Nf, Nt, K, ND, wave_in, phi, res, afins)
+
+    return res[:ND]
+
+
+def __core(Nf: int, Nt: int, K: int, ND: int, wave_in: np.ndarray, phi: np.ndarray, res: np.ndarray, afins:np.ndarray) -> None:
     for n in range(0, Nt):
         if n % 2 == 0:
             pack_wave_time_helper_compact(n, Nf, Nt, wave_in, afins)
-            ffts_fin = fft.fft(afins)
+            ffts_fin = np.fft.fft(afins)
             unpack_time_wave_helper_compact(n, Nf, Nt, K, phi, ffts_fin, res)
 
     # wrap boundary conditions
-    res[: min(K + Nf, ND)] += res[ND : min(ND + K + Nf, 2 * ND)]
+    res[: min(K + Nf, ND)] += res[ND: min(ND + K + Nf, 2 * ND)]
     if K + Nf > ND:
-        res[: K + Nf - ND] += res[2 * ND : ND + K * Nf]
-
-    return res[:ND]
+        res[: K + Nf - ND] += res[2 * ND: ND + K * Nf]
 
 
 def unpack_time_wave_helper(

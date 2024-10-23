@@ -17,15 +17,15 @@ def transform_wavelet_time_helper(
     wdata = np.zeros(K)
     wave = np.zeros((Nt, Nf))  # wavelet wavepacket transform of the signal
     data_pad = np.concatenate((data, data[:K]))
+    __core(Nf, Nt, K, ND, wdata, data_pad, phi, wave, mult)
+    return wave
 
+def __core(Nf: int, Nt: int, K: int, ND: int, wdata: np.ndarray, data_pad: np.ndarray, phi: np.ndarray, wave: np.ndarray, mult: int) -> None:
     for time_bin_i in range(0, Nt):
         __fill_wave_1(time_bin_i, K, ND, Nf, wdata, data_pad, phi)
-        wdata_trans = fft.rfft(
-            wdata, K
-        )  # A fix because numba doesn't support np.fft
+        wdata_trans = np.fft.rfft(wdata, K)
         __fill_wave_2(time_bin_i, wave, wdata_trans, Nf, mult)
 
-    return wave
 
 @njit()
 def __fill_wave_1(

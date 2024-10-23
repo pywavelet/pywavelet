@@ -6,6 +6,9 @@ import numpy as np
 from matplotlib.colors import LogNorm, TwoSlopeNorm
 from scipy.signal import spectrogram
 
+MIN_S = 60
+HOUR_S = 60 * MIN_S
+DAY_S = 24 * HOUR_S
 
 def plot_wavelet_grid(
     wavelet_data: np.ndarray,
@@ -21,6 +24,7 @@ def plot_wavelet_grid(
     norm: Optional[Union[LogNorm, TwoSlopeNorm]] = None,
     cbar_label: Optional[str] = None,
     detailed_axes:bool = False,
+    show_gridinfo:bool = True,
     **kwargs,
 ) -> Tuple[plt.Figure, plt.Axes]:
     """
@@ -129,11 +133,15 @@ def plot_wavelet_grid(
 
     # Configure axes scales
     ax.set_yscale(freq_scale)
-    ax.set_xlabel("Time [s]")
+    _fmt_time_axis(time_grid, ax)
+
+
     ax.set_ylabel("Frequency [Hz]")
     if detailed_axes:
         ax.set_xlabel(r"Time Bins [$\Delta T$=" + f"{1 / Nt:.4f}s, Nt={Nt}]")
         ax.set_ylabel(r"Freq Bins [$\Delta F$=" + f"{1 / Nf:.4f}Hz, Nf={Nf}]")
+
+    if show_gridinfo:
         # add a text box with the Nt and Nf values
         ax.text(
             0.05,
@@ -196,7 +204,6 @@ def plot_periodogram(
     ax.set_xlim(left=flow, right=nyquist_frequency)
     return ax.figure, ax
 
-
 def plot_timeseries(
     data: np.ndarray, time: np.ndarray, ax=None, **kwargs
 ) -> Tuple[plt.Figure, plt.Axes]:
@@ -204,9 +211,12 @@ def plot_timeseries(
     if ax == None:
         fig, ax = plt.subplots()
     ax.plot(time, data, **kwargs)
-    ax.set_xlabel("Time [s]")
+
     ax.set_ylabel("Amplitude")
     ax.set_xlim(left=time[0], right=time[-1])
+
+    _fmt_time_axis(time, ax)
+
     return ax.figure, ax
 
 
@@ -225,9 +235,27 @@ def plot_spectrogram(
         plot_kwargs["cmap"] = "Reds"
 
     cm = ax.pcolormesh(t, f, Sxx, shading="nearest", **plot_kwargs)
-    ax.set_xlabel("Time [s]")
+
+    _fmt_time_axis(t, ax)
+
+
     ax.set_ylabel("Frequency [Hz]")
     ax.set_ylim(top=fs / 2.0)
     cbar = plt.colorbar(cm, ax=ax)
     cbar.set_label("Spectrogram Amplitude")
     return ax.figure, ax
+
+
+
+def _fmt_time_axis(t, axes):
+    if t[-1] > DAY_S:  # If time goes beyond a day
+        axes.xaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f"{x / DAY_S:.1f}"))
+        axes.set_xlabel("Time [days]")
+    elif t[-1] > HOUR_S:  # If time goes beyond an hour
+        axes.xaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f"{x / HOUR_S:.1f}"))
+        axes.set_xlabel("Time [hr]")
+    elif t[-1] > MIN_S:  # If time goes beyond a minute
+        axes.xaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f"{x / MIN_S:.1f}"))
+        axes.set_xlabel("Time [min]")
+    else:
+        axes.set_xlabel("Time [s]")

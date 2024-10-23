@@ -13,14 +13,16 @@ def inverse_wavelet_freq_helper_fast(
 
     prefactor2s = np.zeros(Nt, np.complex128)
     res = np.zeros(ND//2 +1, dtype=np.complex128)
+    __core(Nf, Nt, prefactor2s, wave_in, phif, res)
 
-    for m in range(0, Nf + 1):
-        __pack_wave_inverse(m, Nt, Nf, prefactor2s, wave_in)
-        # with numba.objmode(fft_prefactor2s="complex128[:]"):
-        fft_prefactor2s = fft.fft(prefactor2s)
-        __unpack_wave_inverse(m, Nt, Nf, phif, fft_prefactor2s, res)
 
     return res
+
+def __core(Nf: int, Nt: int, prefactor2s: np.ndarray, wave_in: np.ndarray, phif: np.ndarray, res: np.ndarray) -> None:
+    for m in range(0, Nf + 1):
+        __pack_wave_inverse(m, Nt, Nf, prefactor2s, wave_in)
+        fft_prefactor2s = np.fft.fft(prefactor2s)
+        __unpack_wave_inverse(m, Nt, Nf, phif, fft_prefactor2s, res)
 
 
 @njit()

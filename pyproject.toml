@@ -29,7 +29,7 @@ dependencies = [
     "matplotlib",
     "tqdm",
     "rich",
-#    "rocket-fft", # cant use rocket-fft as it doest support ifft
+    "rocket-fft",
     "astropy>=5.2.1",
 ]
 
