@@ -98,6 +98,8 @@ def plot_wavelet_grid(
     # Determine normalization and colormap
     if norm is None:
         try:
+            if np.all(np.isnan(z)):
+                raise ValueError("All wavelet data is NaN.")
             if zscale == "log":
                 norm = LogNorm(vmin=np.nanmin(z[z > 0]), vmax=np.nanmax(z))
             elif not absolute:
@@ -108,7 +110,7 @@ def plot_wavelet_grid(
                 norm = None  # Default linear scaling
         except Exception as e:
             warnings.warn(f"Error in determining normalization: {e}. Using default linear scaling.")
-
+            norm = None
 
     if cmap is None:
         cmap = "viridis" if absolute else "bwr"
