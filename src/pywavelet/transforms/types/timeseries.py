@@ -135,3 +135,15 @@ class TimeSeries:
 
         from .frequencyseries import FrequencySeries  # Avoid circular import
         return FrequencySeries(data, freq, t0=self.t0)
+
+    def __add__(self, other: 'TimeSeries') -> 'TimeSeries':
+        """Add two TimeSeries objects together."""
+        if self.shape != other.shape:
+            raise ValueError("TimeSeries objects must have the same shape to add them together")
+        return TimeSeries(self.data + other.data, self.time)
+
+    def __sub__(self, other: 'TimeSeries') -> 'TimeSeries':
+        """Subtract one TimeSeries object from another."""
+        if self.shape != other.shape:
+            raise ValueError("TimeSeries objects must have the same shape to subtract them")
+        return TimeSeries(self.data - other.data, self.time)
