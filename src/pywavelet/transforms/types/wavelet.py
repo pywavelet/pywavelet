@@ -238,6 +238,19 @@ class Wavelet:
         trange = fmt_timerange((self.t0, self.tend))
         return f"Wavelet(NfxNt={self.shape[0]}x{self.shape[1]}, {frange}Hz, {trange}s)"
 
+    def __add__(self, other):
+        """Element-wise addition of two Wavelet objects."""
+        if isinstance(other, Wavelet):
+            return Wavelet(data=self.data + other.data, time=self.time, freq=self.freq)
+        elif isinstance(other, float):
+            return Wavelet(data=self.data + other, time=self.time, freq=self.freq)
+
+    def __sub__(self, other):
+        """Element-wise subtraction of two Wavelet objects."""
+        if isinstance(other, Wavelet):
+            return Wavelet(data=self.data - other.data, time=self.time, freq=self.freq)
+        elif isinstance(other, float):
+            return Wavelet(data=self.data - other, time=self.time, freq=self.freq)
 
     def __mul__(self, other):
         """Element-wise multiplication of two Wavelet objects."""
