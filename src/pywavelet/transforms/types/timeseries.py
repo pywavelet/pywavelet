@@ -147,3 +147,10 @@ class TimeSeries:
         if self.shape != other.shape:
             raise ValueError("TimeSeries objects must have the same shape to subtract them")
         return TimeSeries(self.data - other.data, self.time)
+
+    def __eq__(self, other: 'TimeSeries') -> bool:
+        """Check if two TimeSeries objects are equal."""
+        shape_same = self.shape == other.shape
+        range_same = self.t0 == other.t0 and self.tend == other.tend
+        data_same =  self.data == other.data and self.time == other.time
+        return shape_same and range_same and data_same
