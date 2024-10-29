@@ -23,6 +23,7 @@ def plot_wavelet_grid(
     cmap: Optional[str] = None,
     norm: Optional[Union[LogNorm, TwoSlopeNorm]] = None,
     cbar_label: Optional[str] = None,
+    nan_color: Optional[str] = "black",
     detailed_axes:bool = False,
     show_gridinfo:bool = True,
     **kwargs,
@@ -69,6 +70,9 @@ def plot_wavelet_grid(
     cbar_label : str, optional
         Label for the colorbar. If None, a default label is used based on the `absolute` parameter.
 
+    nan_color : str, optional
+        Color to use for NaN values. Default is 'black'.
+
     **kwargs
         Additional keyword arguments passed to `ax.imshow()`.
 
@@ -114,6 +118,8 @@ def plot_wavelet_grid(
 
     if cmap is None:
         cmap = "viridis" if absolute else "bwr"
+        cmap = plt.get_cmap(cmap)
+        cmap.set_bad(color=nan_color)
 
     # Set up the plot
     if ax is None:
@@ -133,6 +139,7 @@ def plot_wavelet_grid(
         **kwargs,
     )
 
+
     # Configure axes scales
     ax.set_yscale(freq_scale)
     _fmt_time_axis(time_grid, ax)
@@ -143,12 +150,13 @@ def plot_wavelet_grid(
         ax.set_xlabel(r"Time Bins [$\Delta T$=" + f"{1 / Nt:.4f}s, Nt={Nt}]")
         ax.set_ylabel(r"Freq Bins [$\Delta F$=" + f"{1 / Nf:.4f}Hz, Nf={Nf}]")
 
-    if show_gridinfo:
-        # add a text box with the Nt and Nf values
+    label = kwargs.get("label", "")
+    label += f"{Nt}x{Nf}" if show_gridinfo else ""
+    if label:
         ax.text(
             0.05,
             0.95,
-            f"{Nt}x{Nf}",
+            label,
             transform=ax.transAxes,
             fontsize=14,
             verticalalignment="top",
