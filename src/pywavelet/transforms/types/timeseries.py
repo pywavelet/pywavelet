@@ -154,3 +154,7 @@ class TimeSeries:
         range_same = self.t0 == other.t0 and self.tend == other.tend
         data_same =  self.data == other.data and self.time == other.time
         return shape_same and range_same and data_same
+
+    def __mul__(self, other: float) -> 'TimeSeries':
+        """Multiply a TimeSeries object by a scalar."""
+        return TimeSeries(self.data * other, self.time)

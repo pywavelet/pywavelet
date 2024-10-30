@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 from typing import Optional, Tuple
 from .common import is_documented_by, xp, fmt_timerange
-from .plotting import plot_wavelet_grid
+from .plotting import plot_wavelet_grid, plot_wavelet_trend
 
 
 class Wavelet:
@@ -55,6 +55,13 @@ class Wavelet:
         kwargs["time_grid"] = kwargs.get("time_grid", self.time)
         kwargs["freq_grid"] = kwargs.get("freq_grid", self.freq)
         return plot_wavelet_grid(wavelet_data=self.data, ax=ax, *args, **kwargs)
+
+    @is_documented_by(plot_wavelet_trend)
+    def plot_trend(self, ax=None, *args, **kwargs) -> Tuple[plt.Figure, plt.Axes]:
+        kwargs["time_grid"] = kwargs.get("time_grid", self.time)
+        kwargs["freq_grid"] = kwargs.get("freq_grid", self.freq)
+        return plot_wavelet_trend(wavelet_data=self.data, ax=ax, *args, **kwargs)
+
 
     @property
     def Nt(self) -> int:

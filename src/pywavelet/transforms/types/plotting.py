@@ -1,5 +1,7 @@
 import warnings
 from typing import Tuple, Optional, Union
+from scipy.signal import savgol_filter
+from scipy.interpolate import interp1d
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -9,6 +11,61 @@ from scipy.signal import spectrogram
 MIN_S = 60
 HOUR_S = 60 * MIN_S
 DAY_S = 24 * HOUR_S
+
+
+def plot_wavelet_trend(
+    wavelet_data: np.ndarray,
+    time_grid: np.ndarray,
+    freq_grid: np.ndarray,
+    ax: Optional[plt.Axes] = None,
+    freq_scale: str = "linear",
+    freq_range: Optional[Tuple[float, float]] = None,
+    color: str = "black",
+):
+    Nf, Nt = wavelet_data.shape
+    z = np.abs(wavelet_data.copy())
+    df = np.diff(freq_grid)[0]
+
+    # extract x vals
+    x = time_grid
+
+    # extract y vals for each x
+    y = np.zeros(Nt)
+    for i in range(Nt):
+        # if all values are nan, set to nan
+        if np.all(np.isnan(z[:, i])):
+            y[i] = np.nan
+        else:
+            y[i] = freq_grid[np.nanargmax(z[:, i])] + df / 2
+
+    # Interpolate to fill NaNs in y before smoothing
+    nan_mask = ~np.isnan(y)
+    if np.isnan(y).any():
+        interpolator = interp1d(x[nan_mask], y[nan_mask], kind='cubic', bounds_error=False,
+                                fill_value="extrapolate")
+        y = interpolator(x)  # Fill NaNs with interpolated values
+
+    # Smooth the curve
+    window_length = min(51, len(y) - 1 if len(y) % 2 == 0 else len(y))
+    y_smooth = savgol_filter(y, window_length, 3)
+    y_smooth[~nan_mask] = np.nan
+
+
+    if ax == None:
+        fig, ax = plt.subplots()
+    ax.plot(x, y_smooth, color=color)
+
+
+    # Configure axes scales
+    ax.set_yscale(freq_scale)
+    _fmt_time_axis(time_grid, ax)
+    ax.set_ylabel("Frequency [Hz]")
+
+    # Set frequency range if specified
+    freq_range = freq_range or (freq_grid[0], freq_grid[-1])
+    ax.set_ylim(freq_range)
+
+
 
 def plot_wavelet_grid(
     wavelet_data: np.ndarray,
@@ -26,6 +83,7 @@ def plot_wavelet_grid(
     nan_color: Optional[str] = "black",
     detailed_axes:bool = False,
     show_gridinfo:bool = True,
+    trend_color: Optional[str] = None,
     **kwargs,
 ) -> Tuple[plt.Figure, plt.Axes]:
     """
@@ -72,6 +130,9 @@ def plot_wavelet_grid(
 
     nan_color : str, optional
         Color to use for NaN values. Default is 'black'.
+
+    trend_color : bool, optional
+        Color to use for the trend line. Not shown if None.
 
     **kwargs
         Additional keyword arguments passed to `ax.imshow()`.
@@ -138,14 +199,25 @@ def plot_wavelet_grid(
         interpolation="nearest",
         **kwargs,
     )
+    if trend_color is not None:
+        plot_wavelet_trend(wavelet_data, time_grid, freq_grid, ax, color=trend_color, freq_range=freq_range, freq_scale=freq_scale)
 
+    # Add colorbar if requested
+    if show_colorbar:
+        cbar = fig.colorbar(im, ax=ax)
+        if cbar_label is None:
+            cbar_label = "Absolute Wavelet Amplitude" if absolute else "Wavelet Amplitude"
+        cbar.set_label(cbar_label)
 
     # Configure axes scales
     ax.set_yscale(freq_scale)
     _fmt_time_axis(time_grid, ax)
-
-
     ax.set_ylabel("Frequency [Hz]")
+
+    # Set frequency range if specified
+    freq_range = freq_range or (freq_grid[0], freq_grid[-1])
+    ax.set_ylim(freq_range)
+
     if detailed_axes:
         ax.set_xlabel(r"Time Bins [$\Delta T$=" + f"{1 / Nt:.4f}s, Nt={Nt}]")
         ax.set_ylabel(r"Freq Bins [$\Delta F$=" + f"{1 / Nf:.4f}Hz, Nf={Nf}]")
@@ -164,21 +236,11 @@ def plot_wavelet_grid(
         )
 
 
-    # Set frequency range if specified
-    if freq_range is not None:
-        ax.set_ylim(freq_range)
-
-    # Add colorbar if requested
-    if show_colorbar:
-        cbar = fig.colorbar(im, ax=ax)
-        if cbar_label is None:
-            cbar_label = "Absolute Wavelet Amplitude" if absolute else "Wavelet Amplitude"
-        cbar.set_label(cbar_label)
-
     # Adjust layout
     fig.tight_layout()
 
     return fig, ax
+
 
 
 def plot_freqseries(
