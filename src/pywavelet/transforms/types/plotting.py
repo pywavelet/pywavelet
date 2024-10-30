@@ -22,39 +22,11 @@ def plot_wavelet_trend(
     freq_range: Optional[Tuple[float, float]] = None,
     color: str = "black",
 ):
-    Nf, Nt = wavelet_data.shape
-    z = np.abs(wavelet_data.copy())
-    df = np.diff(freq_grid)[0]
-
-    # extract x vals
     x = time_grid
-
-    # extract y vals for each x
-    y = np.zeros(Nt)
-    for i in range(Nt):
-        # if all values are nan, set to nan
-        if np.all(np.isnan(z[:, i])):
-            y[i] = np.nan
-        else:
-            y[i] = freq_grid[np.nanargmax(z[:, i])] + df / 2
-
-    # Interpolate to fill NaNs in y before smoothing
-    nan_mask = ~np.isnan(y)
-    if np.isnan(y).any():
-        interpolator = interp1d(x[nan_mask], y[nan_mask], kind='cubic', bounds_error=False,
-                                fill_value="extrapolate")
-        y = interpolator(x)  # Fill NaNs with interpolated values
-
-    # Smooth the curve
-    window_length = min(51, len(y) - 1 if len(y) % 2 == 0 else len(y))
-    y_smooth = savgol_filter(y, window_length, 3)
-    y_smooth[~nan_mask] = np.nan
-
-
+    y = __get_smoothed_y(x, np.abs(wavelet_data), freq_grid)
     if ax == None:
         fig, ax = plt.subplots()
-    ax.plot(x, y_smooth, color=color)
-
+    ax.plot(x, y, color=color)
 
     # Configure axes scales
     ax.set_yscale(freq_scale)
@@ -64,6 +36,33 @@ def plot_wavelet_trend(
     # Set frequency range if specified
     freq_range = freq_range or (freq_grid[0], freq_grid[-1])
     ax.set_ylim(freq_range)
+
+
+def __get_smoothed_y(x, z, y_grid):
+    Nf, Nt = z.shape
+    y = np.zeros(Nt)
+    dy = np.diff(y_grid)[0]
+    for i in range(Nt):
+        # if all values are nan, set to nan
+        if np.all(np.isnan(z[:, i])):
+            y[i] = np.nan
+        else:
+            y[i] = y_grid[np.nanargmax(z[:, i])]
+
+    if not np.isnan(y).all():
+        # Interpolate to fill NaNs in y before smoothing
+        nan_mask = ~np.isnan(y)
+        if np.isnan(y).any():
+            interpolator = interp1d(x[nan_mask], y[nan_mask], kind='cubic', bounds_error=False,
+                                    fill_value="extrapolate")
+            y = interpolator(x)  # Fill NaNs with interpolated values
+
+        # Smooth the curve
+        window_length = min(51, len(y) - 1 if len(y) % 2 == 0 else len(y))
+        y = savgol_filter(y, window_length, 3)
+        y[~nan_mask] = np.nan
+    return y
+
 
 
 
