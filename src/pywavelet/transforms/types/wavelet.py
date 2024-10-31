@@ -62,7 +62,6 @@ class Wavelet:
         kwargs["freq_grid"] = kwargs.get("freq_grid", self.freq)
         return plot_wavelet_trend(wavelet_data=self.data, ax=ax, *args, **kwargs)
 
-
     @property
     def Nt(self) -> int:
         """
@@ -231,6 +230,30 @@ class Wavelet:
         """
         return self.sample_rate / 2
 
+    def to_timeseries(self, nx: float = 4.0, mult: int = 32) -> "TimeSeries":
+        """
+        Convert the wavelet grid to a time-domain signal.
+
+        Returns
+        -------
+        TimeSeries
+            A `TimeSeries` object representing the time-domain signal.
+        """
+        from ..inverse import from_wavelet_to_time
+        return from_wavelet_to_time(self, dt=self.delta_t, nx=nx, mult=mult)
+
+    def to_frequencyseries(self, nx: float = 4.0) -> "FrequencySeries":
+        """
+        Convert the wavelet grid to a frequency-domain signal.
+
+        Returns
+        -------
+        FrequencySeries
+            A `FrequencySeries` object representing the frequency-domain signal.
+        """
+        from ..inverse import from_wavelet_to_freq
+        return from_wavelet_to_freq(self, dt=self.delta_t, nx=nx)
+
     def __repr__(self) -> str:
         """
         Return a string representation of the Wavelet object.
@@ -272,3 +295,11 @@ class Wavelet:
             return Wavelet(data=self.data / other.data, time=self.time, freq=self.freq)
         elif isinstance(other, float):
             return Wavelet(data=self.data / other, time=self.time, freq=self.freq)
+
+    def __eq__(self, other:"Wavelet") -> bool:
+        """Element-wise comparison of two Wavelet objects."""
+        data_all_same = xp.allclose(self.data, other.data)
+        time_same = (self.time == other.time).all()
+        freq_same = (self.freq == other.freq).all()
+        return data_all_same and time_same and freq_same
+

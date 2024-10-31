@@ -136,6 +136,29 @@ class TimeSeries:
         from .frequencyseries import FrequencySeries  # Avoid circular import
         return FrequencySeries(data, freq, t0=self.t0)
 
+    def to_wavelet(self, Nf: int, Nt: int, nx: float = 4.0) -> 'Wavelet':
+        """
+        Convert the time series to a wavelet representation.
+
+        Parameters
+        ----------
+        Nf : int
+            Number of frequency bins for the wavelet transform.
+        Nt : int
+            Number of time bins for the wavelet transform.
+        nx : float, optional
+            Number of standard deviations for the `phi_vec`, controlling the
+            width of the wavelets. Default is 4.0.
+
+        Returns
+        -------
+        Wavelet
+            The wavelet-domain representation of the time series.
+        """
+        hf = self.to_frequencyseries()
+        return hf.to_wavelet(Nf, Nt, nx=nx)
+
+
     def __add__(self, other: 'TimeSeries') -> 'TimeSeries':
         """Add two TimeSeries objects together."""
         if self.shape != other.shape:
@@ -152,8 +175,9 @@ class TimeSeries:
         """Check if two TimeSeries objects are equal."""
         shape_same = self.shape == other.shape
         range_same = self.t0 == other.t0 and self.tend == other.tend
-        data_same =  self.data == other.data and self.time == other.time
-        return shape_same and range_same and data_same
+        time_same =  xp.allclose(self.time, other.time)
+        data_same = xp.allclose(self.data, other.data)
+        return shape_same and range_same and data_same and time_same
 
     def __mul__(self, other: float) -> 'TimeSeries':
         """Multiply a TimeSeries object by a scalar."""

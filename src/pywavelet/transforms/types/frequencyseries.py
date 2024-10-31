@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-from typing import Tuple
+from typing import Tuple, Union
 
 from .common import is_documented_by, xp, irfft
 from .plotting import plot_freqseries, plot_periodogram
@@ -199,3 +199,28 @@ class FrequencySeries:
         # Create and return a TimeSeries object
         from .timeseries import TimeSeries
         return TimeSeries(time_data, time)
+
+
+    def to_wavelet(
+            self,
+            Nf: Union[int, None] = None,
+            Nt: Union[int, None] = None,
+            nx: float = 4.0,
+        )->"Wavelet":
+        """
+        Convert the frequency series to a wavelet using inverse Fourier transform.
+
+        Returns
+        -------
+        Wavelet
+            The corresponding wavelet.
+        """
+        from ..forward import from_freq_to_wavelet
+        return from_freq_to_wavelet(self, Nf=Nf, Nt=Nt, nx=nx)
+
+
+    def __eq__(self, other):
+        """Check if two FrequencySeries objects are equal."""
+        data_same = xp.allclose(self.data, other.data)
+        freq_same = xp.allclose(self.freq, other.freq)
+        return data_same and freq_same
