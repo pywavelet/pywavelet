@@ -1,7 +1,9 @@
 import matplotlib.pyplot as plt
 from typing import Tuple
-from scipy.signal.spectral import spectrogram
+from scipy.signal.windows import tukey
+from scipy.signal import butter, sosfiltfilt
 
+from ...logger import logger
 from .common import is_documented_by, xp, rfft, rfftfreq, fmt_timerange, fmt_time
 from .plotting import plot_timeseries, plot_spectrogram
 
@@ -182,3 +184,62 @@ class TimeSeries:
     def __mul__(self, other: float) -> 'TimeSeries':
         """Multiply a TimeSeries object by a scalar."""
         return TimeSeries(self.data * other, self.time)
+
+    def zero_pad_to_power_of_2(self, tukey_window_alpha:float=0.0)->'TimeSeries':
+        """Zero pad the time series to make the length a power of two (useful to speed up FFTs, O(NlogN) versus O(N^2)).
+
+        Parameters
+        ----------
+        tukey_window_alpha : float, optional
+            Alpha parameter for the Tukey window. Default is 0.0.
+            (prevents spectral leakage when padding the data)
+
+        Returns
+        -------
+        TimeSeries
+            A new TimeSeries object with the data zero-padded to a power of two.
+        """
+        N, dt, t0 = self.ND, self.dt, self.t0
+        pow_2 = xp.ceil(xp.log2(N))
+        n_pad = int((2 ** pow_2) - N)
+        new_N = N + n_pad
+        if n_pad > 0:
+            logger.warning(
+                f"Padding the data to a power of two. "
+                f"{N:,} (2**{xp.log2(N):.2f}) -> {new_N:,} (2**{pow_2}). "
+            )
+        window = tukey(N, alpha=tukey_window_alpha)
+        data = self.data * window
+        data = xp.pad(data, (0, n_pad), "constant")
+        time = xp.arange(0, len(data) * dt, dt) + t0
+        return TimeSeries(data, time)
+
+    def highpass_filter(self, fmin: float, bandpass_order: int = 4, tukey_window_alpha:float=0.0) -> 'TimeSeries':
+        """
+        Filter the time series with a highpass bandpass filter.
+
+        (we use sosfiltfilt instead of filtfilt for numerical stability)
+
+        Note: filtfilt should be used if phase accuracy (zero-phase filtering) is critical for your analysis
+        and if the filter order is low to moderate.
+
+
+        Parameters
+        ----------
+        fmin : float
+            Minimum frequency to pass through the filter.
+        bandpass_order : int, optional
+            Order of the bandpass filter. Default is 4.
+
+        Returns
+        -------
+        TimeSeries
+            A new TimeSeries object with the highpass filter applied.
+        """
+
+        nyquist = self.nyquist_frequency
+        sos = butter(bandpass_order, fmin / nyquist, btype="highpass", output='sos')
+        window = tukey(self.ND, alpha=tukey_window_alpha)
+        data = self.data.copy()
+        data = sosfiltfilt(sos, data * window)
+        return TimeSeries(data, self.time)
