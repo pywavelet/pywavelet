@@ -236,9 +236,7 @@ class TimeSeries:
         TimeSeries
             A new TimeSeries object with the highpass filter applied.
         """
-
-        nyquist = self.nyquist_frequency
-        sos = butter(bandpass_order, fmin / nyquist, btype="highpass", output='sos')
+        sos = butter(bandpass_order, Wn=fmin, btype="highpass", output='sos', fs=self.fs)
         window = tukey(self.ND, alpha=tukey_window_alpha)
         data = self.data.copy()
         data = sosfiltfilt(sos, data * window)
