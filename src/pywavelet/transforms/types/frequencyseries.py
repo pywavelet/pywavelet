@@ -112,10 +112,9 @@ class FrequencySeries:
         return (self.minimum_frequency, self.maximum_frequency)
 
     @property
-    def shape(self) -> Tuple[int, int]:
+    def shape(self) -> Tuple[int, ...]:
         """Return the shape of the data array."""
-        s = self.data.shape
-        return (s[0], s[1])
+        return self.data.shape
 
     @property
     def ND(self) -> int:
