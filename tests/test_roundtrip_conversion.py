@@ -39,6 +39,17 @@ def test_freqdomain_pure_f0_transform(plot_dir):
     plot_fft(hf, hf_1, f"{plot_dir}/test_pure_f0_transform.png")
 
 
+def test_conversion_from_hf_ht():
+    Nf, Nt, dt = 8, 4, 0.1
+    hf = generate_pure_f0(Nf=Nf, Nt=Nt, dt=dt)
+    ht = hf.to_timeseries()
+    w1 = hf.to_wavelet(Nf=Nf, Nt=Nt)
+    w2 = ht.to_wavelet(Nf=Nf, Nt=Nt)
+    assert w1 == w2
+    hf1 = w1.to_frequencyseries()
+    ht2 = w2.to_timeseries()
+    assert hf == hf1
+    assert ht == ht2
 
 
 
