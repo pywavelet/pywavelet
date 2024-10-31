@@ -112,9 +112,10 @@ class FrequencySeries:
         return (self.minimum_frequency, self.maximum_frequency)
 
     @property
-    def shape(self) -> Tuple[int]:
+    def shape(self) -> Tuple[int, int]:
         """Return the shape of the data array."""
-        return self.data.shape
+        s = self.data.shape
+        return (s[0], s[1])
 
     @property
     def ND(self) -> int:
@@ -124,6 +125,59 @@ class FrequencySeries:
     def __repr__(self) -> str:
         """Return a string representation of the FrequencySeries."""
         return f"FrequencySeries(n={len(self)}, frange=[{self.range[0]:.2f}, {self.range[1]:.2f}] Hz, T={self.duration:.2f}s, fs={self.fs:.2f} Hz)"
+
+    def noise_weighted_inner_product(self, other: "FrequencySeries", psd:"FrequencySeries") -> float:
+        """
+        Compute the noise-weighted inner product of two FrequencySeries.
+
+        Parameters
+        ----------
+        other : FrequencySeries
+            The other FrequencySeries.
+        psd : FrequencySeries
+            The power spectral density (PSD) of the noise.
+
+        Returns
+        -------
+        float
+            The noise-weighted inner product of the two FrequencySeries.
+        """
+        integrand = xp.real(xp.conj(self.data) * other.data / psd.data)
+        return (4 * self.dt/self.ND) * xp.sum(integrand)
+
+    def matched_filter_snr(self, other: "FrequencySeries", psd: "FrequencySeries") -> float:
+        """
+        Compute the signal-to-noise ratio (SNR) of a matched filter.
+
+        Parameters
+        ----------
+        other : FrequencySeries
+            The other FrequencySeries.
+        psd : FrequencySeries
+            The power spectral density (PSD) of the noise.
+
+        Returns
+        -------
+        float
+            The SNR of the matched filter.
+        """
+        return xp.sqrt(self.noise_weighted_inner_product(other, psd))
+
+    def optimal_snr(self, psd: "FrequencySeries") -> float:
+        """
+        Compute the optimal signal-to-noise ratio (SNR) of a FrequencySeries.
+
+        Parameters
+        ----------
+        psd : FrequencySeries
+            The power spectral density (PSD) of the noise.
+
+        Returns
+        -------
+        float
+            The optimal SNR of the FrequencySeries.
+        """
+        return xp.sqrt(self.noise_weighted_inner_product(self, psd))
 
     def to_timeseries(self) -> "TimeSeries":
         """
