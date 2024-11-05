@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 from typing import Tuple, Union, Optional
 
-from .common import is_documented_by, xp, irfft, fmt_time
+from .common import is_documented_by, xp, irfft, fmt_time, fmt_pow2
 from .plotting import plot_freqseries, plot_periodogram
 
 __all__ = ["FrequencySeries"]
@@ -124,7 +124,8 @@ class FrequencySeries:
     def __repr__(self) -> str:
         """Return a string representation of the FrequencySeries."""
         dur = fmt_time(self.duration)
-        return f"FrequencySeries(n={len(self)}, frange=[{self.range[0]:.2f}, {self.range[1]:.2f}] Hz, T={dur}, fs={self.fs:.2f} Hz)"
+        n = fmt_pow2(len(self))
+        return f"FrequencySeries(n={n}, frange=[{self.range[0]:.2f}, {self.range[1]:.2f}] Hz, T={dur}, fs={self.fs:.2f} Hz)"
 
     def noise_weighted_inner_product(self, other: "FrequencySeries", psd:"FrequencySeries") -> float:
         """

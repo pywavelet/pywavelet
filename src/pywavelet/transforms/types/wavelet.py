@@ -1,5 +1,8 @@
 import matplotlib.pyplot as plt
 from typing import Optional, Tuple
+
+import numpy as np
+
 from .common import is_documented_by, xp, fmt_timerange
 from .plotting import plot_wavelet_grid, plot_wavelet_trend
 
@@ -266,7 +269,10 @@ class Wavelet:
 
         frange = ",".join([f"{f:.2e}" for f in (self.freq[0], self.freq[-1])])
         trange = fmt_timerange((self.t0, self.tend))
-        return f"Wavelet(NfxNt={self.shape[0]}x{self.shape[1]}, {frange}Hz, {trange}s)"
+        Nfpow2 = int(np.log2(self.shape[0]))
+        Ntpow2 = int(np.log2(self.shape[1]))
+        shapef = f"NfxNf=[2^{Nfpow2}, 2^{Ntpow2}]"
+        return f"Wavelet({shapef}, [{frange}]Hz, {trange})"
 
     def __add__(self, other):
         """Element-wise addition of two Wavelet objects."""

@@ -4,7 +4,7 @@ from scipy.signal.windows import tukey
 from scipy.signal import butter, sosfiltfilt
 
 from ...logger import logger
-from .common import is_documented_by, xp, rfft, rfftfreq, fmt_timerange, fmt_time
+from .common import is_documented_by, xp, rfft, rfftfreq, fmt_timerange, fmt_time, fmt_pow2
 from .plotting import plot_timeseries, plot_spectrogram
 
 __all__ = ["TimeSeries"]
@@ -121,7 +121,8 @@ class TimeSeries:
         """Return a string representation of the TimeSeries."""
         trange = fmt_timerange((self.t0, self.tend))
         T = " ".join(fmt_time(self.duration, units=True))
-        return f"TimeSeries(n={len(self)}, trange={trange}, T={T}, fs={self.fs:.2f} Hz)"
+        n = fmt_pow2(len(self))
+        return f"TimeSeries(n={n}, trange={trange}, T={T}, fs={self.fs:.2f} Hz)"
 
     def to_frequencyseries(self) -> 'FrequencySeries':
         """

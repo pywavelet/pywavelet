@@ -7,7 +7,7 @@ from ...logger import logger
 
 
 def _len_check(d):
-    if not np.log2(len(d)).is_integer():
+    if not xp.log2(len(d)).is_integer():
         logger.warning(f"Data length {len(d)} is suggested to be a power of 2")
 
 
@@ -44,3 +44,10 @@ def fmt_timerange(trange):
     t0 = fmt_time(trange[0])
     tend, units = fmt_time(trange[1], units = True)
     return f"[{t0}, {tend}] {units}"
+
+
+def fmt_pow2(n:float)->str:
+    pow2 = xp.log2(n)
+    if pow2.is_integer():
+        return f"2^{int(pow2)}"
+    return f"{n:,}"
