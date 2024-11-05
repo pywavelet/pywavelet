@@ -219,7 +219,7 @@ class TimeSeries:
         time = xp.arange(0, len(data) * dt, dt) + t0
         return TimeSeries(data, time)
 
-    def highpass_filter(self, fmin: float, bandpass_order: int = 4, tukey_window_alpha:float=0.0) -> 'TimeSeries':
+    def highpass_filter(self, fmin: float, tukey_window_alpha:float=0.0, bandpass_order: int = 4) -> 'TimeSeries':
         """
         Filter the time series with a highpass bandpass filter.
 
