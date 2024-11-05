@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-from typing import Tuple
+from typing import Tuple, Optional, Union
 from scipy.signal.windows import tukey
 from scipy.signal import butter, sosfiltfilt
 
@@ -138,7 +138,12 @@ class TimeSeries:
         from .frequencyseries import FrequencySeries  # Avoid circular import
         return FrequencySeries(data, freq, t0=self.t0)
 
-    def to_wavelet(self, Nf: int, Nt: int, nx: float = 4.0) -> 'Wavelet':
+    def to_wavelet(
+            self,
+            Nf: Union[int, None] = None,
+            Nt: Union[int, None] = None,
+            nx: Optional[float] = 4.0,
+    ) -> 'Wavelet':
         """
         Convert the time series to a wavelet representation.
 
@@ -236,8 +241,35 @@ class TimeSeries:
         TimeSeries
             A new TimeSeries object with the highpass filter applied.
         """
+
+        if fmin <0 or fmin > self.nyquist_frequency:
+            raise ValueError(f"Invalid fmin value: {fmin}. Must be in the range [0, {self.nyquist_frequency}]")
+
         sos = butter(bandpass_order, Wn=fmin, btype="highpass", output='sos', fs=self.fs)
         window = tukey(self.ND, alpha=tukey_window_alpha)
         data = self.data.copy()
         data = sosfiltfilt(sos, data * window)
         return TimeSeries(data, self.time)
+
+    def __copy__(self):
+        return TimeSeries(
+            self.data.copy(),
+            self.time.copy()
+        )
+
+    def copy(self):
+        return self.__copy__()
+
+    def __getitem__(self, key)->"TimeSeries":
+        if isinstance(key, slice):
+            # Handle slicing
+            return self.__handle_slice(key)
+        else:
+            # Handle regular indexing
+            return TimeSeries(self.data[key], self.time[key])
+
+    def __handle_slice(self, slice_obj)->"TimeSeries":
+        return TimeSeries(
+            self.data[slice_obj],
+            self.time[slice_obj]
+        )

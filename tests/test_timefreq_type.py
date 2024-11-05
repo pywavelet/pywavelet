@@ -12,6 +12,13 @@ def test_timefreq_type(sine_time):
     assert sine_freq.fs == sine_time.fs
     assert sine_freq.ND == sine_time.ND
 
+def test_slicing(sine_time):
+    N = len(sine_time)
+    assert len(sine_time[0:N//2]) == N//2
+    assert len(sine_time[N//2:]) == N//2
+    assert len(sine_time[0:N//2:2]) == N//4
+    assert len(sine_time[N//2::2]) == N//4
+
 
 def test_zeropadding_and_filtering(plot_dir):
     N = 8000

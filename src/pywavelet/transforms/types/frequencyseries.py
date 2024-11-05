@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
-from typing import Tuple, Union
+from typing import Tuple, Union, Optional
 
-from .common import is_documented_by, xp, irfft
+from .common import is_documented_by, xp, irfft, fmt_time
 from .plotting import plot_freqseries, plot_periodogram
 
 __all__ = ["FrequencySeries"]
@@ -123,7 +123,8 @@ class FrequencySeries:
 
     def __repr__(self) -> str:
         """Return a string representation of the FrequencySeries."""
-        return f"FrequencySeries(n={len(self)}, frange=[{self.range[0]:.2f}, {self.range[1]:.2f}] Hz, T={self.duration:.2f}s, fs={self.fs:.2f} Hz)"
+        dur = fmt_time(self.duration)
+        return f"FrequencySeries(n={len(self)}, frange=[{self.range[0]:.2f}, {self.range[1]:.2f}] Hz, T={dur}, fs={self.fs:.2f} Hz)"
 
     def noise_weighted_inner_product(self, other: "FrequencySeries", psd:"FrequencySeries") -> float:
         """
@@ -142,7 +143,7 @@ class FrequencySeries:
             The noise-weighted inner product of the two FrequencySeries.
         """
         integrand = xp.real(xp.conj(self.data) * other.data / psd.data)
-        return (4 * self.dt/self.ND) * xp.sum(integrand)
+        return (4 * self.dt/self.ND) * xp.nansum(integrand)
 
     def matched_filter_snr(self, other: "FrequencySeries", psd: "FrequencySeries") -> float:
         """
@@ -204,7 +205,7 @@ class FrequencySeries:
             self,
             Nf: Union[int, None] = None,
             Nt: Union[int, None] = None,
-            nx: float = 4.0,
+            nx: Optional[float] = 4.0,
         )->"Wavelet":
         """
         Convert the frequency series to a wavelet using inverse Fourier transform.
@@ -223,3 +224,13 @@ class FrequencySeries:
         data_same = xp.allclose(self.data, other.data)
         freq_same = xp.allclose(self.freq, other.freq)
         return data_same and freq_same
+
+    def __copy__(self):
+        return FrequencySeries(
+            xp.copy(self.data),
+            xp.copy(self.freq),
+            t0=self.t0
+        )
+
+    def copy(self):
+        return self.__copy__()

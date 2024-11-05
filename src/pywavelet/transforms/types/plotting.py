@@ -318,7 +318,7 @@ def plot_spectrogram(
 
 
 
-def _fmt_time_axis(t, axes):
+def _fmt_time_axis(t, axes, t0=None, tmax=None):
     if t[-1] > DAY_S:  # If time goes beyond a day
         axes.xaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f"{x / DAY_S:.1f}"))
         axes.set_xlabel("Time [days]")
@@ -330,3 +330,7 @@ def _fmt_time_axis(t, axes):
         axes.set_xlabel("Time [min]")
     else:
         axes.set_xlabel("Time [s]")
+    t0 = t[0] if t0 is None else t0
+    tmax = t[-1] if tmax is None else tmax
+    axes.set_xlim(t0, tmax)
+

@@ -303,3 +303,66 @@ class Wavelet:
         freq_same = (self.freq == other.freq).all()
         return data_all_same and time_same and freq_same
 
+
+    def noise_weighted_inner_product(self, other:"Wavelet", psd:"Wavelet") -> float:
+        """
+        Compute the noise-weighted inner product of two wavelet grids given a PSD.
+
+        Parameters
+        ----------
+        other : Wavelet
+            A `Wavelet` object representing the other wavelet grid.
+        psd : Wavelet
+            A `Wavelet` object representing the power spectral density.
+
+        Returns
+        -------
+        float
+            The noise-weighted inner product.
+        """
+        from ...utils import noise_weighted_inner_product
+        return noise_weighted_inner_product(self, other, psd)
+
+
+    def matched_filter_snr(self, template:"Wavelet", psd:"Wavelet") -> float:
+        """
+        Compute the matched filter SNR of the wavelet grid given a template.
+
+        Parameters
+        ----------
+        template : Wavelet
+            A `Wavelet` object representing the template.
+
+        Returns
+        -------
+        float
+            The matched filter signal-to-noise ratio.
+        """
+        mf = self.noise_weighted_inner_product(template, psd)
+        return mf / self.optimal_snr(psd)
+
+    def optimal_snr(self, psd:"Wavelet") -> float:
+        """
+        Compute the optimal SNR of the wavelet grid given a PSD.
+
+        Parameters
+        ----------
+        psd : Wavelet
+            A `Wavelet` object representing the power spectral density.
+
+        Returns
+        -------
+        float
+            The optimal signal-to-noise ratio.
+        """
+        return xp.sqrt(self.noise_weighted_inner_product(self, psd))
+
+    def __copy__(self):
+        return Wavelet(
+            data=self.data.copy(),
+            time=self.time.copy(),
+            freq=self.freq.copy()
+        )
+
+    def copy(self):
+        return self.__copy__()
