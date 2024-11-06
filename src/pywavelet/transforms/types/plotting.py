@@ -83,6 +83,7 @@ def plot_wavelet_grid(
     detailed_axes:bool = False,
     show_gridinfo:bool = True,
     trend_color: Optional[str] = None,
+    whiten_by: Optional[np.ndarray] = None,
     **kwargs,
 ) -> Tuple[plt.Figure, plt.Axes]:
     """
@@ -156,8 +157,11 @@ def plot_wavelet_grid(
 
     # Prepare the data for plotting
     z = wavelet_data.copy()
+    if whiten_by is not None:
+        z = z / whiten_by
     if absolute:
         z = np.abs(z)
+
 
     # Determine normalization and colormap
     if norm is None:
@@ -165,7 +169,7 @@ def plot_wavelet_grid(
             if np.all(np.isnan(z)):
                 raise ValueError("All wavelet data is NaN.")
             if zscale == "log":
-                norm = LogNorm(vmin=np.nanmin(z[z > 0]), vmax=np.nanmax(z))
+                norm = LogNorm(vmin=np.nanmin(z[z > 0]), vmax=np.nanmax(z[z<np.inf]))
             elif not absolute:
                 vmin, vmax = np.nanmin(z), np.nanmax(z)
                 vcenter = 0.0
