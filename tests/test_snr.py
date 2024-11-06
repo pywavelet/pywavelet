@@ -71,7 +71,7 @@ def test_toy_model_snr(plot_dir):
         t_grid=signal_wavelet.time,
         dt=dt,
     )
-    time2wavelet_snr2 = compute_snr(signal_wavelet, psd_wavelet_time) ** 2
+    time2wavelet_snr2 = compute_snr(signal_wavelet, signal_wavelet, psd_wavelet_time) ** 2
 
     # freq --> wavelet
     signal_freq = signal_timeseries.to_frequencyseries()
@@ -89,11 +89,11 @@ def test_toy_model_snr(plot_dir):
         t_grid=signal_wavelet_f.time,
         dt=dt,
     )
-    freq2wavelet_snr2 = compute_snr(signal_wavelet_f, psd_wavelet_freq) ** 2
+    freq2wavelet_snr2 = compute_snr(signal_wavelet_f, signal_wavelet_f, psd_wavelet_freq) ** 2
 
     # analytical wavelet
     analytical_wnm = monochromatic_wnm(f0, dt, A, T, Nt, Nf)
-    analytical_wavelet_snr2 = compute_snr(analytical_wnm, psd_wavelet_time) ** 2
+    analytical_wavelet_snr2 = compute_snr(analytical_wnm, analytical_wnm, psd_wavelet_time) ** 2
 
 
     assert np.isclose(
