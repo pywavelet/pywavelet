@@ -243,7 +243,7 @@ class TimeSeries:
             A new TimeSeries object with the highpass filter applied.
         """
 
-        if fmin <0 or fmin > self.nyquist_frequency:
+        if fmin <= 0 or fmin > self.nyquist_frequency:
             raise ValueError(f"Invalid fmin value: {fmin}. Must be in the range [0, {self.nyquist_frequency}]")
 
         sos = butter(bandpass_order, Wn=fmin, btype="highpass", output='sos', fs=self.fs)
