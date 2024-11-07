@@ -274,3 +274,7 @@ class TimeSeries:
             self.data[slice_obj],
             self.time[slice_obj]
         )
+
+    @classmethod
+    def _EMPTY(cls, ND:int, dt:float)->"TimeSeries":
+        return cls(xp.zeros(ND), xp.arange(0, ND*dt, dt))
