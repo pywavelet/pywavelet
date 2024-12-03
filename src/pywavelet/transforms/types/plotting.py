@@ -226,12 +226,13 @@ def plot_wavelet_grid(
         ax.set_ylabel(r"Freq Bins [$\Delta F$=" + f"{1 / Nf:.4f}Hz, Nf={Nf}]")
 
     label = kwargs.get("label", "")
-    label += f"{Nt}x{Nf}" if show_gridinfo else ""
-    if label:
+    NfNt_label = f"{Nf}x{Nt}" if show_gridinfo else ""
+    txt = f"{label}\n{NfNt_label}" if label else NfNt_label
+    if txt:
         ax.text(
             0.05,
             0.95,
-            label,
+            txt,
             transform=ax.transAxes,
             fontsize=14,
             verticalalignment="top",

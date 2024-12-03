@@ -304,7 +304,7 @@ class Wavelet:
 
     def __eq__(self, other:"Wavelet") -> bool:
         """Element-wise comparison of two Wavelet objects."""
-        data_all_same = xp.allclose(self.data, other.data)
+        data_all_same = xp.isclose(xp.nansum(self.data - other.data), 0)
         time_same = (self.time == other.time).all()
         freq_same = (self.freq == other.freq).all()
         return data_all_same and time_same and freq_same
