@@ -1,7 +1,7 @@
 import numpy as np
 
 from pywavelet.transforms import from_time_to_wavelet, from_freq_to_wavelet, compute_bins
-from pywavelet.transforms.types import TimeSeries, Wavelet
+from pywavelet.transforms.types import TimeSeries, Wavelet, FrequencySeries
 from pywavelet.utils import compute_snr, evolutionary_psd_from_stationary_psd
 import matplotlib.pyplot as plt
 
@@ -71,10 +71,14 @@ def test_toy_model_snr(plot_dir):
         t_grid=signal_wavelet.time,
         dt=dt,
     )
-    time2wavelet_snr2 = compute_snr(signal_wavelet, psd_wavelet_time) ** 2
+    time2wavelet_snr2 = compute_snr(signal_wavelet, signal_wavelet, psd_wavelet_time) ** 2
 
     # freq --> wavelet
     signal_freq = signal_timeseries.to_frequencyseries()
+    psd_freq = FrequencySeries(PSD_AMP * np.ones(len(signal_freq)), signal_freq.freq)
+    np.testing.assert_almost_equal(
+        signal_freq.optimal_snr(psd_freq)**2, SNR2_f
+    )
 
     # assert len(signal_freq) == (ND // 2 ) + 1 , f"Not one sided spectrum {len(signal_freq)}!={(ND // 2 ) + 1}"
     signal_wavelet_f = from_freq_to_wavelet(signal_freq, Nf=Nf, Nt=Nt)
@@ -85,11 +89,11 @@ def test_toy_model_snr(plot_dir):
         t_grid=signal_wavelet_f.time,
         dt=dt,
     )
-    freq2wavelet_snr2 = compute_snr(signal_wavelet_f, psd_wavelet_freq) ** 2
+    freq2wavelet_snr2 = compute_snr(signal_wavelet_f, signal_wavelet_f, psd_wavelet_freq) ** 2
 
     # analytical wavelet
     analytical_wnm = monochromatic_wnm(f0, dt, A, T, Nt, Nf)
-    analytical_wavelet_snr2 = compute_snr(analytical_wnm, psd_wavelet_time) ** 2
+    analytical_wavelet_snr2 = compute_snr(analytical_wnm, analytical_wnm, psd_wavelet_time) ** 2
 
 
     assert np.isclose(

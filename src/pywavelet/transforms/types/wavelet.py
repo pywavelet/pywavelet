@@ -1,7 +1,10 @@
 import matplotlib.pyplot as plt
 from typing import Optional, Tuple
+
+import numpy as np
+
 from .common import is_documented_by, xp, fmt_timerange
-from .plotting import plot_wavelet_grid
+from .plotting import plot_wavelet_grid, plot_wavelet_trend
 
 
 class Wavelet:
@@ -55,6 +58,12 @@ class Wavelet:
         kwargs["time_grid"] = kwargs.get("time_grid", self.time)
         kwargs["freq_grid"] = kwargs.get("freq_grid", self.freq)
         return plot_wavelet_grid(wavelet_data=self.data, ax=ax, *args, **kwargs)
+
+    @is_documented_by(plot_wavelet_trend)
+    def plot_trend(self, ax=None, *args, **kwargs) -> Tuple[plt.Figure, plt.Axes]:
+        kwargs["time_grid"] = kwargs.get("time_grid", self.time)
+        kwargs["freq_grid"] = kwargs.get("freq_grid", self.freq)
+        return plot_wavelet_trend(wavelet_data=self.data, ax=ax, *args, **kwargs)
 
     @property
     def Nt(self) -> int:
@@ -224,6 +233,30 @@ class Wavelet:
         """
         return self.sample_rate / 2
 
+    def to_timeseries(self, nx: float = 4.0, mult: int = 32) -> "TimeSeries":
+        """
+        Convert the wavelet grid to a time-domain signal.
+
+        Returns
+        -------
+        TimeSeries
+            A `TimeSeries` object representing the time-domain signal.
+        """
+        from ..inverse import from_wavelet_to_time
+        return from_wavelet_to_time(self, dt=self.delta_t, nx=nx, mult=mult)
+
+    def to_frequencyseries(self, nx: float = 4.0) -> "FrequencySeries":
+        """
+        Convert the wavelet grid to a frequency-domain signal.
+
+        Returns
+        -------
+        FrequencySeries
+            A `FrequencySeries` object representing the frequency-domain signal.
+        """
+        from ..inverse import from_wavelet_to_freq
+        return from_wavelet_to_freq(self, dt=self.delta_t, nx=nx)
+
     def __repr__(self) -> str:
         """
         Return a string representation of the Wavelet object.
@@ -236,8 +269,24 @@ class Wavelet:
 
         frange = ",".join([f"{f:.2e}" for f in (self.freq[0], self.freq[-1])])
         trange = fmt_timerange((self.t0, self.tend))
-        return f"Wavelet(NfxNt={self.shape[0]}x{self.shape[1]}, {frange}Hz, {trange}s)"
+        Nfpow2 = int(np.log2(self.shape[0]))
+        Ntpow2 = int(np.log2(self.shape[1]))
+        shapef = f"NfxNf=[2^{Nfpow2}, 2^{Ntpow2}]"
+        return f"Wavelet({shapef}, [{frange}]Hz, {trange})"
 
+    def __add__(self, other):
+        """Element-wise addition of two Wavelet objects."""
+        if isinstance(other, Wavelet):
+            return Wavelet(data=self.data + other.data, time=self.time, freq=self.freq)
+        elif isinstance(other, float):
+            return Wavelet(data=self.data + other, time=self.time, freq=self.freq)
+
+    def __sub__(self, other):
+        """Element-wise subtraction of two Wavelet objects."""
+        if isinstance(other, Wavelet):
+            return Wavelet(data=self.data - other.data, time=self.time, freq=self.freq)
+        elif isinstance(other, float):
+            return Wavelet(data=self.data - other, time=self.time, freq=self.freq)
 
     def __mul__(self, other):
         """Element-wise multiplication of two Wavelet objects."""
@@ -252,3 +301,74 @@ class Wavelet:
             return Wavelet(data=self.data / other.data, time=self.time, freq=self.freq)
         elif isinstance(other, float):
             return Wavelet(data=self.data / other, time=self.time, freq=self.freq)
+
+    def __eq__(self, other:"Wavelet") -> bool:
+        """Element-wise comparison of two Wavelet objects."""
+        data_all_same = xp.isclose(xp.nansum(self.data - other.data), 0)
+        time_same = (self.time == other.time).all()
+        freq_same = (self.freq == other.freq).all()
+        return data_all_same and time_same and freq_same
+
+
+    def noise_weighted_inner_product(self, other:"Wavelet", psd:"Wavelet") -> float:
+        """
+        Compute the noise-weighted inner product of two wavelet grids given a PSD.
+
+        Parameters
+        ----------
+        other : Wavelet
+            A `Wavelet` object representing the other wavelet grid.
+        psd : Wavelet
+            A `Wavelet` object representing the power spectral density.
+
+        Returns
+        -------
+        float
+            The noise-weighted inner product.
+        """
+        from ...utils import noise_weighted_inner_product
+        return noise_weighted_inner_product(self, other, psd)
+
+
+    def matched_filter_snr(self, template:"Wavelet", psd:"Wavelet") -> float:
+        """
+        Compute the matched filter SNR of the wavelet grid given a template.
+
+        Parameters
+        ----------
+        template : Wavelet
+            A `Wavelet` object representing the template.
+
+        Returns
+        -------
+        float
+            The matched filter signal-to-noise ratio.
+        """
+        mf = self.noise_weighted_inner_product(template, psd)
+        return mf / self.optimal_snr(psd)
+
+    def optimal_snr(self, psd:"Wavelet") -> float:
+        """
+        Compute the optimal SNR of the wavelet grid given a PSD.
+
+        Parameters
+        ----------
+        psd : Wavelet
+            A `Wavelet` object representing the power spectral density.
+
+        Returns
+        -------
+        float
+            The optimal signal-to-noise ratio.
+        """
+        return xp.sqrt(self.noise_weighted_inner_product(self, psd))
+
+    def __copy__(self):
+        return Wavelet(
+            data=self.data.copy(),
+            time=self.time.copy(),
+            freq=self.freq.copy()
+        )
+
+    def copy(self):
+        return self.__copy__()

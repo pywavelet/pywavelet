@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
-from typing import Tuple
+from typing import Tuple, Union, Optional
 
-from .common import is_documented_by, xp, irfft
+from .common import is_documented_by, xp, irfft, fmt_time, fmt_pow2
 from .plotting import plot_freqseries, plot_periodogram
 
 __all__ = ["FrequencySeries"]
@@ -112,7 +112,7 @@ class FrequencySeries:
         return (self.minimum_frequency, self.maximum_frequency)
 
     @property
-    def shape(self) -> Tuple[int]:
+    def shape(self) -> Tuple[int, ...]:
         """Return the shape of the data array."""
         return self.data.shape
 
@@ -123,7 +123,62 @@ class FrequencySeries:
 
     def __repr__(self) -> str:
         """Return a string representation of the FrequencySeries."""
-        return f"FrequencySeries(n={len(self)}, frange=[{self.range[0]:.2f}, {self.range[1]:.2f}] Hz, T={self.duration:.2f}s, fs={self.fs:.2f} Hz)"
+        dur = fmt_time(self.duration)
+        n = fmt_pow2(len(self))
+        return f"FrequencySeries(n={n}, frange=[{self.range[0]:.2f}, {self.range[1]:.2f}] Hz, T={dur}, fs={self.fs:.2f} Hz)"
+
+    def noise_weighted_inner_product(self, other: "FrequencySeries", psd:"FrequencySeries") -> float:
+        """
+        Compute the noise-weighted inner product of two FrequencySeries.
+
+        Parameters
+        ----------
+        other : FrequencySeries
+            The other FrequencySeries.
+        psd : FrequencySeries
+            The power spectral density (PSD) of the noise.
+
+        Returns
+        -------
+        float
+            The noise-weighted inner product of the two FrequencySeries.
+        """
+        integrand = xp.real(xp.conj(self.data) * other.data / psd.data)
+        return (4 * self.dt/self.ND) * xp.nansum(integrand)
+
+    def matched_filter_snr(self, other: "FrequencySeries", psd: "FrequencySeries") -> float:
+        """
+        Compute the signal-to-noise ratio (SNR) of a matched filter.
+
+        Parameters
+        ----------
+        other : FrequencySeries
+            The other FrequencySeries.
+        psd : FrequencySeries
+            The power spectral density (PSD) of the noise.
+
+        Returns
+        -------
+        float
+            The SNR of the matched filter.
+        """
+        return xp.sqrt(self.noise_weighted_inner_product(other, psd))
+
+    def optimal_snr(self, psd: "FrequencySeries") -> float:
+        """
+        Compute the optimal signal-to-noise ratio (SNR) of a FrequencySeries.
+
+        Parameters
+        ----------
+        psd : FrequencySeries
+            The power spectral density (PSD) of the noise.
+
+        Returns
+        -------
+        float
+            The optimal SNR of the FrequencySeries.
+        """
+        return xp.sqrt(self.noise_weighted_inner_product(self, psd))
 
     def to_timeseries(self) -> "TimeSeries":
         """
@@ -145,3 +200,38 @@ class FrequencySeries:
         # Create and return a TimeSeries object
         from .timeseries import TimeSeries
         return TimeSeries(time_data, time)
+
+
+    def to_wavelet(
+            self,
+            Nf: Union[int, None] = None,
+            Nt: Union[int, None] = None,
+            nx: Optional[float] = 4.0,
+        )->"Wavelet":
+        """
+        Convert the frequency series to a wavelet using inverse Fourier transform.
+
+        Returns
+        -------
+        Wavelet
+            The corresponding wavelet.
+        """
+        from ..forward import from_freq_to_wavelet
+        return from_freq_to_wavelet(self, Nf=Nf, Nt=Nt, nx=nx)
+
+
+    def __eq__(self, other):
+        """Check if two FrequencySeries objects are equal."""
+        data_same = xp.allclose(self.data, other.data)
+        freq_same = xp.allclose(self.freq, other.freq)
+        return data_same and freq_same
+
+    def __copy__(self):
+        return FrequencySeries(
+            xp.copy(self.data),
+            xp.copy(self.freq),
+            t0=self.t0
+        )
+
+    def copy(self):
+        return self.__copy__()

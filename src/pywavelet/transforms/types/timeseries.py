@@ -1,8 +1,10 @@
 import matplotlib.pyplot as plt
-from typing import Tuple
-from scipy.signal.spectral import spectrogram
+from typing import Tuple, Optional, Union
+from scipy.signal.windows import tukey
+from scipy.signal import butter, sosfiltfilt
 
-from .common import is_documented_by, xp, rfft, rfftfreq, fmt_timerange, fmt_time
+from ...logger import logger
+from .common import is_documented_by, xp, rfft, rfftfreq, fmt_timerange, fmt_time, fmt_pow2
 from .plotting import plot_timeseries, plot_spectrogram
 
 __all__ = ["TimeSeries"]
@@ -119,7 +121,8 @@ class TimeSeries:
         """Return a string representation of the TimeSeries."""
         trange = fmt_timerange((self.t0, self.tend))
         T = " ".join(fmt_time(self.duration, units=True))
-        return f"TimeSeries(n={len(self)}, trange={trange}, T={T}, fs={self.fs:.2f} Hz)"
+        n = fmt_pow2(len(self))
+        return f"TimeSeries(n={n}, trange={trange}, T={T}, fs={self.fs:.2f} Hz)"
 
     def to_frequencyseries(self) -> 'FrequencySeries':
         """
@@ -135,3 +138,143 @@ class TimeSeries:
 
         from .frequencyseries import FrequencySeries  # Avoid circular import
         return FrequencySeries(data, freq, t0=self.t0)
+
+    def to_wavelet(
+            self,
+            Nf: Union[int, None] = None,
+            Nt: Union[int, None] = None,
+            nx: Optional[float] = 4.0,
+    ) -> 'Wavelet':
+        """
+        Convert the time series to a wavelet representation.
+
+        Parameters
+        ----------
+        Nf : int
+            Number of frequency bins for the wavelet transform.
+        Nt : int
+            Number of time bins for the wavelet transform.
+        nx : float, optional
+            Number of standard deviations for the `phi_vec`, controlling the
+            width of the wavelets. Default is 4.0.
+
+        Returns
+        -------
+        Wavelet
+            The wavelet-domain representation of the time series.
+        """
+        hf = self.to_frequencyseries()
+        return hf.to_wavelet(Nf, Nt, nx=nx)
+
+
+    def __add__(self, other: 'TimeSeries') -> 'TimeSeries':
+        """Add two TimeSeries objects together."""
+        if self.shape != other.shape:
+            raise ValueError("TimeSeries objects must have the same shape to add them together")
+        return TimeSeries(self.data + other.data, self.time)
+
+    def __sub__(self, other: 'TimeSeries') -> 'TimeSeries':
+        """Subtract one TimeSeries object from another."""
+        if self.shape != other.shape:
+            raise ValueError("TimeSeries objects must have the same shape to subtract them")
+        return TimeSeries(self.data - other.data, self.time)
+
+    def __eq__(self, other: 'TimeSeries') -> bool:
+        """Check if two TimeSeries objects are equal."""
+        shape_same = self.shape == other.shape
+        range_same = self.t0 == other.t0 and self.tend == other.tend
+        time_same =  xp.allclose(self.time, other.time)
+        data_same = xp.allclose(self.data, other.data)
+        return shape_same and range_same and data_same and time_same
+
+    def __mul__(self, other: float) -> 'TimeSeries':
+        """Multiply a TimeSeries object by a scalar."""
+        return TimeSeries(self.data * other, self.time)
+
+    def zero_pad_to_power_of_2(self, tukey_window_alpha:float=0.0)->'TimeSeries':
+        """Zero pad the time series to make the length a power of two (useful to speed up FFTs, O(NlogN) versus O(N^2)).
+
+        Parameters
+        ----------
+        tukey_window_alpha : float, optional
+            Alpha parameter for the Tukey window. Default is 0.0.
+            (prevents spectral leakage when padding the data)
+
+        Returns
+        -------
+        TimeSeries
+            A new TimeSeries object with the data zero-padded to a power of two.
+        """
+        N, dt, t0 = self.ND, self.dt, self.t0
+        pow_2 = xp.ceil(xp.log2(N))
+        n_pad = int((2 ** pow_2) - N)
+        new_N = N + n_pad
+        if n_pad > 0:
+            logger.warning(
+                f"Padding the data to a power of two. "
+                f"{N:,} (2**{xp.log2(N):.2f}) -> {new_N:,} (2**{pow_2}). "
+            )
+        window = tukey(N, alpha=tukey_window_alpha)
+        data = self.data * window
+        data = xp.pad(data, (0, n_pad), "constant")
+        time = xp.arange(0, len(data) * dt, dt) + t0
+        return TimeSeries(data, time)
+
+    def highpass_filter(self, fmin: float, tukey_window_alpha:float=0.0, bandpass_order: int = 4) -> 'TimeSeries':
+        """
+        Filter the time series with a highpass bandpass filter.
+
+        (we use sosfiltfilt instead of filtfilt for numerical stability)
+
+        Note: filtfilt should be used if phase accuracy (zero-phase filtering) is critical for your analysis
+        and if the filter order is low to moderate.
+
+
+        Parameters
+        ----------
+        fmin : float
+            Minimum frequency to pass through the filter.
+        bandpass_order : int, optional
+            Order of the bandpass filter. Default is 4.
+
+        Returns
+        -------
+        TimeSeries
+            A new TimeSeries object with the highpass filter applied.
+        """
+
+        if fmin <= 0 or fmin > self.nyquist_frequency:
+            raise ValueError(f"Invalid fmin value: {fmin}. Must be in the range [0, {self.nyquist_frequency}]")
+
+        sos = butter(bandpass_order, Wn=fmin, btype="highpass", output='sos', fs=self.fs)
+        window = tukey(self.ND, alpha=tukey_window_alpha)
+        data = self.data.copy()
+        data = sosfiltfilt(sos, data * window)
+        return TimeSeries(data, self.time)
+
+    def __copy__(self):
+        return TimeSeries(
+            self.data.copy(),
+            self.time.copy()
+        )
+
+    def copy(self):
+        return self.__copy__()
+
+    def __getitem__(self, key)->"TimeSeries":
+        if isinstance(key, slice):
+            # Handle slicing
+            return self.__handle_slice(key)
+        else:
+            # Handle regular indexing
+            return TimeSeries(self.data[key], self.time[key])
+
+    def __handle_slice(self, slice_obj)->"TimeSeries":
+        return TimeSeries(
+            self.data[slice_obj],
+            self.time[slice_obj]
+        )
+
+    @classmethod
+    def _EMPTY(cls, ND:int, dt:float)->"TimeSeries":
+        return cls(xp.zeros(ND), xp.arange(0, ND*dt, dt))
