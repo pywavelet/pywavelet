@@ -5,16 +5,35 @@ CHANGELOG
 =========
 
 
+.. _changelog-v0.0.5:
+
+v0.0.5 (2024-12-12)
+===================
+
+Bug Fixes
+---------
+
+* fix: update changelog generator (`884c87b`_)
+
+.. _884c87b: https://github.com/pywavelet/pywavelet/commit/884c87bcd36b5d21eb1a8e10ee9e0edf6f65d744
+
+
 .. _changelog-v0.0.4:
 
 v0.0.4 (2024-12-12)
 ===================
+
+Chores
+------
+
+* chore(release): 0.0.4 (`fad0b89`_)
 
 Unknown
 -------
 
 * Merge branch 'main' of github.com:avivajpeyi/pywavelet into main (`4c04fb4`_)
 
+.. _fad0b89: https://github.com/pywavelet/pywavelet/commit/fad0b8913d7160ca498938e67131b8006ff65580
 .. _4c04fb4: https://github.com/pywavelet/pywavelet/commit/4c04fb4a4dc39bce8617dfe98d405ad803fd8657
 
 
