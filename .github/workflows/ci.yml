@@ -13,12 +13,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
+      - uses: actions/checkout@v4.2.2
+        with:
+          fetch-depth: 0
+          ref: main       # Replace with your branch
+
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.8'
-          cache: 'pip'
+          cache: 'pip' # Enable caching for pip dependencies
+
 
       - name: Install dependencies
         run: |
