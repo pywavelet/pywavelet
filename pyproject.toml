@@ -50,6 +50,15 @@ dev = [
 [tool.setuptools_scm]
 version_file = "src/pywavelet/_version.py"
 
+[tool.semantic_release]
+version_variable = "src/pywavelet/_version.py:__version__"
+version_source = "commit"
+commit_version_number = true
+commit_subject = "chore(release): {version}"
+commit_message = "chore(release): {version}"
+tag_format = "v{version}"
+no_local_version = true
+
 
 [project.urls]  # Optional
 "Homepage" = "https://pywavelet.github.io/pywavelet/"

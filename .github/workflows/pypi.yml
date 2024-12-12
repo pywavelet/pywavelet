@@ -1,44 +1,52 @@
-name: Publish Python 🐍 distributions 📦 to PyPI and TestPyPI
+name: Release
 
 on:
-  workflow_dispatch:
-    inputs:
-      logLevel:
-        description: 'Log level'
-        required: true
-        default: 'warning'
   push:
-    # Pattern matched against refs/tags
-    tags:
-      - '*'
+    branches:
+      - main
+#  workflow_run:
+#    workflows: ['Tests and Coverage']
+#    types:
+#      - completed
+
 
 jobs:
-  build-n-publish:
-    environment:
-      name: pypi
-      url: https://pypi.org/p/pywavelet
+
+  release:
+    runs-on: ubuntu-latest
+    concurrency: release
     permissions:
-      id-token: write  # Needed for publishing to PyPI
-    name: Build and publish Python 🐍 distributions 📦 to PyPI and TestPyPI
-    runs-on: ubuntu-20.04
+      id-token: write
+      contents: write
+
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
+      - uses: actions/checkout@v4.2.2
         with:
-          python-version: '3.8'
-          cache: 'pip'
+          fetch-depth: 0
+          ref: main       # Replace with your branch
 
-      - name: Install dependencies
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.9'
+          cache: 'pip' # Enable caching for pip dependencies
+
+
+      - name: Semantic Version Release
+        id: release
+        # Adjust tag with desired version if applicable.
+        uses: python-semantic-release/python-semantic-release@v9.12.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          git_committer_name: "github-actions"
+          git_committer_email: "actions@users.noreply.github.com"
+
+
+      - name: build dist for pypi
+        if: steps.release.outputs.released == 'true'
         run: |
-          python -m pip install --upgrade pip
-          pip install setuptools wheel twine build
-      - name: Build a binary wheel and a source tarball
-        run: >-
-          python -m
-          build
-          --sdist
-          --wheel
-          --outdir dist/
+          python -m pip install --upgrade build
+          python -m build --sdist --wheel --outdir dist/
 
-      - name: Publish distribution 📦 to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
+      - name: pypi-publish
+        if: steps.release.outputs.released == 'true'
+        uses: pypa/gh-action-pypi-publish@v1.12.3
