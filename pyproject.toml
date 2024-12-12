@@ -60,6 +60,9 @@ tag_format = "v{version}"
 no_local_version = true
 
 
+[tool.semantic_release.changelog]
+changelog_file = "CHANGELOG.rst"
+
 [project.urls]  # Optional
 "Homepage" = "https://pywavelet.github.io/pywavelet/"
 "Bug Reports" = "https://pywavelet.com/pywavelet/pywavelet/issues"
