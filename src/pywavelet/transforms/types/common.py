@@ -1,7 +1,7 @@
 from typing import Literal, Tuple
 
 import numpy as xp
-from numpy.fft import irfft, fft, rfft, rfftfreq
+from numpy.fft import fft, irfft, rfft, rfftfreq
 
 from ...logger import logger
 
@@ -42,11 +42,11 @@ def fmt_time(seconds: float, units=False) -> Tuple[str, str]:
 
 def fmt_timerange(trange):
     t0 = fmt_time(trange[0])
-    tend, units = fmt_time(trange[1], units = True)
+    tend, units = fmt_time(trange[1], units=True)
     return f"[{t0}, {tend}] {units}"
 
 
-def fmt_pow2(n:float)->str:
+def fmt_pow2(n: float) -> str:
     pow2 = xp.log2(n)
     if pow2.is_integer():
         return f"2^{int(pow2)}"

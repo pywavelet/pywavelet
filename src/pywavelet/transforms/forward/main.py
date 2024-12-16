@@ -9,8 +9,8 @@ from .from_freq import transform_wavelet_freq_helper
 from .from_time import transform_wavelet_time_helper
 from .wavelet_bins import _get_bins, _preprocess_bins
 
-
 __all__ = ["from_time_to_wavelet", "from_freq_to_wavelet"]
+
 
 def from_time_to_wavelet(
     timeseries: TimeSeries,
@@ -74,9 +74,7 @@ def from_time_to_wavelet(
     mult = min(mult, Nt // 2)  # Ensure mult is not larger than ND/2
     phi = phi_vec(Nf, dt=dt, d=nx, q=mult)
     wave = transform_wavelet_time_helper(timeseries.data, Nf, Nt, phi, mult).T
-    return Wavelet(
-        wave * np.sqrt(2), time=t_bins, freq=f_bins
-    )
+    return Wavelet(wave * np.sqrt(2), time=t_bins, freq=f_bins)
 
 
 def from_freq_to_wavelet(
@@ -117,12 +115,6 @@ def from_freq_to_wavelet(
     t_bins, f_bins = _get_bins(freqseries, Nf, Nt)
     dt = freqseries.dt
     phif = phitilde_vec_norm(Nf, Nt, dt=dt, d=nx)
-    wave = transform_wavelet_freq_helper(
-        freqseries.data, Nf, Nt, phif
-    )
+    wave = transform_wavelet_freq_helper(freqseries.data, Nf, Nt, phif)
 
-    return Wavelet(
-        (2 / Nf) * wave.T * np.sqrt(2),
-        time=t_bins,
-        freq=f_bins
-    )
+    return Wavelet((2 / Nf) * wave.T * np.sqrt(2), time=t_bins, freq=f_bins)
