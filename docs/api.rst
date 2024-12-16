@@ -32,4 +32,3 @@ Types
 .. autoclass:: pywavelet.transforms.types.Wavelet
     :members:
     :undoc-members:
-

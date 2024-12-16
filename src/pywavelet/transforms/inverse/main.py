@@ -9,6 +9,7 @@ __all__ = ["from_wavelet_to_time", "from_wavelet_to_freq"]
 
 INV_ROOT2 = 1.0 / np.sqrt(2)
 
+
 def from_wavelet_to_time(
     wave_in: Wavelet,
     dt: float,
@@ -55,9 +56,7 @@ def from_wavelet_to_time(
 
 
 def from_wavelet_to_freq(
-    wave_in: Wavelet,
-    dt: float,
-    nx:float=4.0
+    wave_in: Wavelet, dt: float, nx: float = 4.0
 ) -> FrequencySeries:
     """
     Perform an inverse wavelet transform to the frequency domain.

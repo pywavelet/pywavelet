@@ -1,12 +1,11 @@
 import warnings
-from typing import Tuple, Optional, Union
-from scipy.signal import savgol_filter
-from scipy.interpolate import interp1d
+from typing import Optional, Tuple, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.colors import LogNorm, TwoSlopeNorm
-from scipy.signal import spectrogram
+from scipy.interpolate import interp1d
+from scipy.signal import savgol_filter, spectrogram
 
 MIN_S = 60
 HOUR_S = 60 * MIN_S
@@ -53,8 +52,13 @@ def __get_smoothed_y(x, z, y_grid):
         # Interpolate to fill NaNs in y before smoothing
         nan_mask = ~np.isnan(y)
         if np.isnan(y).any():
-            interpolator = interp1d(x[nan_mask], y[nan_mask], kind='cubic', bounds_error=False,
-                                    fill_value="extrapolate")
+            interpolator = interp1d(
+                x[nan_mask],
+                y[nan_mask],
+                kind="cubic",
+                bounds_error=False,
+                fill_value="extrapolate",
+            )
             y = interpolator(x)  # Fill NaNs with interpolated values
 
         # Smooth the curve
@@ -62,8 +66,6 @@ def __get_smoothed_y(x, z, y_grid):
         y = savgol_filter(y, window_length, 3)
         y[~nan_mask] = np.nan
     return y
-
-
 
 
 def plot_wavelet_grid(
@@ -80,8 +82,8 @@ def plot_wavelet_grid(
     norm: Optional[Union[LogNorm, TwoSlopeNorm]] = None,
     cbar_label: Optional[str] = None,
     nan_color: Optional[str] = "black",
-    detailed_axes:bool = False,
-    show_gridinfo:bool = True,
+    detailed_axes: bool = False,
+    show_gridinfo: bool = True,
     trend_color: Optional[str] = None,
     whiten_by: Optional[np.ndarray] = None,
     **kwargs,
@@ -153,7 +155,9 @@ def plot_wavelet_grid(
 
     # Validate the dimensions
     if (Nf, Nt) != (len(freq_grid), len(time_grid)):
-        raise ValueError(f"Wavelet shape {Nf, Nt} does not match provided grids {(len(freq_grid), len(time_grid))}.")
+        raise ValueError(
+            f"Wavelet shape {Nf, Nt} does not match provided grids {(len(freq_grid), len(time_grid))}."
+        )
 
     # Prepare the data for plotting
     z = wavelet_data.copy()
@@ -162,14 +166,15 @@ def plot_wavelet_grid(
     if absolute:
         z = np.abs(z)
 
-
     # Determine normalization and colormap
     if norm is None:
         try:
             if np.all(np.isnan(z)):
                 raise ValueError("All wavelet data is NaN.")
             if zscale == "log":
-                norm = LogNorm(vmin=np.nanmin(z[z > 0]), vmax=np.nanmax(z[z<np.inf]))
+                norm = LogNorm(
+                    vmin=np.nanmin(z[z > 0]), vmax=np.nanmax(z[z < np.inf])
+                )
             elif not absolute:
                 vmin, vmax = np.nanmin(z), np.nanmax(z)
                 vcenter = 0.0
@@ -177,7 +182,9 @@ def plot_wavelet_grid(
             else:
                 norm = None  # Default linear scaling
         except Exception as e:
-            warnings.warn(f"Error in determining normalization: {e}. Using default linear scaling.")
+            warnings.warn(
+                f"Error in determining normalization: {e}. Using default linear scaling."
+            )
             norm = None
 
     if cmap is None:
@@ -195,7 +202,7 @@ def plot_wavelet_grid(
     im = ax.imshow(
         z,
         aspect="auto",
-        extent=[time_grid[0],time_grid[-1], freq_grid[0], freq_grid[-1]],
+        extent=[time_grid[0], time_grid[-1], freq_grid[0], freq_grid[-1]],
         origin="lower",
         cmap=cmap,
         norm=norm,
@@ -203,13 +210,25 @@ def plot_wavelet_grid(
         **kwargs,
     )
     if trend_color is not None:
-        plot_wavelet_trend(wavelet_data, time_grid, freq_grid, ax, color=trend_color, freq_range=freq_range, freq_scale=freq_scale)
+        plot_wavelet_trend(
+            wavelet_data,
+            time_grid,
+            freq_grid,
+            ax,
+            color=trend_color,
+            freq_range=freq_range,
+            freq_scale=freq_scale,
+        )
 
     # Add colorbar if requested
     if show_colorbar:
         cbar = fig.colorbar(im, ax=ax)
         if cbar_label is None:
-            cbar_label = "Absolute Wavelet Amplitude" if absolute else "Wavelet Amplitude"
+            cbar_label = (
+                "Absolute Wavelet Amplitude"
+                if absolute
+                else "Wavelet Amplitude"
+            )
         cbar.set_label(cbar_label)
 
     # Configure axes scales
@@ -239,12 +258,10 @@ def plot_wavelet_grid(
             bbox=dict(boxstyle="round", facecolor=None, alpha=0.2),
         )
 
-
     # Adjust layout
     fig.tight_layout()
 
     return fig, ax
-
 
 
 def plot_freqseries(
@@ -277,8 +294,9 @@ def plot_periodogram(
     flow = np.min(np.abs(freq))
     ax.set_xlabel("Frequency [Hz]")
     ax.set_ylabel("Periodigram")
-    ax.set_xlim(left=flow, right=nyquist_frequency/2)
+    ax.set_xlim(left=flow, right=nyquist_frequency / 2)
     return ax.figure, ax
+
 
 def plot_timeseries(
     data: np.ndarray, time: np.ndarray, ax=None, **kwargs
@@ -314,7 +332,6 @@ def plot_spectrogram(
 
     _fmt_time_axis(t, ax)
 
-
     ax.set_ylabel("Frequency [Hz]")
     ax.set_ylim(top=fs / 2.0)
     cbar = plt.colorbar(cm, ax=ax)
@@ -322,20 +339,24 @@ def plot_spectrogram(
     return ax.figure, ax
 
 
-
 def _fmt_time_axis(t, axes, t0=None, tmax=None):
     if t[-1] > DAY_S:  # If time goes beyond a day
-        axes.xaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f"{x / DAY_S:.1f}"))
+        axes.xaxis.set_major_formatter(
+            plt.FuncFormatter(lambda x, _: f"{x / DAY_S:.1f}")
+        )
         axes.set_xlabel("Time [days]")
     elif t[-1] > HOUR_S:  # If time goes beyond an hour
-        axes.xaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f"{x / HOUR_S:.1f}"))
+        axes.xaxis.set_major_formatter(
+            plt.FuncFormatter(lambda x, _: f"{x / HOUR_S:.1f}")
+        )
         axes.set_xlabel("Time [hr]")
     elif t[-1] > MIN_S:  # If time goes beyond a minute
-        axes.xaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f"{x / MIN_S:.1f}"))
+        axes.xaxis.set_major_formatter(
+            plt.FuncFormatter(lambda x, _: f"{x / MIN_S:.1f}")
+        )
         axes.set_xlabel("Time [min]")
     else:
         axes.set_xlabel("Time [s]")
     t0 = t[0] if t0 is None else t0
     tmax = t[-1] if tmax is None else tmax
     axes.set_xlim(t0, tmax)
-

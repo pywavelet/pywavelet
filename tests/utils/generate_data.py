@@ -4,7 +4,7 @@ import numpy as np
 from scipy.signal import chirp
 from scipy.signal.windows import tukey
 
-from pywavelet.transforms.types import TimeSeries, FrequencySeries
+from pywavelet.transforms.types import FrequencySeries, TimeSeries
 
 __all__ = [
     "generate_chirp_time_domain_signal",
@@ -14,13 +14,13 @@ __all__ = [
 
 
 def generate_chirp_time_domain_signal(
-        t: np.ndarray, freq_range: List[float]
+    t: np.ndarray, freq_range: List[float]
 ) -> TimeSeries:
     fs = 1 / (t[1] - t[0])
     nyquist = fs / 2
     fmax = max(freq_range)
     assert (
-            fmax < nyquist
+        fmax < nyquist
     ), f"f_max [{fmax:.2f} Hz] must be less than f_nyquist [{nyquist:2f} Hz]."
 
     y = chirp(
@@ -36,9 +36,6 @@ def generate_sine_time_domain_signal(ts, n, f_true=10):
     return TimeSeries(h_signal, time=ts)
 
 
-
-
-
 def __zero_pad(data):
     """
     This function takes in a vector and zero pads it so it is a power of two.
@@ -46,15 +43,15 @@ def __zero_pad(data):
     """
     N = len(data)
     pow_2 = np.ceil(np.log2(N))
-    return np.pad(data, (0, int((2 ** pow_2) - N)), "constant")
+    return np.pad(data, (0, int((2**pow_2) - N)), "constant")
 
 
 def generate_pure_f0(
-        f0=1,
-        Nf=8,
-        Nt=4,
-        dt=0.1,
-)->FrequencySeries:
+    f0=1,
+    Nf=8,
+    Nt=4,
+    dt=0.1,
+) -> FrequencySeries:
     N = Nf * Nt
     freq = np.fft.rfftfreq(N, dt)
     hf = np.zeros_like(freq, dtype=np.complex128)

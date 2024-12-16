@@ -1,7 +1,9 @@
 """helper functions for transform_freq"""
+
 import numpy as np
 from numba import njit
 from numpy import fft
+
 
 def transform_wavelet_freq_helper(
     data: np.ndarray, Nf: int, Nt: int, phif: np.ndarray
@@ -13,15 +15,21 @@ def transform_wavelet_freq_helper(
     __core(Nf, Nt, DX, freq_strain, phif, wave)
     return wave
 
+
 # @njit()
-def __core(Nf:int, Nt:int, DX:np.ndarray, freq_strain:np.ndarray, phif:np.ndarray, wave:np.ndarray):
+def __core(
+    Nf: int,
+    Nt: int,
+    DX: np.ndarray,
+    freq_strain: np.ndarray,
+    phif: np.ndarray,
+    wave: np.ndarray,
+):
     for f_bin in range(0, Nf + 1):
         __fill_wave_1(f_bin, Nt, Nf, DX, freq_strain, phif)
         # Numba doesn't support np.ifft so we cant jit this
         DX_trans = np.fft.ifft(DX, Nt)
         __fill_wave_2(f_bin, DX_trans, wave, Nt, Nf)
-
-
 
 
 @njit()
@@ -55,6 +63,7 @@ def __fill_wave_1(
         else:
             DX[i] = phif[j] * data[jj]
 
+
 @njit()
 def __fill_wave_2(
     f_bin: int, DX_trans: np.ndarray, wave: np.ndarray, Nt: int, Nf: int
@@ -72,7 +81,7 @@ def __fill_wave_2(
                 if (n + f_bin) % 2:
                     wave[n, f_bin] = -DX_trans[n].imag
                 else:
-                    wave[n, f_bin] =  DX_trans[n].real
+                    wave[n, f_bin] = DX_trans[n].real
             else:
                 if (n + f_bin) % 2:
                     wave[n, f_bin] = DX_trans[n].imag

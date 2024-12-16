@@ -1,11 +1,11 @@
 import os
 
-import pytest
 import numpy as np
+import pytest
 from utils import (
+    BRANCH,
     generate_chirp_time_domain_signal,
     generate_sine_time_domain_signal,
-    BRANCH
 )
 
 # set global env var "NUMBA_DISABLE_JIT=1"
@@ -18,8 +18,8 @@ fs = 1024
 fmax = 50
 frange = [10, fmax]
 dt = 1 / fs
-Nt = 2 ** 6
-Nf = 2 ** 7
+Nt = 2**6
+Nf = 2**7
 mult = 16
 ND = Nt * Nf
 ts = np.arange(0, ND) * dt
@@ -49,4 +49,6 @@ def sine_time():
 
 @pytest.fixture()
 def sine_freq():
-    return generate_sine_time_domain_signal(ts, ND, f_true=10).to_frequencyseries()
+    return generate_sine_time_domain_signal(
+        ts, ND, f_true=10
+    ).to_frequencyseries()

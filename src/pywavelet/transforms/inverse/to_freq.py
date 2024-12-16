@@ -1,4 +1,5 @@
 """functions for computing the inverse wavelet transforms"""
+
 import numpy as np
 from numba import njit
 from numpy import fft
@@ -12,13 +13,20 @@ def inverse_wavelet_freq_helper_fast(
     ND = Nf * Nt
 
     prefactor2s = np.zeros(Nt, np.complex128)
-    res = np.zeros(ND//2 +1, dtype=np.complex128)
+    res = np.zeros(ND // 2 + 1, dtype=np.complex128)
     __core(Nf, Nt, prefactor2s, wave_in, phif, res)
-
 
     return res
 
-def __core(Nf: int, Nt: int, prefactor2s: np.ndarray, wave_in: np.ndarray, phif: np.ndarray, res: np.ndarray) -> None:
+
+def __core(
+    Nf: int,
+    Nt: int,
+    prefactor2s: np.ndarray,
+    wave_in: np.ndarray,
+    phif: np.ndarray,
+    res: np.ndarray,
+) -> None:
     for m in range(0, Nf + 1):
         __pack_wave_inverse(m, Nt, Nf, prefactor2s, wave_in)
         fft_prefactor2s = np.fft.fft(prefactor2s)

@@ -1,4 +1,5 @@
 """helper functions for transform_time.py"""
+
 import numpy as np
 from numba import njit
 from numpy import fft
@@ -20,7 +21,18 @@ def transform_wavelet_time_helper(
     __core(Nf, Nt, K, ND, wdata, data_pad, phi, wave, mult)
     return wave
 
-def __core(Nf: int, Nt: int, K: int, ND: int, wdata: np.ndarray, data_pad: np.ndarray, phi: np.ndarray, wave: np.ndarray, mult: int) -> None:
+
+def __core(
+    Nf: int,
+    Nt: int,
+    K: int,
+    ND: int,
+    wdata: np.ndarray,
+    data_pad: np.ndarray,
+    phi: np.ndarray,
+    wave: np.ndarray,
+    mult: int,
+) -> None:
     for time_bin_i in range(0, Nt):
         __fill_wave_1(time_bin_i, K, ND, Nf, wdata, data_pad, phi)
         wdata_trans = np.fft.rfft(wdata, K)

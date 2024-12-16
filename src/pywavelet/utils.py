@@ -34,10 +34,13 @@ def evolutionary_psd_from_stationary_psd(
     return Wavelet(psd_grid.T, time=t_grid, freq=f_grid)
 
 
-def noise_weighted_inner_product(d: Wavelet, h: Wavelet, PSD: Wavelet) -> float:
+def noise_weighted_inner_product(
+    d: Wavelet, h: Wavelet, PSD: Wavelet
+) -> float:
     return np.nansum((d.data * h.data) / PSD.data)
 
-def compute_snr(d:Wavelet, h: Wavelet, PSD: Wavelet) -> float:
+
+def compute_snr(d: Wavelet, h: Wavelet, PSD: Wavelet) -> float:
     """Compute the SNR of a model h[ti,fi] given freqseries d[ti,fi] and PSD[ti,fi].
 
     SNR(h) = Sum_{ti,fi} [ h_hat[ti,fi] d[ti,fi] / PSD[ti,fi]
@@ -60,5 +63,7 @@ def compute_snr(d:Wavelet, h: Wavelet, PSD: Wavelet) -> float:
     return np.sqrt(noise_weighted_inner_product(d, h, PSD))
 
 
-def compute_likelihood(data:Wavelet, template:Wavelet, psd:Wavelet) -> float:
+def compute_likelihood(
+    data: Wavelet, template: Wavelet, psd: Wavelet
+) -> float:
     return -0.5 * np.nansum((data.data - template.data) ** 2 / psd.data)
