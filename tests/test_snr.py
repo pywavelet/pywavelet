@@ -1,19 +1,14 @@
-import numpy as np
-
-from pywavelet.transforms import from_time_to_wavelet, from_freq_to_wavelet, compute_bins
-from pywavelet.transforms.types import TimeSeries, Wavelet, FrequencySeries
-from pywavelet.utils import compute_snr, evolutionary_psd_from_stationary_psd
 import matplotlib.pyplot as plt
+import numpy as np
+from conftest import monochromatic_wnm
 
-def monochromatic_wnm(f0:float, dt:float, A:float, T:float, Nt:int, Nf:int):
-    N = Nt * Nf
-    t_bins, f_bins = compute_bins(Nf, Nt, T)
-    wnm = np.zeros((Nt, Nf))
-    m0 = int(f0 * N * dt)
-    f0_bin_idx = int( 2 * m0 / Nt)
-    odd_t_indices = np.arange(Nt) % 2 != 0
-    wnm[odd_t_indices, f0_bin_idx] = A * np.sqrt(2 * Nf)
-    return Wavelet(wnm.T, t_bins, f_bins)
+from pywavelet.transforms import (
+    compute_bins,
+    from_freq_to_wavelet,
+    from_time_to_wavelet,
+)
+from pywavelet.transforms.types import FrequencySeries, TimeSeries, Wavelet
+from pywavelet.utils import compute_snr, evolutionary_psd_from_stationary_psd
 
 
 def test_toy_model_snr(plot_dir):
@@ -59,7 +54,7 @@ def test_toy_model_snr(plot_dir):
     ########################################
     ND = len(y)
     Nt = ND // Nf
-    assert Nt > 1 , f"Nt={Nt} must be greater than 1 (ND={ND}, Nf={Nf})"
+    assert Nt > 1, f"Nt={Nt} must be greater than 1 (ND={ND}, Nf={Nf})"
     signal_timeseries = TimeSeries(y, t)
 
     # time --> wavelet
@@ -71,13 +66,17 @@ def test_toy_model_snr(plot_dir):
         t_grid=signal_wavelet.time,
         dt=dt,
     )
-    time2wavelet_snr2 = compute_snr(signal_wavelet, signal_wavelet, psd_wavelet_time) ** 2
+    time2wavelet_snr2 = (
+        compute_snr(signal_wavelet, signal_wavelet, psd_wavelet_time) ** 2
+    )
 
     # freq --> wavelet
     signal_freq = signal_timeseries.to_frequencyseries()
-    psd_freq = FrequencySeries(PSD_AMP * np.ones(len(signal_freq)), signal_freq.freq)
+    psd_freq = FrequencySeries(
+        PSD_AMP * np.ones(len(signal_freq)), signal_freq.freq
+    )
     np.testing.assert_almost_equal(
-        signal_freq.optimal_snr(psd_freq)**2, SNR2_f
+        signal_freq.optimal_snr(psd_freq) ** 2, SNR2_f
     )
 
     # assert len(signal_freq) == (ND // 2 ) + 1 , f"Not one sided spectrum {len(signal_freq)}!={(ND // 2 ) + 1}"
@@ -89,12 +88,15 @@ def test_toy_model_snr(plot_dir):
         t_grid=signal_wavelet_f.time,
         dt=dt,
     )
-    freq2wavelet_snr2 = compute_snr(signal_wavelet_f, signal_wavelet_f, psd_wavelet_freq) ** 2
+    freq2wavelet_snr2 = (
+        compute_snr(signal_wavelet_f, signal_wavelet_f, psd_wavelet_freq) ** 2
+    )
 
     # analytical wavelet
-    analytical_wnm = monochromatic_wnm(f0, dt, A, T, Nt, Nf)
-    analytical_wavelet_snr2 = compute_snr(analytical_wnm, analytical_wnm, psd_wavelet_time) ** 2
-
+    analytical_wnm = monochromatic_wnm(f0, dt, A, Nt, Nf)
+    analytical_wavelet_snr2 = (
+        compute_snr(analytical_wnm, analytical_wnm, psd_wavelet_time) ** 2
+    )
 
     assert np.isclose(
         time2wavelet_snr2, SNR2_t, atol=1e-2
@@ -105,7 +107,6 @@ def test_toy_model_snr(plot_dir):
     assert np.isclose(
         analytical_wavelet_snr2, SNR2_t, atol=1e-2
     ), f"SNRs dont match {analytical_wavelet_snr2:.2f}!={SNR2_t:.2f} (factor:{SNR2_t/analytical_wavelet_snr2:.2f})"
-
 
     #### PLOTTING
     fig, axes = plt.subplots(1, 3, figsize=(10, 5))
@@ -123,6 +124,3 @@ def test_toy_model_snr(plot_dir):
     # axes[0].set_ylabel("Frequency [Hz]")
     plt.tight_layout()
     fig.savefig(f"{plot_dir}/snr_comparison.png")
-
-
-
