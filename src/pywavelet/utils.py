@@ -3,7 +3,7 @@ from typing import Union
 import numpy as np
 from scipy.interpolate import interp1d
 
-from .transforms.types import FrequencySeries, TimeSeries, Wavelet, WaveletMask
+from .types import FrequencySeries, TimeSeries, Wavelet, WaveletMask
 
 DATA_TYPE = Union[TimeSeries, FrequencySeries, Wavelet]
 

@@ -2,12 +2,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 from conftest import monochromatic_wnm
 
-from pywavelet.transforms import (
-    compute_bins,
-    from_freq_to_wavelet,
-    from_time_to_wavelet,
-)
-from pywavelet.transforms.types import FrequencySeries, TimeSeries, Wavelet
+from pywavelet.transforms import from_freq_to_wavelet, from_time_to_wavelet
+from pywavelet.types import FrequencySeries, TimeSeries
+from pywavelet.types.wavelet_bins import compute_bins
 from pywavelet.utils import compute_snr, evolutionary_psd_from_stationary_psd
 
 

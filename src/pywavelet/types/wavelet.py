@@ -1,10 +1,11 @@
-import matplotlib.pyplot as plt
-from typing import Optional, Tuple
+from typing import List, Optional, Tuple
 
+import matplotlib.pyplot as plt
 import numpy as np
 
-from .common import is_documented_by, xp, fmt_timerange
+from .common import fmt_timerange, is_documented_by, xp
 from .plotting import plot_wavelet_grid, plot_wavelet_trend
+from .wavelet_bins import compute_bins
 
 
 class Wavelet:
@@ -22,10 +23,10 @@ class Wavelet:
     """
 
     def __init__(
-            self,
-            data: xp.ndarray,
-            time: xp.ndarray,
-            freq: xp.ndarray,
+        self,
+        data: xp.ndarray,
+        time: xp.ndarray,
+        freq: xp.ndarray,
     ):
         """
         Initialize the Wavelet object with data, time, and frequency arrays.
@@ -53,17 +54,60 @@ class Wavelet:
         self.time = time
         self.freq = freq
 
+    @classmethod
+    def zeros_from_grid(cls, time: xp.ndarray, freq: xp.ndarray) -> "Wavelet":
+        """
+        Create a Wavelet object filled with zeros.
+
+        Parameters
+        ----------
+        time: xp.ndarray
+        freq: xp.ndarray
+
+        Returns
+        -------
+        Wavelet
+            A Wavelet object with zero-filled data array.
+        """
+        Nf, Nt = len(freq), len(time)
+        return cls(data=xp.zeros((Nf, Nt)), time=time, freq=freq)
+
+    @classmethod
+    def zeros(cls, Nf: int, Nt: int, T: float) -> "Wavelet":
+        """
+        Create a Wavelet object filled with zeros.
+
+        Parameters
+        ----------
+        Nf : int
+            Number of frequency bins.
+        Nt : int
+            Number of time bins.
+
+        Returns
+        -------
+        Wavelet
+            A Wavelet object with zero-filled data array.
+        """
+        return cls.zeros_from_grid(*compute_bins(Nf, Nt, T))
+
     @is_documented_by(plot_wavelet_grid)
     def plot(self, ax=None, *args, **kwargs) -> Tuple[plt.Figure, plt.Axes]:
         kwargs["time_grid"] = kwargs.get("time_grid", self.time)
         kwargs["freq_grid"] = kwargs.get("freq_grid", self.freq)
-        return plot_wavelet_grid(wavelet_data=self.data, ax=ax, *args, **kwargs)
+        return plot_wavelet_grid(
+            wavelet_data=self.data, ax=ax, *args, **kwargs
+        )
 
     @is_documented_by(plot_wavelet_trend)
-    def plot_trend(self, ax=None, *args, **kwargs) -> Tuple[plt.Figure, plt.Axes]:
+    def plot_trend(
+        self, ax=None, *args, **kwargs
+    ) -> Tuple[plt.Figure, plt.Axes]:
         kwargs["time_grid"] = kwargs.get("time_grid", self.time)
         kwargs["freq_grid"] = kwargs.get("freq_grid", self.freq)
-        return plot_wavelet_trend(wavelet_data=self.data, ax=ax, *args, **kwargs)
+        return plot_wavelet_trend(
+            wavelet_data=self.data, ax=ax, *args, **kwargs
+        )
 
     @property
     def Nt(self) -> int:
@@ -242,7 +286,8 @@ class Wavelet:
         TimeSeries
             A `TimeSeries` object representing the time-domain signal.
         """
-        from ..inverse import from_wavelet_to_time
+        from ..transforms.inverse import from_wavelet_to_time
+
         return from_wavelet_to_time(self, dt=self.delta_t, nx=nx, mult=mult)
 
     def to_frequencyseries(self, nx: float = 4.0) -> "FrequencySeries":
@@ -254,7 +299,8 @@ class Wavelet:
         FrequencySeries
             A `FrequencySeries` object representing the frequency-domain signal.
         """
-        from ..inverse import from_wavelet_to_freq
+        from ..transforms.inverse import from_wavelet_to_freq
+
         return from_wavelet_to_freq(self, dt=self.delta_t, nx=nx)
 
     def __repr__(self) -> str:
@@ -277,40 +323,57 @@ class Wavelet:
     def __add__(self, other):
         """Element-wise addition of two Wavelet objects."""
         if isinstance(other, Wavelet):
-            return Wavelet(data=self.data + other.data, time=self.time, freq=self.freq)
+            return Wavelet(
+                data=self.data + other.data, time=self.time, freq=self.freq
+            )
         elif isinstance(other, float):
-            return Wavelet(data=self.data + other, time=self.time, freq=self.freq)
+            return Wavelet(
+                data=self.data + other, time=self.time, freq=self.freq
+            )
 
     def __sub__(self, other):
         """Element-wise subtraction of two Wavelet objects."""
         if isinstance(other, Wavelet):
-            return Wavelet(data=self.data - other.data, time=self.time, freq=self.freq)
+            return Wavelet(
+                data=self.data - other.data, time=self.time, freq=self.freq
+            )
         elif isinstance(other, float):
-            return Wavelet(data=self.data - other, time=self.time, freq=self.freq)
+            return Wavelet(
+                data=self.data - other, time=self.time, freq=self.freq
+            )
 
     def __mul__(self, other):
         """Element-wise multiplication of two Wavelet objects."""
         if isinstance(other, Wavelet):
-            return Wavelet(data=self.data * other.data, time=self.time, freq=self.freq)
+            return Wavelet(
+                data=self.data * other.data, time=self.time, freq=self.freq
+            )
         elif isinstance(other, float):
-            return Wavelet(data=self.data * other, time=self.time, freq=self.freq)
+            return Wavelet(
+                data=self.data * other, time=self.time, freq=self.freq
+            )
 
     def __truediv__(self, other):
         """Element-wise division of two Wavelet objects."""
         if isinstance(other, Wavelet):
-            return Wavelet(data=self.data / other.data, time=self.time, freq=self.freq)
+            return Wavelet(
+                data=self.data / other.data, time=self.time, freq=self.freq
+            )
         elif isinstance(other, float):
-            return Wavelet(data=self.data / other, time=self.time, freq=self.freq)
+            return Wavelet(
+                data=self.data / other, time=self.time, freq=self.freq
+            )
 
-    def __eq__(self, other:"Wavelet") -> bool:
+    def __eq__(self, other: "Wavelet") -> bool:
         """Element-wise comparison of two Wavelet objects."""
         data_all_same = xp.isclose(xp.nansum(self.data - other.data), 0)
         time_same = (self.time == other.time).all()
         freq_same = (self.freq == other.freq).all()
         return data_all_same and time_same and freq_same
 
-
-    def noise_weighted_inner_product(self, other:"Wavelet", psd:"Wavelet") -> float:
+    def noise_weighted_inner_product(
+        self, other: "Wavelet", psd: "Wavelet"
+    ) -> float:
         """
         Compute the noise-weighted inner product of two wavelet grids given a PSD.
 
@@ -326,11 +389,11 @@ class Wavelet:
         float
             The noise-weighted inner product.
         """
-        from ...utils import noise_weighted_inner_product
+        from ..utils import noise_weighted_inner_product
+
         return noise_weighted_inner_product(self, other, psd)
 
-
-    def matched_filter_snr(self, template:"Wavelet", psd:"Wavelet") -> float:
+    def matched_filter_snr(self, template: "Wavelet", psd: "Wavelet") -> float:
         """
         Compute the matched filter SNR of the wavelet grid given a template.
 
@@ -347,7 +410,7 @@ class Wavelet:
         mf = self.noise_weighted_inner_product(template, psd)
         return mf / self.optimal_snr(psd)
 
-    def optimal_snr(self, psd:"Wavelet") -> float:
+    def optimal_snr(self, psd: "Wavelet") -> float:
         """
         Compute the optimal SNR of the wavelet grid given a PSD.
 
@@ -365,10 +428,27 @@ class Wavelet:
 
     def __copy__(self):
         return Wavelet(
-            data=self.data.copy(),
-            time=self.time.copy(),
-            freq=self.freq.copy()
+            data=self.data.copy(), time=self.time.copy(), freq=self.freq.copy()
         )
 
     def copy(self):
         return self.__copy__()
+
+
+class WaveletMask(Wavelet):
+    @property
+    def mask(self):
+        return self.data
+
+    def __repr__(self):
+        return f"WaveletMask({self.mask.shape}, {fmt_timerange(self.time)}, {self.freq})"
+
+    @classmethod
+    def from_frange(
+        cls, time_grid: xp.ndarray, freq_grid: xp.ndarray, frange: List[float]
+    ):
+        self = cls.zeros_from_grid(time_grid, freq_grid)
+        self.mask[
+            (freq_grid >= frange[0]) & (freq_grid <= frange[1]), :
+        ] = True
+        return self

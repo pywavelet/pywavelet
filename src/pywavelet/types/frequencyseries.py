@@ -1,10 +1,12 @@
-import matplotlib.pyplot as plt
-from typing import Tuple, Union, Optional
+from typing import Optional, Tuple, Union
 
-from .common import is_documented_by, xp, irfft, fmt_time, fmt_pow2
+import matplotlib.pyplot as plt
+
+from .common import fmt_pow2, fmt_time, irfft, is_documented_by, xp
 from .plotting import plot_freqseries, plot_periodogram
 
 __all__ = ["FrequencySeries"]
+
 
 class FrequencySeries:
     """
@@ -39,9 +41,13 @@ class FrequencySeries:
             If any frequency is negative or if `data` and `freq` do not have the same length.
         """
         if xp.any(freq < 0):
-            raise ValueError("FrequencySeries must be one-sided (only non-negative frequencies)")
+            raise ValueError(
+                "FrequencySeries must be one-sided (only non-negative frequencies)"
+            )
         if len(data) != len(freq):
-            raise ValueError(f"data and freq must have the same length ({len(data)} != {len(freq)})")
+            raise ValueError(
+                f"data and freq must have the same length ({len(data)} != {len(freq)})"
+            )
         self.data = data
         self.freq = freq
         self.t0 = t0
@@ -53,10 +59,10 @@ class FrequencySeries:
         )
 
     @is_documented_by(plot_periodogram)
-    def plot_periodogram(self, ax=None, **kwargs) -> Tuple[plt.Figure, plt.Axes]:
-        return plot_periodogram(
-            self.data, self.freq, self.fs, ax=ax, **kwargs
-        )
+    def plot_periodogram(
+        self, ax=None, **kwargs
+    ) -> Tuple[plt.Figure, plt.Axes]:
+        return plot_periodogram(self.data, self.freq, self.fs, ax=ax, **kwargs)
 
     def __len__(self):
         """Return the length of the frequency series."""
@@ -127,7 +133,9 @@ class FrequencySeries:
         n = fmt_pow2(len(self))
         return f"FrequencySeries(n={n}, frange=[{self.range[0]:.2f}, {self.range[1]:.2f}] Hz, T={dur}, fs={self.fs:.2f} Hz)"
 
-    def noise_weighted_inner_product(self, other: "FrequencySeries", psd:"FrequencySeries") -> float:
+    def noise_weighted_inner_product(
+        self, other: "FrequencySeries", psd: "FrequencySeries"
+    ) -> float:
         """
         Compute the noise-weighted inner product of two FrequencySeries.
 
@@ -144,9 +152,11 @@ class FrequencySeries:
             The noise-weighted inner product of the two FrequencySeries.
         """
         integrand = xp.real(xp.conj(self.data) * other.data / psd.data)
-        return (4 * self.dt/self.ND) * xp.nansum(integrand)
+        return (4 * self.dt / self.ND) * xp.nansum(integrand)
 
-    def matched_filter_snr(self, other: "FrequencySeries", psd: "FrequencySeries") -> float:
+    def matched_filter_snr(
+        self, other: "FrequencySeries", psd: "FrequencySeries"
+    ) -> float:
         """
         Compute the signal-to-noise ratio (SNR) of a matched filter.
 
@@ -199,15 +209,15 @@ class FrequencySeries:
 
         # Create and return a TimeSeries object
         from .timeseries import TimeSeries
+
         return TimeSeries(time_data, time)
 
-
     def to_wavelet(
-            self,
-            Nf: Union[int, None] = None,
-            Nt: Union[int, None] = None,
-            nx: Optional[float] = 4.0,
-        )->"Wavelet":
+        self,
+        Nf: Union[int, None] = None,
+        Nt: Union[int, None] = None,
+        nx: Optional[float] = 4.0,
+    ) -> "Wavelet":
         """
         Convert the frequency series to a wavelet using inverse Fourier transform.
 
@@ -216,9 +226,9 @@ class FrequencySeries:
         Wavelet
             The corresponding wavelet.
         """
-        from ..forward import from_freq_to_wavelet
-        return from_freq_to_wavelet(self, Nf=Nf, Nt=Nt, nx=nx)
+        from ..transforms.forward import from_freq_to_wavelet
 
+        return from_freq_to_wavelet(self, Nf=Nf, Nt=Nt, nx=nx)
 
     def __eq__(self, other):
         """Check if two FrequencySeries objects are equal."""
@@ -228,9 +238,7 @@ class FrequencySeries:
 
     def __copy__(self):
         return FrequencySeries(
-            xp.copy(self.data),
-            xp.copy(self.freq),
-            t0=self.t0
+            xp.copy(self.data), xp.copy(self.freq), t0=self.t0
         )
 
     def copy(self):

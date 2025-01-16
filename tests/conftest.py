@@ -8,8 +8,8 @@ from utils import (
     generate_sine_time_domain_signal,
 )
 
-from pywavelet.transforms import compute_bins
-from pywavelet.transforms.types import Wavelet
+from pywavelet.types import Wavelet
+from pywavelet.types.wavelet_bins import compute_bins
 
 # set global env var "NUMBA_DISABLE_JIT=1"
 os.environ["NUMBA_DISABLE_JIT"] = "1"

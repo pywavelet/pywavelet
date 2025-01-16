@@ -1,9 +1,9 @@
-from typing import Literal, Tuple
+from typing import Tuple, Union
 
 import numpy as xp
-from numpy.fft import irfft, fft, rfft, rfftfreq
+from numpy.fft import fft, irfft, rfft, rfftfreq  # type: ignore
 
-from ...logger import logger
+from ..logger import logger
 
 
 def _len_check(d):
@@ -19,7 +19,7 @@ def is_documented_by(original):
     return wrapper
 
 
-def fmt_time(seconds: float, units=False) -> Tuple[str, str]:
+def fmt_time(seconds: float, units=False) -> Union[str, Tuple[str, str]]:
     """Returns formatted time and units [ms, s, min, hr, day]"""
     t, u = "", ""
     if seconds < 1e-3:
@@ -42,11 +42,11 @@ def fmt_time(seconds: float, units=False) -> Tuple[str, str]:
 
 def fmt_timerange(trange):
     t0 = fmt_time(trange[0])
-    tend, units = fmt_time(trange[1], units = True)
+    tend, units = fmt_time(trange[1], units=True)
     return f"[{t0}, {tend}] {units}"
 
 
-def fmt_pow2(n:float)->str:
+def fmt_pow2(n: float) -> str:
     pow2 = xp.log2(n)
     if pow2.is_integer():
         return f"2^{int(pow2)}"

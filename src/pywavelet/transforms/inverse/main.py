@@ -1,13 +1,14 @@
 import numpy as np
 
 from ...transforms.phi_computer import phi_vec, phitilde_vec_norm
-from ..types import FrequencySeries, TimeSeries, Wavelet
+from ...types import FrequencySeries, TimeSeries, Wavelet
 from .to_freq import inverse_wavelet_freq_helper_fast
 from .to_time import inverse_wavelet_time_helper_fast
 
 __all__ = ["from_wavelet_to_time", "from_wavelet_to_freq"]
 
 INV_ROOT2 = 1.0 / np.sqrt(2)
+
 
 def from_wavelet_to_time(
     wave_in: Wavelet,
@@ -55,9 +56,7 @@ def from_wavelet_to_time(
 
 
 def from_wavelet_to_freq(
-    wave_in: Wavelet,
-    dt: float,
-    nx:float=4.0
+    wave_in: Wavelet, dt: float, nx: float = 4.0
 ) -> FrequencySeries:
     """
     Perform an inverse wavelet transform to the frequency domain.

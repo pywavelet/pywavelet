@@ -2,14 +2,14 @@ from typing import Tuple, Union
 
 import numpy as np
 
-from ..types import FrequencySeries, TimeSeries
+from .frequencyseries import FrequencySeries
+from .timeseries import TimeSeries
 
 
 def _preprocess_bins(
     data: Union[TimeSeries, FrequencySeries], Nf=None, Nt=None
 ) -> Tuple[int, int]:
     """preprocess the bins"""
-
 
     if isinstance(data, TimeSeries):
         N = len(data)
@@ -34,7 +34,6 @@ def _get_bins(
     Nf: Union[int, None] = None,
     Nt: Union[int, None] = None,
 ) -> Tuple[np.ndarray, np.ndarray]:
-
     T = data.duration
     t_bins, f_bins = compute_bins(Nf, Nt, T)
 
@@ -42,12 +41,12 @@ def _get_bins(
     # fs = N / T
     # assert delta_f == fmax / Nf, f"delta_f={delta_f} != fmax/Nf={fmax/Nf}"
 
-    t_bins+= data.t0
+    t_bins += data.t0
 
     return t_bins, f_bins
 
 
-def compute_bins(Nf:int, Nt:int, T:float) -> Tuple[np.ndarray, np.ndarray]:
+def compute_bins(Nf: int, Nt: int, T: float) -> Tuple[np.ndarray, np.ndarray]:
     """Get the bins for the wavelet transform
     Eq 4-6 in Wavelets paper
     """
@@ -55,4 +54,4 @@ def compute_bins(Nf:int, Nt:int, T:float) -> Tuple[np.ndarray, np.ndarray]:
     delta_F = 1 / (2 * delta_T)
     t_bins = np.arange(0, Nt) * delta_T
     f_bins = np.arange(0, Nf) * delta_F
-    return  t_bins, f_bins
+    return t_bins, f_bins
