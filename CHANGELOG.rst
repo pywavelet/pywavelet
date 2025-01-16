@@ -5,16 +5,41 @@ CHANGELOG
 =========
 
 
+.. _changelog-v0.1.1:
+
+v0.1.1 (2025-01-16)
+===================
+
+Unknown
+-------
+
+* Merge branch 'main' of github.com:avivajpeyi/pywavelet into main (`69eefa2`_)
+
+.. _69eefa2: https://github.com/pywavelet/pywavelet/commit/69eefa29b7873c30fcb74ad1e051eb20101a277a
+
+
 .. _changelog-v0.1.0:
 
 v0.1.0 (2025-01-15)
 ===================
+
+Bug Fixes
+---------
+
+* fix: refactor type outside transforms (`efb8878`_)
+
+Chores
+------
+
+* chore(release): 0.1.0 (`c5a3fde`_)
 
 Features
 --------
 
 * feat: add wavelet mask and more tests (`e009903`_)
 
+.. _efb8878: https://github.com/pywavelet/pywavelet/commit/efb88789f8468ff18f99abaf6168bb8fc0f5947b
+.. _c5a3fde: https://github.com/pywavelet/pywavelet/commit/c5a3fdea455c16478f04049f14bc35dfcf4efb15
 .. _e009903: https://github.com/pywavelet/pywavelet/commit/e00990300d9c013438580c2bc47ea93570fd95be
 
 
