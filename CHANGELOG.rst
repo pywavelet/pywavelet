@@ -5,6 +5,19 @@ CHANGELOG
 =========
 
 
+.. _changelog-v0.1.0:
+
+v0.1.0 (2025-01-15)
+===================
+
+Features
+--------
+
+* feat: add wavelet mask and more tests (`e009903`_)
+
+.. _e009903: https://github.com/pywavelet/pywavelet/commit/e00990300d9c013438580c2bc47ea93570fd95be
+
+
 .. _changelog-v0.0.5:
 
 v0.0.5 (2024-12-12)
@@ -15,7 +28,13 @@ Bug Fixes
 
 * fix: update changelog generator (`884c87b`_)
 
+Chores
+------
+
+* chore(release): 0.0.5 (`4ed6b03`_)
+
 .. _884c87b: https://github.com/pywavelet/pywavelet/commit/884c87bcd36b5d21eb1a8e10ee9e0edf6f65d744
+.. _4ed6b03: https://github.com/pywavelet/pywavelet/commit/4ed6b03618347cc179195feec57b05e04a004100
 
 
 .. _changelog-v0.0.4:
