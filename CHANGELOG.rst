@@ -5,16 +5,35 @@ CHANGELOG
 =========
 
 
+.. _changelog-v0.1.2:
+
+v0.1.2 (2025-01-20)
+===================
+
+Bug Fixes
+---------
+
+* fix: adjust the WaveletMask repr (`50c6201`_)
+
+.. _50c6201: https://github.com/pywavelet/pywavelet/commit/50c6201efb7689dd9757a5e4c6047d241015cb96
+
+
 .. _changelog-v0.1.1:
 
 v0.1.1 (2025-01-16)
 ===================
+
+Chores
+------
+
+* chore(release): 0.1.1 (`bd15453`_)
 
 Unknown
 -------
 
 * Merge branch 'main' of github.com:avivajpeyi/pywavelet into main (`69eefa2`_)
 
+.. _bd15453: https://github.com/pywavelet/pywavelet/commit/bd15453e028705548232b802b2d21bbebd307ca7
 .. _69eefa2: https://github.com/pywavelet/pywavelet/commit/69eefa29b7873c30fcb74ad1e051eb20101a277a
 
 
