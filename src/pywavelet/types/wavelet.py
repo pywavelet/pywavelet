@@ -441,14 +441,16 @@ class WaveletMask(Wavelet):
         return self.data
 
     def __repr__(self):
-        return f"WaveletMask({self.mask.shape}, {fmt_timerange(self.time)}, {self.freq})"
+        rpr = super().__repr__()
+        rpr = rpr.replace("Wavelet", "WaveletMask")
+        return rpr
 
     @classmethod
     def from_frange(
         cls, time_grid: xp.ndarray, freq_grid: xp.ndarray, frange: List[float]
     ):
         self = cls.zeros_from_grid(time_grid, freq_grid)
-        self.mask[
+        self.data[
             (freq_grid >= frange[0]) & (freq_grid <= frange[1]), :
         ] = True
         return self
