@@ -5,6 +5,19 @@ CHANGELOG
 =========
 
 
+.. _changelog-v0.2.0:
+
+v0.2.0 (2025-01-23)
+===================
+
+Features
+--------
+
+* feat: add jax as optional backend (`264613e`_)
+
+.. _264613e: https://github.com/pywavelet/pywavelet/commit/264613e5a58042641eb6814530dab36bb54b3371
+
+
 .. _changelog-v0.1.2:
 
 v0.1.2 (2025-01-20)
@@ -15,7 +28,13 @@ Bug Fixes
 
 * fix: adjust the WaveletMask repr (`50c6201`_)
 
+Chores
+------
+
+* chore(release): 0.1.2 (`7b64515`_)
+
 .. _50c6201: https://github.com/pywavelet/pywavelet/commit/50c6201efb7689dd9757a5e4c6047d241015cb96
+.. _7b64515: https://github.com/pywavelet/pywavelet/commit/7b64515a2bf2418719f68cb6b15f1c204938408d
 
 
 .. _changelog-v0.1.1:
