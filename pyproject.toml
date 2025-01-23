@@ -11,7 +11,7 @@ name = "pywavelet"
 dynamic = ["version"] # scm versioning (using tags)
 requires-python = ">=3.8"
 description = "WDM wavelet transform your time/freq series!"
-readme = "README.md"
+readme = "README.rst"
 authors = [
     { name = "Pywavelet Team", email = "avi.vajpeyi@gmail.com" },
 ]
