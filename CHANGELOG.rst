@@ -5,16 +5,41 @@ CHANGELOG
 =========
 
 
+.. _changelog-v0.2.1:
+
+v0.2.1 (2025-01-23)
+===================
+
+Unknown
+-------
+
+* Merge branch 'main' of github.com:pywavelet/pywavelet (`b8c6d15`_)
+
+.. _b8c6d15: https://github.com/pywavelet/pywavelet/commit/b8c6d1579d48ec5fa22130430267794ae8e54f6c
+
+
 .. _changelog-v0.2.0:
 
 v0.2.0 (2025-01-23)
 ===================
+
+Bug Fixes
+---------
+
+* fix: add temp inverse transform (`586f9ad`_)
+
+Chores
+------
+
+* chore(release): 0.2.0 (`fcc35e9`_)
 
 Features
 --------
 
 * feat: add jax as optional backend (`264613e`_)
 
+.. _586f9ad: https://github.com/pywavelet/pywavelet/commit/586f9ad311f905f7d2fbbfd02fea8198eeda8237
+.. _fcc35e9: https://github.com/pywavelet/pywavelet/commit/fcc35e973d906bd18e03204449564f35fc657b89
 .. _264613e: https://github.com/pywavelet/pywavelet/commit/264613e5a58042641eb6814530dab36bb54b3371
 
 
