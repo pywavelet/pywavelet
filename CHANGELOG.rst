@@ -5,16 +5,41 @@ CHANGELOG
 =========
 
 
+.. _changelog-v0.2.2:
+
+v0.2.2 (2025-01-23)
+===================
+
+Unknown
+-------
+
+* Merge branch 'main' of github.com:pywavelet/pywavelet (`e8e2115`_)
+
+.. _e8e2115: https://github.com/pywavelet/pywavelet/commit/e8e2115e797a5001f236ff027a14ef226151dcc1
+
+
 .. _changelog-v0.2.1:
 
 v0.2.1 (2025-01-23)
 ===================
+
+Bug Fixes
+---------
+
+* fix: fix readme path (`34e927d`_)
+
+Chores
+------
+
+* chore(release): 0.2.1 (`a55bce5`_)
 
 Unknown
 -------
 
 * Merge branch 'main' of github.com:pywavelet/pywavelet (`b8c6d15`_)
 
+.. _34e927d: https://github.com/pywavelet/pywavelet/commit/34e927d411ec8fde89f552bd5ec89b38820e07e0
+.. _a55bce5: https://github.com/pywavelet/pywavelet/commit/a55bce518c3484543efada283399a41df3ecf001
 .. _b8c6d15: https://github.com/pywavelet/pywavelet/commit/b8c6d1579d48ec5fa22130430267794ae8e54f6c
 
 
