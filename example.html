@@ -399,16 +399,16 @@ document.write(`
 <span class="expanded">Hide code cell content</span>
 </summary>
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">scipy.signal</span> <span class="kn">import</span> <span class="n">chirp</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">scipy.signal</span><span class="w"> </span><span class="kn">import</span> <span class="n">chirp</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
 
-<span class="kn">from</span> <span class="nn">pywavelet.transforms.types</span> <span class="kn">import</span> <span class="n">TimeSeries</span>
-<span class="kn">from</span> <span class="nn">pywavelet.transforms</span> <span class="kn">import</span> <span class="n">from_time_to_wavelet</span><span class="p">,</span> <span class="n">from_wavelet_to_time</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pywavelet.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">TimeSeries</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pywavelet.transforms</span><span class="w"> </span><span class="kn">import</span> <span class="n">from_time_to_wavelet</span><span class="p">,</span> <span class="n">from_wavelet_to_time</span>
 
 
-<span class="k">def</span> <span class="nf">generate_chirp_time_domain_signal</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">generate_chirp_time_domain_signal</span><span class="p">(</span>
     <span class="n">t</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">freq_range</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TimeSeries</span><span class="p">:</span>
     <span class="n">fs</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
@@ -424,7 +424,7 @@ document.write(`
     <span class="k">return</span> <span class="n">TimeSeries</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">t</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">plot_residuals</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">residuals</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_residuals</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">residuals</span><span class="p">):</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">residuals</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
     <span class="c1"># add textbox of mean and std</span>
     <span class="n">mean</span> <span class="o">=</span> <span class="n">residuals</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
@@ -442,6 +442,7 @@ document.write(`
     <span class="p">)</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Residuals&quot;</span><span class="p">)</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Count&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">ticklabel_format</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;sci&quot;</span><span class="p">,</span> <span class="n">scilimits</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">ax</span>
 
 <span class="c1"># Sizes</span>
@@ -492,10 +493,10 @@ document.write(`
 <p>This time, we use a sine-wave in the frequency domain.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">pywavelet.transforms.types</span> <span class="kn">import</span> <span class="n">FrequencySeries</span>
-<span class="kn">from</span> <span class="nn">pywavelet.transforms</span> <span class="kn">import</span> <span class="n">from_freq_to_wavelet</span><span class="p">,</span> <span class="n">from_wavelet_to_freq</span>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pywavelet.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">FrequencySeries</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pywavelet.transforms</span><span class="w"> </span><span class="kn">import</span> <span class="n">from_freq_to_wavelet</span><span class="p">,</span> <span class="n">from_wavelet_to_freq</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
 
 <span class="n">f0</span> <span class="o">=</span> <span class="mi">20</span>
 <span class="n">dt</span> <span class="o">=</span> <span class="mf">0.0125</span>
