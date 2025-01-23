@@ -1,9 +1,6 @@
-from typing import Tuple, Union
-
-import numpy as xp
-from numpy.fft import fft, irfft, rfft, rfftfreq  # type: ignore
-
+from typing import Tuple, Union, Callable
 from ..logger import logger
+from ..backend import xp
 
 
 def _len_check(d):
@@ -11,7 +8,7 @@ def _len_check(d):
         logger.warning(f"Data length {len(d)} is suggested to be a power of 2")
 
 
-def is_documented_by(original):
+def is_documented_by(original:Callable):
     def wrapper(target):
         target.__doc__ = original.__doc__
         return target

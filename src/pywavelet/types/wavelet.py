@@ -1,7 +1,6 @@
-from typing import List, Optional, Tuple
+from typing import List, Tuple
 
 import matplotlib.pyplot as plt
-import numpy as np
 
 from .common import fmt_timerange, is_documented_by, xp
 from .plotting import plot_wavelet_grid, plot_wavelet_trend
@@ -286,7 +285,7 @@ class Wavelet:
         TimeSeries
             A `TimeSeries` object representing the time-domain signal.
         """
-        from ..transforms.inverse import from_wavelet_to_time
+        from ..transforms import from_wavelet_to_time
 
         return from_wavelet_to_time(self, dt=self.delta_t, nx=nx, mult=mult)
 
@@ -299,7 +298,7 @@ class Wavelet:
         FrequencySeries
             A `FrequencySeries` object representing the frequency-domain signal.
         """
-        from ..transforms.inverse import from_wavelet_to_freq
+        from ..transforms import from_wavelet_to_freq
 
         return from_wavelet_to_freq(self, dt=self.delta_t, nx=nx)
 
@@ -315,8 +314,8 @@ class Wavelet:
 
         frange = ",".join([f"{f:.2e}" for f in (self.freq[0], self.freq[-1])])
         trange = fmt_timerange((self.t0, self.tend))
-        Nfpow2 = int(np.log2(self.shape[0]))
-        Ntpow2 = int(np.log2(self.shape[1]))
+        Nfpow2 = int(xp.log2(self.shape[0]))
+        Ntpow2 = int(xp.log2(self.shape[1]))
         shapef = f"NfxNf=[2^{Nfpow2}, 2^{Ntpow2}]"
         return f"Wavelet({shapef}, [{frange}]Hz, {trange})"
 

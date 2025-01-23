@@ -10,10 +10,9 @@ from .common import (
     fmt_time,
     fmt_timerange,
     is_documented_by,
-    rfft,
-    rfftfreq,
-    xp,
 )
+from ..backend import xp, rfftfreq, rfft
+
 from .plotting import plot_spectrogram, plot_timeseries
 
 __all__ = ["TimeSeries"]

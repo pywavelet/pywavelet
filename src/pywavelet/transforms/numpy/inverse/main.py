@@ -1,7 +1,7 @@
 import numpy as np
 
-from ...transforms.phi_computer import phi_vec, phitilde_vec_norm
-from ...types import FrequencySeries, TimeSeries, Wavelet
+from ...phi_computer import phi_vec, phitilde_vec_norm
+from ....types import FrequencySeries, TimeSeries, Wavelet
 from .to_freq import inverse_wavelet_freq_helper_fast
 from .to_time import inverse_wavelet_time_helper_fast
 
@@ -46,7 +46,7 @@ def from_wavelet_to_time(
     """
 
     mult = min(mult, wave_in.Nt // 2)  # Ensure mult is not larger than ND/2
-    phi = phi_vec(wave_in.Nf, d=nx, q=mult, dt=dt) / 2
+    phi = phi_vec(wave_in.Nf, d=nx, q=mult) / 2
     h_t = inverse_wavelet_time_helper_fast(
         wave_in.data.T, phi, wave_in.Nf, wave_in.Nt, mult
     )
@@ -84,7 +84,7 @@ def from_wavelet_to_freq(
     to ensure the proper backwards transformation.
     """
 
-    phif = phitilde_vec_norm(wave_in.Nf, wave_in.Nt, dt=dt, d=nx)
+    phif = phitilde_vec_norm(wave_in.Nf, wave_in.Nt,  d=nx)
     freq_data = inverse_wavelet_freq_helper_fast(
         wave_in.data, phif, wave_in.Nf, wave_in.Nt
     )

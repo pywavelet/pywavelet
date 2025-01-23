@@ -2,7 +2,6 @@
 
 import numpy as np
 from numba import njit
-from numpy import fft
 
 
 def transform_wavelet_freq_helper(

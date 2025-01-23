@@ -2,10 +2,10 @@ from typing import Union
 
 import numpy as np
 
-from ...logger import logger
-from ...types import FrequencySeries, TimeSeries, Wavelet
-from ...types.wavelet_bins import _get_bins, _preprocess_bins
-from ..phi_computer import phi_vec, phitilde_vec_norm
+from ....logger import logger
+from ....types import FrequencySeries, TimeSeries, Wavelet
+from ....types.wavelet_bins import _get_bins, _preprocess_bins
+from ...phi_computer import phi_vec, phitilde_vec_norm
 from .from_freq import transform_wavelet_freq_helper
 from .from_time import transform_wavelet_time_helper
 
@@ -72,7 +72,7 @@ def from_time_to_wavelet(
         )
 
     mult = min(mult, Nt // 2)  # Ensure mult is not larger than ND/2
-    phi = phi_vec(Nf, dt=dt, d=nx, q=mult)
+    phi = phi_vec(Nf, d=nx, q=mult)
     wave = transform_wavelet_time_helper(timeseries.data, Nf, Nt, phi, mult).T
     return Wavelet(wave * np.sqrt(2), time=t_bins, freq=f_bins)
 
@@ -113,8 +113,7 @@ def from_freq_to_wavelet(
     """
     Nf, Nt = _preprocess_bins(freqseries, Nf, Nt)
     t_bins, f_bins = _get_bins(freqseries, Nf, Nt)
-    dt = freqseries.dt
-    phif = phitilde_vec_norm(Nf, Nt, dt=dt, d=nx)
+    phif = phitilde_vec_norm(Nf, Nt,  d=nx)
     wave = transform_wavelet_freq_helper(freqseries.data, Nf, Nt, phif)
 
     return Wavelet((2 / Nf) * wave.T * np.sqrt(2), time=t_bins, freq=f_bins)

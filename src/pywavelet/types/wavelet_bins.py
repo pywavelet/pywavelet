@@ -1,6 +1,6 @@
 from typing import Tuple, Union
 
-import numpy as np
+from ..backend import xp
 
 from .frequencyseries import FrequencySeries
 from .timeseries import TimeSeries
@@ -33,7 +33,7 @@ def _get_bins(
     data: Union[TimeSeries, FrequencySeries],
     Nf: Union[int, None] = None,
     Nt: Union[int, None] = None,
-) -> Tuple[np.ndarray, np.ndarray]:
+) -> Tuple[xp.ndarray, xp.ndarray]:
     T = data.duration
     t_bins, f_bins = compute_bins(Nf, Nt, T)
 
@@ -46,12 +46,12 @@ def _get_bins(
     return t_bins, f_bins
 
 
-def compute_bins(Nf: int, Nt: int, T: float) -> Tuple[np.ndarray, np.ndarray]:
+def compute_bins(Nf: int, Nt: int, T: float) -> Tuple[xp.ndarray, xp.ndarray]:
     """Get the bins for the wavelet transform
     Eq 4-6 in Wavelets paper
     """
     delta_T = T / Nt
     delta_F = 1 / (2 * delta_T)
-    t_bins = np.arange(0, Nt) * delta_T
-    f_bins = np.arange(0, Nf) * delta_F
+    t_bins = xp.arange(0, Nt) * delta_T
+    f_bins = xp.arange(0, Nf) * delta_F
     return t_bins, f_bins

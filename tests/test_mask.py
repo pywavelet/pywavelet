@@ -17,7 +17,7 @@ def test_mask(plot_dir):
     assert np.isclose(compute_likelihood(d, h, psd, mask), 0)
 
     mask1 = WaveletMask.from_frange(h.time, h.freq, [f0 + 0.5, f0 + 1.5])
-    # assert np.isclose(compute_likelihood(d, h, psd, mask1), 0) == False
+    # assert np.isclose(compute_likelihood(d, h, psd_analysis, mask1), 0) == False
 
     # plt the 3 differnet datasets
     fig, axes = plt.subplots(1, 3, figsize=(12, 4), sharex=True, sharey=True)

@@ -23,6 +23,7 @@ pywavelet is available on PyPI and can be installed with `pip <https://pip.pypa.
     $ pip install pywavelet
 
 For developers
+--------------
 
 First set up a conda environment with the latest version of python.
 
@@ -35,7 +36,8 @@ First set up a conda environment with the latest version of python.
     $ pip install -e ".[dev]"
     $ pre-commit install
 
-## Test code
+Test code
+---------
 
 Locate directory /tests from root directory. run 
 

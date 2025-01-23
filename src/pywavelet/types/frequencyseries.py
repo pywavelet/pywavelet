@@ -2,7 +2,8 @@ from typing import Optional, Tuple, Union
 
 import matplotlib.pyplot as plt
 
-from .common import fmt_pow2, fmt_time, irfft, is_documented_by, xp
+from ..backend import xp, irfft
+from .common import fmt_pow2, fmt_time, is_documented_by
 from .plotting import plot_freqseries, plot_periodogram
 
 __all__ = ["FrequencySeries"]
@@ -226,7 +227,7 @@ class FrequencySeries:
         Wavelet
             The corresponding wavelet.
         """
-        from ..transforms.forward import from_freq_to_wavelet
+        from ..transforms import from_freq_to_wavelet
 
         return from_freq_to_wavelet(self, Nf=Nf, Nt=Nt, nx=nx)
 
