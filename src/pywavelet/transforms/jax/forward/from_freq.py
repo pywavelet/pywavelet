@@ -67,7 +67,8 @@ def transform_wavelet_freq_helper(
     DX = DX.at[:, i].set(
         jnp.where(cond3, DX[:, i], val)
     )  # Update DX with computed values
-    # At this point, DX contains the data FFT'd with the wavelet filter (each row is a frequency bin, each column is a time bin)
+    # At this point, DX contains the data FFT'd with the wavelet filter
+    # (each row is a frequency bin, each column is a time bin)
 
     # Perform the inverse FFT along the time dimension
     DX_trans = ifft(DX, axis=1)

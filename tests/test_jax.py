@@ -1,3 +1,6 @@
+import importlib
+import os
+
 import matplotlib.pyplot as plt
 import numpy as np
 from conftest import monochromatic_wnm
@@ -82,3 +85,21 @@ def test_toy_model_snr(plot_dir):
     ax[2].set_title("Difference")
     plt.tight_layout()
     plt.savefig(f"{plot_dir}/jax_vs_np.png")
+
+
+def test_backend_loader():
+    # temporarily set os.environ["PYWAVELET_JAX"] = "1"
+
+    import pywavelet.backend
+
+    os.environ["PYWAVELET_JAX"] = "1"
+    importlib.reload(pywavelet.backend)
+    from pywavelet.backend import use_jax
+
+    assert use_jax
+    os.environ["PYWAVELET_JAX"] = "0"
+
+    importlib.reload(pywavelet.backend)
+    from pywavelet.backend import use_jax
+
+    assert not use_jax
