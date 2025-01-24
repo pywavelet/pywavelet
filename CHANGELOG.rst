@@ -5,16 +5,38 @@ CHANGELOG
 =========
 
 
+.. _changelog-v0.2.3:
+
+v0.2.3 (2025-01-24)
+===================
+
+Bug Fixes
+---------
+
+* fix: add backend check for os.environ (`98c0818`_)
+
+* fix: add test for jax (`1940394`_)
+
+.. _98c0818: https://github.com/pywavelet/pywavelet/commit/98c0818078190d829a23734f932f1f93c9932167
+.. _1940394: https://github.com/pywavelet/pywavelet/commit/194039437a3a9b3ada303d101b4e2573ab7d0afd
+
+
 .. _changelog-v0.2.2:
 
 v0.2.2 (2025-01-23)
 ===================
+
+Chores
+------
+
+* chore(release): 0.2.2 (`eed5d68`_)
 
 Unknown
 -------
 
 * Merge branch 'main' of github.com:pywavelet/pywavelet (`e8e2115`_)
 
+.. _eed5d68: https://github.com/pywavelet/pywavelet/commit/eed5d6864276fc5f90c4866749903e3e358df5ca
 .. _e8e2115: https://github.com/pywavelet/pywavelet/commit/e8e2115e797a5001f236ff027a14ef226151dcc1
 
 
