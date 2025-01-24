@@ -5,6 +5,19 @@ CHANGELOG
 =========
 
 
+.. _changelog-v0.2.4:
+
+v0.2.4 (2025-01-24)
+===================
+
+Unknown
+-------
+
+* Merge branch 'main' of github.com:avivajpeyi/pywavelet into main (`d2c84d9`_)
+
+.. _d2c84d9: https://github.com/pywavelet/pywavelet/commit/d2c84d980b1701baf99e40ba6191cbd9336cfa59
+
+
 .. _changelog-v0.2.3:
 
 v0.2.3 (2025-01-24)
@@ -13,12 +26,21 @@ v0.2.3 (2025-01-24)
 Bug Fixes
 ---------
 
+* fix: add masks to filter out gaps (`26fe40a`_)
+
 * fix: add backend check for os.environ (`98c0818`_)
 
 * fix: add test for jax (`1940394`_)
 
+Chores
+------
+
+* chore(release): 0.2.3 (`d067461`_)
+
+.. _26fe40a: https://github.com/pywavelet/pywavelet/commit/26fe40ace80d5f9d598e1efeba2f8ca4a6f1043b
 .. _98c0818: https://github.com/pywavelet/pywavelet/commit/98c0818078190d829a23734f932f1f93c9932167
 .. _1940394: https://github.com/pywavelet/pywavelet/commit/194039437a3a9b3ada303d101b4e2573ab7d0afd
+.. _d067461: https://github.com/pywavelet/pywavelet/commit/d0674615df328774a0d80eb224b5c503fbd8f332
 
 
 .. _changelog-v0.2.2:
