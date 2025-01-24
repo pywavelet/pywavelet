@@ -1,10 +1,9 @@
 import jax.numpy as jnp
 from jax.numpy.fft import rfftfreq
 
-from ...phi_computer import phi_vec, phitilde_vec_norm
 from ....types import FrequencySeries, TimeSeries, Wavelet
+from ...phi_computer import phi_vec, phitilde_vec_norm
 from .to_freq import inverse_wavelet_freq_helper
-# from .inverse_wavelet_time_funcs import inverse_wavelet_time_helper
 
 
 def from_wavelet_to_time(
@@ -65,5 +64,5 @@ def from_wavelet_to_freq(
         -1 / 2
     )  # Normalise to get the proper backwards transformation
 
-    freqs = rfftfreq(wave_in.ND*2, d=dt)[1:]
+    freqs = rfftfreq(wave_in.ND * 2, d=dt)[1:]
     return FrequencySeries(data=freq_data, freq=freqs)
