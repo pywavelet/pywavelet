@@ -1,6 +1,7 @@
 from typing import List, Tuple
 
 import matplotlib.pyplot as plt
+import numpy as np
 
 from .common import fmt_timerange, is_documented_by, xp
 from .plotting import plot_wavelet_grid, plot_wavelet_trend
@@ -343,13 +344,17 @@ class Wavelet:
 
     def __mul__(self, other):
         """Element-wise multiplication of two Wavelet objects."""
-        if isinstance(other, Wavelet):
-            return Wavelet(
-                data=self.data * other.data, time=self.time, freq=self.freq
-            )
+        if isinstance(other, WaveletMask):
+            data = self.data.copy()
+            data[~other.mask] = np.nan
+            return Wavelet(data=data, time=self.time, freq=self.freq)
         elif isinstance(other, float):
             return Wavelet(
                 data=self.data * other, time=self.time, freq=self.freq
+            )
+        elif isinstance(other, WaveletMask):
+            return Wavelet(
+                data=self.data * other.data, time=self.time, freq=self.freq
             )
 
     def __truediv__(self, other):
@@ -445,11 +450,40 @@ class WaveletMask(Wavelet):
         return rpr
 
     @classmethod
-    def from_frange(
-        cls, time_grid: xp.ndarray, freq_grid: xp.ndarray, frange: List[float]
+    def from_restrictions(
+        cls,
+        time_grid: xp.ndarray,
+        freq_grid: xp.ndarray,
+        frange: List[float],
+        tgaps: List[Tuple[float, float]] = [],
     ):
+        """
+        Create a WaveletMask object from restrictions on time and frequency.
+
+        Parameters
+        ----------
+        time_grid : xp.ndarray
+            Array of time points.
+        freq_grid : xp.ndarray
+            Array of corresponding frequency points.
+        frange : List[float]
+            Frequency range to include.
+        tgaps : List[Tuple[float, float]]
+            List of time gaps to exclude.
+
+        Returns
+        -------
+        WaveletMask
+            A WaveletMask object with the specified restrictions.
+        """
         self = cls.zeros_from_grid(time_grid, freq_grid)
         self.data[
             (freq_grid >= frange[0]) & (freq_grid <= frange[1]), :
         ] = True
+
+        for tgap in tgaps:
+            self.data[
+                :, (time_grid >= tgap[0]) & (time_grid <= tgap[1])
+            ] = False
+        self.data = self.data.astype(bool)
         return self
