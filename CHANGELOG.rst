@@ -5,16 +5,45 @@ CHANGELOG
 =========
 
 
+.. _changelog-v0.2.5:
+
+v0.2.5 (2025-01-28)
+===================
+
+Bug Fixes
+---------
+
+* fix: filter first then window (#20)
+
+* fix: filter first then window
+
+* [pre-commit.ci] auto fixes from pre-commit.com hooks
+
+for more information, see https://pre-commit.ci
+
+---------
+
+Co-authored-by: pre-commit-ci[bot] <66853113+pre-commit-ci[bot]@users.noreply.github.com> (`3228f7b`_)
+
+.. _3228f7b: https://github.com/pywavelet/pywavelet/commit/3228f7be0d7efb48812920e822a14e795ebac57f
+
+
 .. _changelog-v0.2.4:
 
 v0.2.4 (2025-01-24)
 ===================
+
+Chores
+------
+
+* chore(release): 0.2.4 (`8ea5b2f`_)
 
 Unknown
 -------
 
 * Merge branch 'main' of github.com:avivajpeyi/pywavelet into main (`d2c84d9`_)
 
+.. _8ea5b2f: https://github.com/pywavelet/pywavelet/commit/8ea5b2fc0ffa5a1cb274273ec48e164f8bd2064a
 .. _d2c84d9: https://github.com/pywavelet/pywavelet/commit/d2c84d980b1701baf99e40ba6191cbd9336cfa59
 
 
