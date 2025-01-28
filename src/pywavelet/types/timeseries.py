@@ -272,9 +272,9 @@ class TimeSeries:
         sos = butter(
             bandpass_order, Wn=fmin, btype="highpass", output="sos", fs=self.fs
         )
-        window = tukey(self.ND, alpha=tukey_window_alpha)
         data = self.data.copy()
-        data = sosfiltfilt(sos, data * window)
+        data = sosfiltfilt(sos, data)
+        data = data * tukey(self.ND, alpha=tukey_window_alpha)
         return TimeSeries(data, self.time)
 
     def __copy__(self):
