@@ -1,14 +1,14 @@
+from functools import partial
+
 import jax
 import jax.numpy as jnp
 from jax import jit
 from jax.numpy.fft import fft
 
-from functools import partial
 
-
-@partial(jit, static_argnames=('Nf', 'Nt'))
+@partial(jit, static_argnames=("Nf", "Nt"))
 def inverse_wavelet_freq_helper(
-        wave_in: jnp.ndarray, phif: jnp.ndarray, Nf: int, Nt: int
+    wave_in: jnp.ndarray, phif: jnp.ndarray, Nf: int, Nt: int
 ) -> jnp.ndarray:
     """JAX vectorized function for inverse_wavelet_freq"""
     wave_in = wave_in.T
@@ -20,10 +20,14 @@ def inverse_wavelet_freq_helper(
     n_range = jnp.arange(Nt)
 
     # m == 0 case
-    prefactor2s = prefactor2s.at[0].set(2 ** (-1 / 2) * wave_in[(2 * n_range) % Nt, 0])
+    prefactor2s = prefactor2s.at[0].set(
+        2 ** (-1 / 2) * wave_in[(2 * n_range) % Nt, 0]
+    )
 
     # m == Nf case
-    prefactor2s = prefactor2s.at[Nf].set(2 ** (-1 / 2) * wave_in[(2 * n_range) % Nt + 1, 0])
+    prefactor2s = prefactor2s.at[Nf].set(
+        2 ** (-1 / 2) * wave_in[(2 * n_range) % Nt + 1, 0]
+    )
 
     # Other m cases
     m_mid = m_range[1:Nf]

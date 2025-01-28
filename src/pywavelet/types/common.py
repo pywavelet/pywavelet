@@ -1,6 +1,7 @@
-from typing import Tuple, Union, Callable
-from ..logger import logger
+from typing import Callable, Tuple, Union
+
 from ..backend import xp
+from ..logger import logger
 
 
 def _len_check(d):
@@ -8,7 +9,7 @@ def _len_check(d):
         logger.warning(f"Data length {len(d)} is suggested to be a power of 2")
 
 
-def is_documented_by(original:Callable):
+def is_documented_by(original: Callable):
     def wrapper(target):
         target.__doc__ = original.__doc__
         return target

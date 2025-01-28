@@ -1,11 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-from pywavelet.transforms import (
-    phi_vec,
-    phitilde_vec,
-    phitilde_vec_norm,
-)
+from pywavelet.transforms import phi_vec, phitilde_vec, phitilde_vec_norm
 
 
 def test_phi(plot_dir):

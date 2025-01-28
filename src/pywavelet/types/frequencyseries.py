@@ -2,7 +2,7 @@ from typing import Optional, Tuple, Union
 
 import matplotlib.pyplot as plt
 
-from ..backend import xp, irfft
+from ..backend import irfft, xp
 from .common import fmt_pow2, fmt_time, is_documented_by
 from .plotting import plot_freqseries, plot_periodogram
 

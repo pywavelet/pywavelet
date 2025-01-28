@@ -71,6 +71,8 @@ def compute_likelihood(
     p = psd.data
     if mask is not None:
         m = mask.mask
+        # convert mask to numbers -- 0 for False, 1 for True
+        m = m.astype(int)
         d, h, p = d * m, h * m, p * m
 
     return -0.5 * np.nansum((d - h) ** 2 / p)

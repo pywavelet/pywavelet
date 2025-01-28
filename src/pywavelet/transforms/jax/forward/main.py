@@ -62,10 +62,10 @@ def from_time_to_wavelet(
 
     mult = min(mult, Nt // 2)  # make sure K isn't bigger than ND
     phi = jnp.array(phi_vec(Nf, d=nx, q=mult))
-    wave = transform_wavelet_time_helper(timeseries.data, Nf=Nf, Nt=Nt, phi=phi, mult=mult)
-    return Wavelet(
-        wave* jnp.sqrt(2), time=t_bins, freq=f_bins
+    wave = transform_wavelet_time_helper(
+        timeseries.data, Nf=Nf, Nt=Nt, phi=phi, mult=mult
     )
+    return Wavelet(wave * jnp.sqrt(2), time=t_bins, freq=f_bins)
 
 
 def from_freq_to_wavelet(
@@ -98,13 +98,9 @@ def from_freq_to_wavelet(
     """
     Nf, Nt = _preprocess_bins(freqseries, Nf, Nt)
     t_bins, f_bins = _get_bins(freqseries, Nf, Nt)
-    phif = jnp.array(phitilde_vec_norm(Nf, Nt,  d=nx))
-    wave =  transform_wavelet_freq_helper(
+    phif = jnp.array(phitilde_vec_norm(Nf, Nt, d=nx))
+    wave = transform_wavelet_freq_helper(
         freqseries.data, Nf=Nf, Nt=Nt, phif=phif
     )
 
-    return Wavelet(
-        (2 / Nf) * wave * jnp.sqrt(2),
-        time=t_bins,
-        freq=f_bins
-    )
+    return Wavelet((2 / Nf) * wave * jnp.sqrt(2), time=t_bins, freq=f_bins)
