@@ -4,15 +4,9 @@ import matplotlib.pyplot as plt
 from scipy.signal import butter, sosfiltfilt
 from scipy.signal.windows import tukey
 
+from ..backend import rfft, rfftfreq, xp
 from ..logger import logger
-from .common import (
-    fmt_pow2,
-    fmt_time,
-    fmt_timerange,
-    is_documented_by,
-)
-from ..backend import xp, rfftfreq, rfft
-
+from .common import fmt_pow2, fmt_time, fmt_timerange, is_documented_by
 from .plotting import plot_spectrogram, plot_timeseries
 
 __all__ = ["TimeSeries"]

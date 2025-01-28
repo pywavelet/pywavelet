@@ -39,10 +39,10 @@ First set up a conda environment with the latest version of python.
 Test code
 ---------
 
-Locate directory /tests from root directory. run 
+Locate directory /tests from root directory. run
 
 .. code-block::
 
     $ pytest .
 
-Hopefully everything should run fine. 
+Hopefully everything should run fine.

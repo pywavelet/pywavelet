@@ -1,10 +1,7 @@
-from ..backend import xp, PI, betainc, ifft
+from ..backend import PI, betainc, ifft, xp
 
 
-
-def phitilde_vec(
-    omega: xp.ndarray, Nf: int, d: float = 4.0
-) -> xp.ndarray:
+def phitilde_vec(omega: xp.ndarray, Nf: int, d: float = 4.0) -> xp.ndarray:
     """Compute phi_tilde(omega_i) array, nx is filter steepness, defaults to 4.
 
     Eq 11 of https://arxiv.org/pdf/2009.00043.pdf (Cornish et al. 2020)
@@ -78,7 +75,7 @@ def __nu_d(
     return betainc(d, d, x) / betainc(d, d, 1)
 
 
-def phitilde_vec_norm(Nf: int, Nt: int,  d: float) -> xp.ndarray:
+def phitilde_vec_norm(Nf: int, Nt: int, d: float) -> xp.ndarray:
     """Normalize phitilde for inverse frequency domain transform."""
 
     # Calculate the frequency values
@@ -86,7 +83,7 @@ def phitilde_vec_norm(Nf: int, Nt: int,  d: float) -> xp.ndarray:
     omegas = 2 * xp.pi / ND * xp.arange(0, Nt // 2 + 1)
 
     # Calculate the unnormalized phitilde (u_phit)
-    u_phit = phitilde_vec(omegas, Nf,  d)
+    u_phit = phitilde_vec(omegas, Nf, d)
 
     # Normalize the phitilde
     normalising_factor = PI ** (-1 / 2)  # Ollie's normalising factor
@@ -129,13 +126,9 @@ def phi_vec(Nf: int, d: float = 4.0, q: int = 16) -> xp.ndarray:
 
     DX = DX.copy()
     # postive frequencies
-    DX[1 : half_K + 1] = phitilde_vec(
-        dom * xp.arange(1, half_K + 1), Nf, d
-    )
+    DX[1 : half_K + 1] = phitilde_vec(dom * xp.arange(1, half_K + 1), Nf, d)
     # negative frequencies
-    DX[half_K + 1 :] = phitilde_vec(
-        -dom * xp.arange(half_K - 1, 0, -1), Nf,  d
-    )
+    DX[half_K + 1 :] = phitilde_vec(-dom * xp.arange(half_K - 1, 0, -1), Nf, d)
     DX = K * ifft(DX, K)
 
     phi = xp.zeros(K)

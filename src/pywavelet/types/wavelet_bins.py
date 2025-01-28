@@ -1,7 +1,6 @@
 from typing import Tuple, Union
 
 from ..backend import xp
-
 from .frequencyseries import FrequencySeries
 from .timeseries import TimeSeries
 

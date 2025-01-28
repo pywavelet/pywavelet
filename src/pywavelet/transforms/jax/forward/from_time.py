@@ -1,12 +1,14 @@
+from functools import partial
+
 import jax
 import jax.numpy as jnp
 from jax import jit
 from jax.numpy.fft import rfft
-from functools import partial
 
-@partial(jit, static_argnames=('Nf', 'Nt', 'mult'))
+
+@partial(jit, static_argnames=("Nf", "Nt", "mult"))
 def transform_wavelet_time_helper(
-    data: jnp.ndarray, phi: jnp.ndarray, Nf: int, Nt: int,  mult: int
+    data: jnp.ndarray, phi: jnp.ndarray, Nf: int, Nt: int, mult: int
 ) -> jnp.ndarray:
     """Helper function to do the wavelet transform in the time domain using JAX"""
     # Define constants
@@ -35,17 +37,23 @@ def transform_wavelet_time_helper(
     even_indices = jnp.nonzero(even_mask, size=even_mask.shape[0])[0]
 
     # Update wave for m=0 using even time bins
-    wave = wave.at[even_indices, 0].set(jnp.real(wdata_trans[even_indices, 0]) / jnp.sqrt(2))
-    wave = wave.at[even_indices + 1, 0].set(jnp.real(wdata_trans[even_indices, Nf * mult]) / jnp.sqrt(2))
+    wave = wave.at[even_indices, 0].set(
+        jnp.real(wdata_trans[even_indices, 0]) / jnp.sqrt(2)
+    )
+    wave = wave.at[even_indices + 1, 0].set(
+        jnp.real(wdata_trans[even_indices, Nf * mult]) / jnp.sqrt(2)
+    )
 
     # Handle other cases (j > 0) using vectorized operations
     j_range = jnp.arange(1, Nf)
-    odd_condition = ((time_bins[:, None] + j_range[None, :]) % 2 == 1)
+    odd_condition = (time_bins[:, None] + j_range[None, :]) % 2 == 1
 
     wave = wave.at[:, 1:].set(
-        jnp.where(odd_condition,
-                  -jnp.imag(wdata_trans[:, j_range * mult]),
-                  jnp.real(wdata_trans[:, j_range * mult]))
+        jnp.where(
+            odd_condition,
+            -jnp.imag(wdata_trans[:, j_range * mult]),
+            jnp.real(wdata_trans[:, j_range * mult]),
+        )
     )
 
     return wave.T
