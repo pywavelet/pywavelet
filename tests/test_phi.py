@@ -35,4 +35,3 @@ def test_phi(plot_dir):
     phitilde = phitilde_vec(f, Nf=Nf, d=d) / delF
 
     _plot(t, phi, f, phitilde, plot_dir / "phi.png")
-
