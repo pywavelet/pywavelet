@@ -477,13 +477,13 @@ class WaveletMask(Wavelet):
             A WaveletMask object with the specified restrictions.
         """
         self = cls.zeros_from_grid(time_grid, freq_grid)
-        self.data[
-            (freq_grid >= frange[0]) & (freq_grid <= frange[1]), :
-        ] = True
+        self.data[(freq_grid >= frange[0]) & (freq_grid <= frange[1]), :] = (
+            True
+        )
 
         for tgap in tgaps:
-            self.data[
-                :, (time_grid >= tgap[0]) & (time_grid <= tgap[1])
-            ] = False
+            self.data[:, (time_grid >= tgap[0]) & (time_grid <= tgap[1])] = (
+                False
+            )
         self.data = self.data.astype(bool)
         return self
