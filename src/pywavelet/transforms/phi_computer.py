@@ -1,7 +1,9 @@
+import numpy as np
+
 from ..backend import PI, betainc, ifft, xp
 
 
-def phitilde_vec(omega: xp.ndarray, Nf: int, d: float = 4.0) -> xp.ndarray:
+def phitilde_vec(omega: np.ndarray, Nf: int, d: float = 4.0) -> xp.ndarray:
     """Compute phi_tilde(omega_i) array, nx is filter steepness, defaults to 4.
 
     Eq 11 of https://arxiv.org/pdf/2009.00043.pdf (Cornish et al. 2020)
@@ -31,24 +33,22 @@ def phitilde_vec(omega: xp.ndarray, Nf: int, d: float = 4.0) -> xp.ndarray:
     """
     dF = 1.0 / (2 * Nf)  # NOTE: missing 1/dt?
     dOmega = 2 * PI * dF  # Near Eq 10 # 2 pi times DF
-    inverse_sqrt_dOmega = 1.0 / xp.sqrt(dOmega)
+    inverse_sqrt_dOmega = 1.0 / np.sqrt(dOmega)
 
     A = dOmega / 4
     B = dOmega - 2 * A  # Cannot have B \leq 0.
     if B <= 0:
         raise ValueError("B must be greater than 0")
 
-    phi = xp.zeros(omega.size)
-    mask = (A <= xp.abs(omega)) & (xp.abs(omega) < A + B)  # Minor changes
-    vd = (PI / 2.0) * __nu_d(omega[mask], A, B, d=d)  # different from paper
+    phi = np.zeros(omega.size)
+    mask = (A <= np.abs(omega)) & (np.abs(omega) < A + B)  # Minor changes
+    vd = (PI / 2.0) * _nu_d(omega[mask], A, B, d=d)  # different from paper
     phi[mask] = inverse_sqrt_dOmega * xp.cos(vd)
-    phi[xp.abs(omega) < A] = inverse_sqrt_dOmega
+    phi[np.abs(omega) < A] = inverse_sqrt_dOmega
     return phi
 
 
-def __nu_d(
-    omega: xp.ndarray, A: float, B: float, d: float = 4.0
-) -> xp.ndarray:
+def _nu_d(omega: np.ndarray, A: float, B: float, d: float = 4.0) -> np.ndarray:
     """Compute the normalized incomplete beta function.
 
     Parameters
@@ -71,7 +71,7 @@ def __nu_d(
     https://docs.scipy.org/doc/scipy-1.7.1/reference/reference/generated/scipy.special.betainc.html
 
     """
-    x = (xp.abs(omega) - A) / B
+    x = (np.abs(omega) - A) / B
     return betainc(d, d, x) / betainc(d, d, 1)
 
 
@@ -80,7 +80,7 @@ def phitilde_vec_norm(Nf: int, Nt: int, d: float) -> xp.ndarray:
 
     # Calculate the frequency values
     ND = Nf * Nt
-    omegas = 2 * xp.pi / ND * xp.arange(0, Nt // 2 + 1)
+    omegas = 2 * xp.pi / ND * np.arange(0, Nt // 2 + 1)
 
     # Calculate the unnormalized phitilde (u_phit)
     u_phit = phitilde_vec(omegas, Nf, d)
@@ -119,7 +119,7 @@ def phi_vec(Nf: int, d: float = 4.0, q: int = 16) -> xp.ndarray:
 
     dom = 2 * PI / K  # max frequency is K/2*dom = pi/dt = OM
 
-    DX = xp.zeros(K, dtype=xp.complex128)
+    DX = np.zeros(K, dtype=np.complex128)
 
     # zero frequency
     DX[0] = insDOM
