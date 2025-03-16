@@ -172,12 +172,17 @@ def plot_wavelet_grid(
             if np.all(np.isnan(z)):
                 raise ValueError("All wavelet data is NaN.")
             if zscale == "log":
-                norm = LogNorm(
-                    vmin=np.nanmin(z[z > 0]), vmax=np.nanmax(z[z < np.inf])
-                )
+                vmin = np.nanmin(z[z > 0])
+                vmax = np.nanmax(z[z < np.inf])
+                if vmin > vmax:
+                    raise ValueError("vmin > vmax... something wrong")
+                norm = LogNorm(vmin=vmin, vmax=vmax)
             elif not absolute:
                 vmin, vmax = np.nanmin(z), np.nanmax(z)
                 vcenter = 0.0
+                if vmin > vmax:
+                    raise ValueError("vmin > vmax... something wrong")
+
                 norm = TwoSlopeNorm(vmin=vmin, vcenter=vcenter, vmax=vmax)
             else:
                 norm = None  # Default linear scaling

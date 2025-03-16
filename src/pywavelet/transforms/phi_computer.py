@@ -112,7 +112,10 @@ def phitilde_vec_norm(Nf: int, Nt: int, d: float) -> xp.ndarray:
 
 
 def phi_vec(Nf: int, d: float = 4.0, q: int = 16) -> xp.ndarray:
-    """get time domain phi as fourier transform of phitilde_vec"""
+    """get time domain phi as fourier transform of phitilde_vec
+    q: number of Nf bins over which the window extends?
+
+    """
     insDOM = 1.0 / xp.sqrt(PI / Nf)
     K = q * 2 * Nf
     half_K = q * Nf  # xp.int64(K/2)
