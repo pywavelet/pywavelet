@@ -42,7 +42,7 @@ def test_freqdomain_sine_roundtrip(jax_enabled, plot_dir, sine_freq):
 
 
 # TODO: fix this test for JAX case!!
-@pytest.mark.parametrize("jax_enabled", [False])
+@pytest.mark.parametrize("jax_enabled", [False, True])
 def test_freqdomain_pure_f0_transform(jax_enabled, plot_dir):
     toggle_jax(jax_enabled)
     Nf, Nt, dt = 8, 4, 0.1

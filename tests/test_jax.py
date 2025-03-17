@@ -3,6 +3,8 @@ import os
 
 import matplotlib.pyplot as plt
 import numpy as np
+from xarray.ufuncs import absolute
+
 from conftest import monochromatic_wnm
 
 from pywavelet.transforms import from_freq_to_wavelet, from_time_to_wavelet
@@ -77,9 +79,9 @@ def test_toy_model_snr(plot_dir):
     ########################################
 
     fig, ax = plt.subplots(1, 3, figsize=(15, 6))
-    signal_wavelet.plot(ax=ax[0])
-    signal_wavelet_jax.plot(ax=ax[1])
-    wdm_diff.plot(ax=ax[2])
+    signal_wavelet.plot(ax=ax[0], absolute=True)
+    signal_wavelet_jax.plot(ax=ax[1], absolute=True)
+    wdm_diff.plot(ax=ax[2], absolute=True)
     ax[0].set_title(f"Numpy SNR={wdm_snr:.2f}")
     ax[1].set_title(f"Jax SNR={wdm_snr_jax:.2f}")
     ax[2].set_title("Difference")
