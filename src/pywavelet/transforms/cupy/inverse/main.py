@@ -54,7 +54,7 @@ def from_wavelet_to_freq(
         Frequency domain signal
 
     """
-    phif = cp.array(phitilde_vec_norm(wave_in.Nf, wave_in.Nt, dt=dt, d=nx))
+    phif = cp.array(phitilde_vec_norm(wave_in.Nf, wave_in.Nt, d=nx))
     freq_data = inverse_wavelet_freq_helper(
         wave_in.data, phif=phif, Nf=wave_in.Nf, Nt=wave_in.Nt
     )
