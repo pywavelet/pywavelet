@@ -3,7 +3,7 @@ import numpy as np
 from ..backend import PI, betainc, ifft, xp
 
 
-def phitilde_vec(omega: np.ndarray, Nf: int, d: float = 4.0) -> xp.ndarray:
+def phitilde_vec(omega: np.ndarray, Nf: int, d: float = 4.0) -> np.ndarray:
     """Compute phi_tilde(omega_i) array, nx is filter steepness, defaults to 4.
 
     Eq 11 of https://arxiv.org/pdf/2009.00043.pdf (Cornish et al. 2020)
@@ -72,7 +72,7 @@ def _nu_d(omega: np.ndarray, A: float, B: float, d: float = 4.0) -> np.ndarray:
 
     """
     x = (np.abs(omega) - A) / B
-    return betainc(d, d, x) / betainc(d, d, 1)
+    return betainc(d, d, x)
 
 
 def phitilde_vec_norm(Nf: int, Nt: int, d: float) -> xp.ndarray:
@@ -111,7 +111,7 @@ def phitilde_vec_norm(Nf: int, Nt: int, d: float) -> xp.ndarray:
     return u_phit / (normalising_factor)
 
 
-def phi_vec(Nf: int, d: float = 4.0, q: int = 16) -> xp.ndarray:
+def phi_vec(Nf: int, d: float = 4.0, q: int = 16) -> np.ndarray:
     """get time domain phi as fourier transform of phitilde_vec
     q: number of Nf bins over which the window extends?
 
