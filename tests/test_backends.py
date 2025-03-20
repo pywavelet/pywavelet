@@ -11,6 +11,10 @@ from pywavelet.transforms import from_freq_to_wavelet
 from pywavelet.types import FrequencySeries, TimeSeries
 from pywavelet.utils import compute_snr, evolutionary_psd_from_stationary_psd
 
+import logging
+
+logger = logging.getLogger("pywavelet")
+
 
 @pytest.mark.parametrize("backend", ["jax", "cupy"])
 def test_toy_model_snr(backend, plot_dir):
@@ -59,6 +63,7 @@ def test_toy_model_snr(backend, plot_dir):
     ########################################
     signal_wavelet_new = None
     if backend == "jax":
+        logger.info("TESTING JAX")
         import jax.numpy as xp
 
         from pywavelet.transforms.jax import (
@@ -72,10 +77,12 @@ def test_toy_model_snr(backend, plot_dir):
         # convert back to numpy
         signal_wavelet_new.data = np.array(signal_wavelet_new.data)
         assert isinstance(signal_wavelet_new.data, np.ndarray)
+        logger.info("JAX TEST COMPLETE")
 
 
 
     elif backend == "cupy":
+        logger.info("TESTING CUPY")
         import cupy as xp
 
         from pywavelet.transforms.cupy import (
@@ -89,6 +96,7 @@ def test_toy_model_snr(backend, plot_dir):
         # convert back to numpy
         signal_wavelet_new.data = np.array(signal_wavelet_new.data.get())
         assert isinstance(signal_wavelet_new.data, np.ndarray)
+        logger.info("CUPY TEST COMPLETE")
 
 
     wdm_snr_jax = compute_snr(
@@ -103,9 +111,9 @@ def test_toy_model_snr(backend, plot_dir):
     ########################################
 
     fig, ax = plt.subplots(1, 3, figsize=(15, 6))
-    signal_wavelet.plot(ax=ax[0], absolute=True)
-    signal_wavelet_new.plot(ax=ax[1], absolute=True)
-    wdm_diff.plot(ax=ax[2], absolute=True)
+    signal_wavelet.plot(ax=ax[0], absolute=True, cmap='Grays')
+    signal_wavelet_new.plot(ax=ax[1], absolute=True, cmap='Grays')
+    wdm_diff.plot(ax=ax[2], absolute=True, cmap='Grays')
     ax[0].set_title(f"Numpy SNR={wdm_snr:.2f}")
     ax[1].set_title(f"{backend} SNR={wdm_snr_jax:.2f}")
     ax[2].set_title("Difference")
