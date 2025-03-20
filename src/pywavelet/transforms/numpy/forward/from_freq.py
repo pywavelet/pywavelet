@@ -3,11 +3,17 @@
 import numpy as np
 from numba import njit
 
+import logging
+
+logger = logging.getLogger('pywavelet')
+
+
 
 def transform_wavelet_freq_helper(
     data: np.ndarray, Nf: int, Nt: int, phif: np.ndarray
 ) -> np.ndarray:
     """helper to do the wavelet transform using the fast wavelet domain transform"""
+    logger.debug(f"[NUMPY TRANSFORM] Input types [data:{type(data)}, phif:{type(phif)}]")
     wave = np.zeros((Nt, Nf))  # wavelet wavepacket transform of the signal
     DX = np.zeros(Nt, dtype=np.complex128)
     freq_strain = data.copy()  # Convert

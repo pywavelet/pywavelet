@@ -27,7 +27,7 @@ def transform_wavelet_freq_helper(
     - wave (jnp.ndarray): 2D array of wavelet-transformed data with shape (Nf, Nt).
     """
 
-    logger.debug(f"Input types [data:{type(data)}, phif:{type(phif)}]")
+    logger.debug(f"[JAX TRANSFORM] Input types [data:{type(data)}, phif:{type(phif)}]")
 
     # Initialize the wavelet output array with zeros (time-rows, frequency-columns)
     wave = jnp.zeros((Nt, Nf))
