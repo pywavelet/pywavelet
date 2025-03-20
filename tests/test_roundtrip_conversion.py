@@ -10,6 +10,10 @@ from utils import (
     plot_wavelet_comparison,
 )
 
+import logging
+
+logger = logging.getLogger("pywavelet")
+
 
 def test_timedomain_sine_roundtrip(plot_dir, sine_time):
     _run_timedomain_checks(sine_time, "roundtrip_sine_time", plot_dir)
