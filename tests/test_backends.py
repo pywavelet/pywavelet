@@ -3,13 +3,20 @@ import os
 
 import matplotlib.pyplot as plt
 import numpy as np
+import pytest
+from utils import cuda_available
 
+from pywavelet import set_backend
 from pywavelet.transforms import from_freq_to_wavelet
 from pywavelet.types import FrequencySeries, TimeSeries
 from pywavelet.utils import compute_snr, evolutionary_psd_from_stationary_psd
 
 
-def test_toy_model_snr(plot_dir):
+@pytest.mark.parametrize("backend", ["jax", "cupy"])
+def test_toy_model_snr(backend, plot_dir):
+    if backend == "cupy" and not cuda_available:
+        pytest.skip("CUDA is not available")
+
     f0 = 20
     dt = 0.0125
     A = 2
@@ -48,27 +55,40 @@ def test_toy_model_snr(plot_dir):
     assert np.isclose(snr, wdm_snr, atol=0.5), f"{snr}!={wdm_snr}"
 
     ########################################
-    # Part3: Wavelet domain (jax)
+    # Part3: Wavelet domain (other backend)
     ########################################
+    signal_wavelet_new = None
+    if backend == "jax":
+        from pywavelet.transforms.jax import (
+            from_freq_to_wavelet as jax_from_freq_to_wavelet,
+        )
 
-    from pywavelet.transforms.jax import (
-        from_freq_to_wavelet as jax_from_freq_to_wavelet,
-    )
+        signal_wavelet_new = jax_from_freq_to_wavelet(
+            signal_freq, Nf=Nf, Nt=Nt
+        )
 
-    signal_wavelet_jax = jax_from_freq_to_wavelet(signal_freq, Nf=Nf, Nt=Nt)
-    psd_wavelet_jax = evolutionary_psd_from_stationary_psd(
+    elif backend == "cupy":
+        from pywavelet.transforms.cupy import (
+            from_freq_to_wavelet as cupy_from_freq_to_wavelet,
+        )
+
+        signal_wavelet_new = cupy_from_freq_to_wavelet(
+            signal_freq, Nf=Nf, Nt=Nt
+        )
+
+    psd_wavelet_new = evolutionary_psd_from_stationary_psd(
         psd=psd_freq.data,
         psd_f=psd_freq.freq,
-        f_grid=signal_wavelet_jax.freq,
-        t_grid=signal_wavelet_jax.time,
+        f_grid=signal_wavelet_new.freq,
+        t_grid=signal_wavelet_new.time,
         dt=dt,
     )
     wdm_snr_jax = compute_snr(
-        signal_wavelet_jax, signal_wavelet_jax, psd_wavelet_jax
+        signal_wavelet_new, signal_wavelet_new, psd_wavelet_new
     )
     assert np.isclose(snr, wdm_snr_jax, atol=0.5), f"{snr}!={wdm_snr_jax}"
 
-    wdm_diff = signal_wavelet - signal_wavelet_jax
+    wdm_diff = signal_wavelet - signal_wavelet_new
 
     ########################################
     # Part4: Plot
@@ -76,28 +96,22 @@ def test_toy_model_snr(plot_dir):
 
     fig, ax = plt.subplots(1, 3, figsize=(15, 6))
     signal_wavelet.plot(ax=ax[0], absolute=True)
-    signal_wavelet_jax.plot(ax=ax[1], absolute=True)
+    signal_wavelet_new.plot(ax=ax[1], absolute=True)
     wdm_diff.plot(ax=ax[2], absolute=True)
     ax[0].set_title(f"Numpy SNR={wdm_snr:.2f}")
-    ax[1].set_title(f"Jax SNR={wdm_snr_jax:.2f}")
+    ax[1].set_title(f"{backend} SNR={wdm_snr_jax:.2f}")
     ax[2].set_title("Difference")
     plt.tight_layout()
-    plt.savefig(f"{plot_dir}/jax_vs_np.png")
+    plt.savefig(f"{plot_dir}/{backend}_vs_np.png")
 
 
 def test_backend_loader():
-    # temporarily set os.environ["PYWAVELET_JAX"] = "1"
+    backends = ["jax", "cupy"]
 
-    import pywavelet.backend
+    for backend in backends:
+        set_backend(backend)
+        from pywavelet.backend import current_backend
 
-    os.environ["PYWAVELET_BACKEND"] = "jax"
-    importlib.reload(pywavelet.backend)
-    from pywavelet.backend import current_backend
+        assert current_backend == backend
 
-    assert current_backend == "jax"
-    os.environ["PYWAVELET_BACKEND"] = "numpy"
-
-    importlib.reload(pywavelet.backend)
-    from pywavelet.backend import current_backend
-
-    assert current_backend == "numpy"
+    set_backend("numpy")
