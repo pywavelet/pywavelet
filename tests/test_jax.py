@@ -3,13 +3,9 @@ import os
 
 import matplotlib.pyplot as plt
 import numpy as np
-from xarray.ufuncs import absolute
 
-from conftest import monochromatic_wnm
-
-from pywavelet.transforms import from_freq_to_wavelet, from_time_to_wavelet
+from pywavelet.transforms import from_freq_to_wavelet
 from pywavelet.types import FrequencySeries, TimeSeries
-from pywavelet.types.wavelet_bins import compute_bins
 from pywavelet.utils import compute_snr, evolutionary_psd_from_stationary_psd
 
 
