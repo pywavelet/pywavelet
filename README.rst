@@ -36,7 +36,7 @@ First set up a conda environment with python 3.10
 .. code-block::
 
     $ CONDA_OVERRIDE_CUDA=12.4  mamba install "jaxlib=*=*cuda*" jax -c conda-forge
-    $ CONDA_OVERRIDE_CUDA=12.4  mamba install -c conda-forge cupy
+    $ CONDA_OVERRIDE_CUDA=12.4  conda install -c conda-forge cupy-core
     $ pip install -e ".[dev]"
     $ pre-commit install
 

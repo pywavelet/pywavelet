@@ -10,6 +10,9 @@ from utils import (
 
 from pywavelet.types import Wavelet
 from pywavelet.types.wavelet_bins import compute_bins
+from pywavelet.logger import logger
+
+logger.setLevel("DEBUG")
 
 # set global env var "NUMBA_DISABLE_JIT=1"
 os.environ["NUMBA_DISABLE_JIT"] = "1"

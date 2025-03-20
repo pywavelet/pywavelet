@@ -4,6 +4,10 @@ import jax.numpy as jnp
 from jax import jit
 from jax.numpy.fft import ifft
 
+import logging
+
+logger = logging.getLogger('pywavelet')
+
 
 @partial(jit, static_argnames=("Nf", "Nt"))
 def transform_wavelet_freq_helper(
@@ -22,6 +26,8 @@ def transform_wavelet_freq_helper(
     Returns:
     - wave (jnp.ndarray): 2D array of wavelet-transformed data with shape (Nf, Nt).
     """
+
+    logger.debug(f"Input types [data:{type(data)}, phif:{type(phif)}]")
 
     # Initialize the wavelet output array with zeros (time-rows, frequency-columns)
     wave = jnp.zeros((Nt, Nf))

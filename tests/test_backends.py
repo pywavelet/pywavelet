@@ -59,30 +59,41 @@ def test_toy_model_snr(backend, plot_dir):
     ########################################
     signal_wavelet_new = None
     if backend == "jax":
+        import jax.numpy as xp
+
         from pywavelet.transforms.jax import (
             from_freq_to_wavelet as jax_from_freq_to_wavelet,
         )
 
+        signal_freq.data = xp.array(signal_freq.data)
         signal_wavelet_new = jax_from_freq_to_wavelet(
             signal_freq, Nf=Nf, Nt=Nt
         )
 
+
+
     elif backend == "cupy":
+        import cupy as xp
+
         from pywavelet.transforms.cupy import (
             from_freq_to_wavelet as cupy_from_freq_to_wavelet,
         )
 
+        signal_freq.data = xp.array(signal_freq.data)
         signal_wavelet_new = cupy_from_freq_to_wavelet(
             signal_freq, Nf=Nf, Nt=Nt
         )
 
     psd_wavelet_new = evolutionary_psd_from_stationary_psd(
-        psd=psd_freq.data,
-        psd_f=psd_freq.freq,
-        f_grid=signal_wavelet_new.freq,
-        t_grid=signal_wavelet_new.time,
+        psd=np.array(psd_freq.data),
+        psd_f=np.array(psd_freq.freq),
+        f_grid=np.array(signal_wavelet_new.freq),
+        t_grid=np.array(signal_wavelet_new.time),
         dt=dt,
     )
+    signal_wavelet_new.data = np.array(signal_wavelet_new.data)
+
+
     wdm_snr_jax = compute_snr(
         signal_wavelet_new, signal_wavelet_new, psd_wavelet_new
     )
@@ -110,7 +121,7 @@ def test_backend_loader():
 
     for backend in backends:
         set_backend(backend)
-        from pywavelet.backend import current_backend
+        from pywavelet.backend import current_backend, xp
 
         assert current_backend == backend
 
