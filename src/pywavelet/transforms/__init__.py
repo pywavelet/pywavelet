@@ -7,6 +7,13 @@ if current_backend == "jax":
         from_wavelet_to_freq,
         from_wavelet_to_time,
     )
+elif current_backend == "cupy":
+    from .cupy import (
+        from_freq_to_wavelet,
+        from_time_to_wavelet,
+        from_wavelet_to_freq,
+        from_wavelet_to_time,
+    )
 else:
     from .numpy import (
         from_wavelet_to_time,
