@@ -9,7 +9,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "pywavelet"
 dynamic = ["version"] # scm versioning (using tags)
-requires-python = ">=3.8"
+requires-python = ">=3.10"
 description = "WDM wavelet transform your time/freq series!"
 readme = "README.rst"
 authors = [
@@ -31,10 +31,13 @@ dependencies = [
     "rich",
     "rocket-fft",
     "astropy>=5.2.1",
+    "jaxtyping",
+    "beartype"
 ]
 
 [project.optional-dependencies]
 jax = ["jax"]
+cupy = ["cupy"]
 dev = [
     "pytest>=6.0",
     "pytest-cov>=4.1.0",
