@@ -15,7 +15,7 @@ def omega(Nf: int, Nt: int) -> Float[Array, " Nt//2+1"]:
 def phitilde_vec_norm(Nf: int, Nt: int, d: float) -> Float[Array, " Nt//2+1"]:
     """Normalize phitilde for inverse frequency domain transform."""
     omegas = omega(Nf, Nt)
-    _phi_t = _phitilde_vec(omegas, Nf, d) / (np.pi ** (-1 / 2))
+    _phi_t = _phitilde_vec(omegas, Nf, d) * np.sqrt(np.pi)
     return xp.array(_phi_t)
 
 

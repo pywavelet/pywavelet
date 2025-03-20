@@ -30,6 +30,8 @@ def test_toy_model_snr(backend, plot_dir):
     t = np.arange(0, ND) * dt
     PSD_AMP = 1
 
+    true_wdm_amp = A * np.sqrt(2 * Nf)
+
     ########################################
     # Part1: Analytical SNR calculation
     #######################################
@@ -57,6 +59,7 @@ def test_toy_model_snr(backend, plot_dir):
     )
     wdm_snr = compute_snr(signal_wavelet, signal_wavelet, psd_wavelet)
     assert np.isclose(snr, wdm_snr, atol=0.5), f"{snr}!={wdm_snr}"
+    np.testing.assert_allclose(true_wdm_amp, signal_wavelet.data.max(), atol=1e-2)
 
     ########################################
     # Part3: Wavelet domain (other backend)
@@ -98,7 +101,7 @@ def test_toy_model_snr(backend, plot_dir):
         assert isinstance(signal_wavelet_new.data, np.ndarray)
         logger.info("CUPY TEST COMPLETE")
 
-
+    np.testing.assert_allclose(true_wdm_amp, signal_wavelet_new.data.max(), atol=1e-2)
     wdm_snr_jax = compute_snr(
         signal_wavelet_new, signal_wavelet_new, psd_wavelet
     )
