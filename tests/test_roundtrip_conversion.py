@@ -64,11 +64,19 @@ def test_conversion_from_hf_ht():
 
 
 def _run_freqdomain_checks(hf, label, outdir, Nf=Nf, dt=dt):
-    from pywavelet.backend import current_backend
+    from pywavelet.backend import current_backend, xp
     from pywavelet.transforms import from_freq_to_wavelet, from_wavelet_to_freq
 
+    hf.data = xp.array(hf.data)
     wavelet = from_freq_to_wavelet(hf, Nf=Nf)
+    if current_backend=='cupy':
+        wavelet.data = wavelet.data.get()
+    else:
+        wavelet.data = np.array(wavelet.data)
+
     _assert_wavelet_matches_cached_wavelet(wavelet, label, outdir)
+
+    wavelet.data= xp.array(wavelet.data)
     h_reconstructed = from_wavelet_to_freq(wavelet, dt=dt)
 
     plot_fn = f"{outdir}/{label}_{current_backend}.png"

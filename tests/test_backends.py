@@ -69,6 +69,9 @@ def test_toy_model_snr(backend, plot_dir):
         signal_wavelet_new = jax_from_freq_to_wavelet(
             signal_freq, Nf=Nf, Nt=Nt
         )
+        # convert back to numpy
+        signal_wavelet_new.data = np.array(signal_wavelet_new.data)
+        assert isinstance(signal_wavelet_new.data, np.ndarray)
 
 
 
@@ -83,19 +86,13 @@ def test_toy_model_snr(backend, plot_dir):
         signal_wavelet_new = cupy_from_freq_to_wavelet(
             signal_freq, Nf=Nf, Nt=Nt
         )
-
-    psd_wavelet_new = evolutionary_psd_from_stationary_psd(
-        psd=np.array(psd_freq.data),
-        psd_f=np.array(psd_freq.freq),
-        f_grid=np.array(signal_wavelet_new.freq),
-        t_grid=np.array(signal_wavelet_new.time),
-        dt=dt,
-    )
-    signal_wavelet_new.data = np.array(signal_wavelet_new.data)
+        # convert back to numpy
+        signal_wavelet_new.data = np.array(signal_wavelet_new.data.get())
+        assert isinstance(signal_wavelet_new.data, np.ndarray)
 
 
     wdm_snr_jax = compute_snr(
-        signal_wavelet_new, signal_wavelet_new, psd_wavelet_new
+        signal_wavelet_new, signal_wavelet_new, psd_wavelet
     )
     assert np.isclose(snr, wdm_snr_jax, atol=0.5), f"{snr}!={wdm_snr_jax}"
 
