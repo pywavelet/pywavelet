@@ -67,6 +67,8 @@ def _run_freqdomain_checks(hf, label, outdir, Nf=Nf, dt=dt):
     from pywavelet.backend import current_backend, xp
     from pywavelet.transforms import from_freq_to_wavelet, from_wavelet_to_freq
 
+    logger.debug(from_freq_to_wavelet.__code__.co_filename)
+
     hf.data = xp.array(hf.data)
     wavelet = from_freq_to_wavelet(hf, Nf=Nf)
     if current_backend=='cupy':
