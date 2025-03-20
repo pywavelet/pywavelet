@@ -90,14 +90,14 @@ def test_backend_loader():
 
     import pywavelet.backend
 
-    os.environ["PYWAVELET_JAX"] = "1"
+    os.environ["PYWAVELET_BACKEND"] = "jax"
     importlib.reload(pywavelet.backend)
-    from pywavelet.backend import use_jax
+    from pywavelet.backend import current_backend
 
-    assert use_jax
-    os.environ["PYWAVELET_JAX"] = "0"
+    assert current_backend == "jax"
+    os.environ["PYWAVELET_BACKEND"] = "numpy"
 
     importlib.reload(pywavelet.backend)
-    from pywavelet.backend import use_jax
+    from pywavelet.backend import current_backend
 
-    assert not use_jax
+    assert current_backend == "numpy"
