@@ -29,6 +29,7 @@ def test_freqdomain_chirp_roundtrip(backend, plot_dir, chirp_freq):
     if backend == "cupy" and not cuda_available:
         pytest.skip("CUDA is not available")
     _run_freqdomain_checks(chirp_freq, "roundtrip_chirp_freq", plot_dir)
+    logger.info('-------test complete--------')
 
 
 @pytest.mark.parametrize("backend", ["numpy", "jax", "cupy"])
@@ -46,6 +47,7 @@ def test_freqdomain_sine_roundtrip(backend, plot_dir, sine_freq):
         sine_freq = to_jax(sine_freq)
 
     _run_freqdomain_checks(sine_freq, "roundtrip_sine_freq", plot_dir)
+    logger.info('-------test complete--------')
 
 
 @pytest.mark.parametrize("backend", ["numpy", "jax", "cupy"])
@@ -69,6 +71,7 @@ def test_freqdomain_pure_f0_transform(backend, plot_dir):
         hf, "roundtrip_pure_f0_freq", plot_dir, Nf=Nf, dt=dt
     )
     plot_fft(hf, hf_1, f"{plot_dir}/test_pure_f0_transform.png")
+    logger.info('-------test complete--------')
 
 
 def test_conversion_from_hf_ht():
