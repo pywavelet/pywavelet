@@ -22,17 +22,21 @@ pywavelet is available on PyPI and can be installed with `pip <https://pip.pypa.
 
     $ pip install pywavelet
 
+
+
 For developers
 --------------
 
-First set up a conda environment with the latest version of python.
+First set up a conda environment with python 3.10
 
 .. code-block::
 
-    $ conda create -n pywavelet -c conda-forge python=3.12
+    $ mamba create -n pywavelet python=3.10
 
 .. code-block::
 
+    $ CONDA_OVERRIDE_CUDA=12.4  mamba install "jaxlib=*=*cuda*" jax -c conda-forge
+    $ CONDA_OVERRIDE_CUDA=12.4  mamba install -c conda-forge cupy
     $ pip install -e ".[dev]"
     $ pre-commit install
 
