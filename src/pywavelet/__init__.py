@@ -18,6 +18,10 @@ def set_backend(backend: str):
     backend : str
         Backend to use. Options are "numpy", "jax", "cupy".
     """
+    from . import types
+    from . import transforms
     os.environ["PYWAVELET_BACKEND"] = backend
 
     importlib.reload(_backend)
+    importlib.reload(types)
+    importlib.reload(transforms)

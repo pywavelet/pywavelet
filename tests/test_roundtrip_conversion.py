@@ -1,6 +1,7 @@
 import numpy as np
 import pytest
 from conftest import DATA_DIR, Nf, Nt, dt, mult
+from pywavelet.types import FrequencySeries, Wavelet, TimeSeries
 from utils import (
     cuda_available,
     generate_pure_f0,
@@ -8,6 +9,7 @@ from utils import (
     plot_freqdomain_comparisions,
     plot_timedomain_comparisons,
     plot_wavelet_comparison,
+    to_jax, to_cupy, to_numpy
 )
 
 import logging
@@ -34,8 +36,15 @@ def test_freqdomain_sine_roundtrip(backend, plot_dir, sine_freq):
     from pywavelet import set_backend
 
     set_backend(backend)
-    if backend == "cupy" and not cuda_available:
-        pytest.skip("CUDA is not available")
+    if backend == "cupy":
+        if not cuda_available:
+            pytest.skip("CUDA is not available")
+        else:
+            sine_freq = to_cupy(sine_freq)
+
+    elif backend == "jax":
+        sine_freq = to_jax(sine_freq)
+
     _run_freqdomain_checks(sine_freq, "roundtrip_sine_freq", plot_dir)
 
 
@@ -43,11 +52,19 @@ def test_freqdomain_sine_roundtrip(backend, plot_dir, sine_freq):
 def test_freqdomain_pure_f0_transform(backend, plot_dir):
     from pywavelet import set_backend
 
-    set_backend(backend)
-    if backend == "cupy" and not cuda_available:
-        pytest.skip("CUDA is not available")
     Nf, Nt, dt = 8, 4, 0.1
     hf = generate_pure_f0(Nf=Nf, Nt=Nt, dt=dt)
+
+    set_backend(backend)
+    if backend == "cupy":
+        if not cuda_available:
+            pytest.skip("CUDA is not available")
+        else:
+            hf = to_cupy(hf)
+
+    if backend == "jax":
+        hf = to_jax(hf)
+
     hf_1 = _run_freqdomain_checks(
         hf, "roundtrip_pure_f0_freq", plot_dir, Nf=Nf, dt=dt
     )
@@ -71,19 +88,13 @@ def _run_freqdomain_checks(hf, label, outdir, Nf=Nf, dt=dt):
     from pywavelet.backend import current_backend, xp
     from pywavelet.transforms import from_freq_to_wavelet, from_wavelet_to_freq
 
-    logger.debug(from_freq_to_wavelet.__code__.co_filename)
-
-    hf.data = xp.array(hf.data)
     wavelet = from_freq_to_wavelet(hf, Nf=Nf)
-    if current_backend=='cupy':
-        wavelet.data = wavelet.data.get()
-    else:
-        wavelet.data = np.array(wavelet.data)
+    wavelet_np = to_numpy(wavelet)
 
-    _assert_wavelet_matches_cached_wavelet(wavelet, label, outdir)
+    _assert_wavelet_matches_cached_wavelet(wavelet_np, label, outdir)
 
-    wavelet.data= xp.array(wavelet.data)
     h_reconstructed = from_wavelet_to_freq(wavelet, dt=dt)
+    h_reconstructed = to_numpy(h_reconstructed)
 
     plot_fn = f"{outdir}/{label}_{current_backend}.png"
     plot_freqdomain_comparisions(
@@ -109,23 +120,29 @@ def _run_timedomain_checks(ht, label, outdir, Nt=Nt, mult=mult, dt=dt):
 
 
 def _assert_roundtrip_valid(h_old, h_new, wavelet):
+    h_new = to_numpy(h_new)
+    h_old = to_numpy(h_old)
+    wavelet = to_numpy(wavelet)
+
     residuals = np.abs(h_old.data - h_new.data)
     mean, std = np.mean(residuals), np.std(residuals)
     assert mean < 1e-3, f"Mean residual is too large: {mean}"
     assert std < 1e-3, f"Standard deviation of residuals is too large: {std}"
     assert (
-        np.max(np.abs(residuals)) < 1e-2
+            np.max(np.abs(residuals)) < 1e-2
     ), f"Max residual is too large: {np.max(np.abs(residuals))}"
     assert not np.isnan(residuals).any(), "Residuals contain NaNs"
     assert np.allclose(h_old.shape, h_new.shape)
     assert (
-        h_old.ND == h_old.ND == wavelet.ND
+            h_old.ND == h_old.ND == wavelet.ND
     ), f"ND dont match: {h_old.ND}, {h_new.ND}, {wavelet.ND}"
 
 
 def _assert_wavelet_matches_cached_wavelet(cur: "Wavelet", label, outdir):
     from pywavelet.backend import current_backend
     from pywavelet.types import Wavelet
+
+    curr = to_numpy(cur)
 
     np.savez(
         f"{outdir}/{label}.npz", freq=cur.freq, time=cur.time, data=cur.data
@@ -143,13 +160,13 @@ def _assert_wavelet_matches_cached_wavelet(cur: "Wavelet", label, outdir):
     plot_wavelet_comparison(cur, cached, err, label, outdir)
 
     assert (
-        net_err < 1e-3
+            net_err < 1e-3
     ), f"Net error (orig - new WDM) is too large: {net_err}"
     assert (
-        cur.__repr__() == cached.__repr__()
+            cur.__repr__() == cached.__repr__()
     ), f"Current[{cur.__repr__()}] != Old[{cached.__repr__()}]"
     assert (
-        cur.shape == cached.shape
+            cur.shape == cached.shape
     ), f"Wavelets dont match current: {cur}, old: {cached}"
     assert np.allclose(
         cur.freq, cached.freq
