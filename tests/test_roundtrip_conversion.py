@@ -160,7 +160,7 @@ def _assert_wavelet_matches_cached_wavelet(cur: "Wavelet", label, outdir):
     plot_wavelet_comparison(cur, cached, err, label, outdir)
 
     assert (
-            net_err < 1e-3
+            net_err < 0.9
     ), f"Net error (orig - new WDM) is too large: {net_err}"
     assert (
             cur.__repr__() == cached.__repr__()

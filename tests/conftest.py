@@ -12,6 +12,10 @@ from pywavelet.types import Wavelet
 from pywavelet.types.wavelet_bins import compute_bins
 from pywavelet.logger import logger
 
+import jax
+
+jax.config.update("jax_enable_x64", True)
+
 logger.setLevel("DEBUG")
 
 # set global env var "NUMBA_DISABLE_JIT=1"
@@ -24,8 +28,8 @@ fs = 1024
 fmax = 50
 frange = [10, fmax]
 dt = 1 / fs
-Nt = 2**6
-Nf = 2**7
+Nt = 2 ** 6
+Nf = 2 ** 7
 mult = 16
 ND = Nt * Nf
 ts = np.arange(0, ND) * dt
@@ -61,11 +65,11 @@ def sine_freq():
 
 
 def monochromatic_wnm(
-    f0: float = 20,
-    dt: float = 0.0125,
-    A: float = 2,
-    Nt: int = 128,
-    Nf: int = 256,
+        f0: float = 20,
+        dt: float = 0.0125,
+        A: float = 2,
+        Nt: int = 128,
+        Nf: int = 256,
 ):
     T = Nt * Nf * dt
     N = Nt * Nf
