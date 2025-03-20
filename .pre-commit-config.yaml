@@ -16,7 +16,4 @@ repos:
     rev: 25.1.0
     hooks:
       - id: black
-  - repo: https://github.com/psf/black
-    rev: "25.1.0"
-    hooks:
       - id: black-jupyter
