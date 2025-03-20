@@ -1,6 +1,6 @@
-from ..backend import use_jax
+from ..backend import current_backend
 
-if use_jax:
+if current_backend == "jax":
     from .jax import (
         from_freq_to_wavelet,
         from_time_to_wavelet,
@@ -15,7 +15,7 @@ else:
         from_freq_to_wavelet,
     )
 
-from .phi_computer import phi_vec, phitilde_vec, phitilde_vec_norm
+from .phi_computer import phi_vec, phitilde_vec_norm
 
 __all__ = [
     "from_wavelet_to_time",
@@ -24,5 +24,4 @@ __all__ = [
     "from_freq_to_wavelet",
     "phitilde_vec_norm",
     "phi_vec",
-    "phitilde_vec",
 ]
