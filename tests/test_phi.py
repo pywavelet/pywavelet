@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-from pywavelet.transforms import phi_vec, phitilde_vec, phitilde_vec_norm
+from pywavelet.transforms import omega, phi_vec, phitilde_vec_norm
 
 
 def _plot(t, phi, f, phitilde, fname):
@@ -30,8 +30,12 @@ def test_phi(plot_dir):
     delF = 1.0 / (2 * Nf * dt)
 
     phi = phi_vec(Nf=Nf, d=d, q=q) / delT
-    t = np.linspace(-q, q, len(phi))
-    f = np.linspace(-1, 1, 1000)
-    phitilde = phitilde_vec(f, Nf=Nf, d=d) / delF
+    phitilde = phitilde_vec_norm(Nf=Nf, Nt=Nt, d=d) / delF
 
-    _plot(t, phi, f, phitilde, plot_dir / "phi.png")
+    assert len(phi) == 2 * q * Nf, f"{len(phi)} != {2 * q * Nf}"
+    assert len(phitilde) == Nt // 2 + 1, f"{len(phitilde)} != {Nt // 2 + 1}"
+
+    t = np.linspace(-q, q, len(phi))
+    f = omega(Nf, Nt) / delF
+
+    _plot(t, phi, f, phitilde, f"{plot_dir}/phi.png")

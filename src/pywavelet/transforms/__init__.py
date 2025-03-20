@@ -15,7 +15,7 @@ else:
         from_freq_to_wavelet,
     )
 
-from .phi_computer import phi_vec, phitilde_vec_norm
+from .phi_computer import omega, phi_vec, phitilde_vec_norm
 
 __all__ = [
     "from_wavelet_to_time",
