@@ -1,6 +1,7 @@
 import cupy as cp
 from cupyx.scipy.fft import fft
 
+
 def inverse_wavelet_freq_helper(
     wave_in: cp.ndarray, phif: cp.ndarray, Nf: int, Nt: int
 ) -> cp.ndarray:

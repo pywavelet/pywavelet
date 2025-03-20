@@ -1,4 +1,3 @@
-
 import cupy as cp
 from cupyx.scipy.fft import rfftfreq
 

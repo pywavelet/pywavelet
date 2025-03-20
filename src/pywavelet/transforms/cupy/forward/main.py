@@ -1,5 +1,6 @@
-import cupy as cp
 from typing import Union
+
+import cupy as cp
 
 from ....logger import logger
 from ....types import FrequencySeries, TimeSeries, Wavelet

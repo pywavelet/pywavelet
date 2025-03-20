@@ -1,6 +1,7 @@
 import cupy as cp
 from cupyx.scipy.fft import rfft
 
+
 def transform_wavelet_time_helper(
     data: cp.ndarray, phi: cp.ndarray, Nf: int, Nt: int, mult: int
 ) -> cp.ndarray:
@@ -32,7 +33,9 @@ def transform_wavelet_time_helper(
 
     # Update wave for m=0 using even time bins
     wave[even_indices, 0] = cp.real(wdata_trans[even_indices, 0]) / cp.sqrt(2)
-    wave[even_indices + 1, 0] = cp.real(wdata_trans[even_indices, Nf * mult]) / cp.sqrt(2)
+    wave[even_indices + 1, 0] = cp.real(
+        wdata_trans[even_indices, Nf * mult]
+    ) / cp.sqrt(2)
 
     # Handle other cases (j > 0) using vectorized operations
     j_range = cp.arange(1, Nf)
