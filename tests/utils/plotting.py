@@ -103,6 +103,8 @@ def plot_wavelet_comparison(
     axes[2].set_ylabel("")
     for ax in axes:
         ax.set_xlabel("Time [s]")
+    plt.suptitle(label)
+    plt.tight_layout()
     plt.savefig(f"{outdir}/{label}_comparison.png")
     return cached
 
