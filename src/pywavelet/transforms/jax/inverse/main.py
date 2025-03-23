@@ -10,7 +10,6 @@ def from_wavelet_to_time(
     wave_in: Wavelet,
     dt: float,
     nx: float = 4.0,
-    mult: int = 32,
 ) -> TimeSeries:
     """Inverse wavelet transform to time domain.
 
