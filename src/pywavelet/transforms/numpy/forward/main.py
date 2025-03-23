@@ -56,7 +56,6 @@ def from_time_to_wavelet(
     to inaccurate results.
     """
     Nf, Nt = _preprocess_bins(timeseries, Nf, Nt)
-    dt = timeseries.dt
     t_bins, f_bins = _get_bins(timeseries, Nf, Nt)
 
     ND = Nf * Nt
