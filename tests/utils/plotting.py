@@ -2,7 +2,8 @@ import subprocess
 
 import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib.colors import TwoSlopeNorm
+from matplotlib.colors import LogNorm
+from numpy.ma.core import absolute
 
 from pywavelet.types import FrequencySeries, TimeSeries, Wavelet
 
@@ -76,28 +77,30 @@ def plot_residuals(residuals: np.ndarray, ax: plt.Axes, symlog=True):
 def plot_wavelet_comparison(
     cur: Wavelet, cached: Wavelet, err: Wavelet, label: str, outdir: str
 ):
+    from pywavelet.backend import current_backend
+
     net_err = np.sum(np.abs(err.data))
-    fig, axes = plt.subplots(1, 3, figsize=(15, 4), sharey=True, sharex=True)
-    axes[0].set_title(f"Branch: {BRANCH}")
-    axes[1].set_title("Cached (v0.0.1)")
+    fig, axes = plt.subplots(1, 3, figsize=(10, 4), sharey=True, sharex=True)
+    axes[0].set_title(f"Branch: {BRANCH} [{current_backend}]")
+    axes[1].set_title("Cached Numpy (v0.0.1)")
     axes[2].set_title("Diff")
-    textstr = f"Σ|old-new|: {net_err:.2e}"
-    props = dict(boxstyle="round", facecolor=None, alpha=0.2)
-    axes[2].text(
-        0.05,
-        0.85,
-        textstr,
-        transform=axes[2].transAxes,
-        fontsize=14,
-        verticalalignment="top",
-        bbox=props,
+    errstr = f"Σ|old-new|: {net_err:.2e}"
+    txtbox_kwargs = dict(alpha=0.5, facecolor="white")
+    vmin = min([np.min(np.abs(cur.data)), np.min(np.abs(cached.data))])
+    vmax = max([np.max(np.abs(cur.data)), np.max(np.abs(cached.data))])
+    norm = LogNorm(vmin, vmax)
+    kwgs = dict(
+        norm=norm, zscale="log", absolute=True, txtbox_kwargs=txtbox_kwargs
     )
-    vmin = min([np.min(cur.data), np.min(cached.data), -1])
-    vmax = max([np.max(cur.data), np.max(cached.data), 1])
-    norm = TwoSlopeNorm(0, vmin, vmax)
-    cur.plot(ax=axes[0], norm=norm, cmap="bwr", show_colorbar=False)
-    cached.plot(ax=axes[1], norm=norm, cmap="bwr", show_colorbar=True)
-    err.plot(ax=axes[2], cmap="bwr", show_colorbar=True, cbar_label="old-new")
+    cur.plot(ax=axes[0], show_colorbar=False, **kwgs)
+    cached.plot(ax=axes[1], show_colorbar=False, **kwgs)
+    err.plot(
+        ax=axes[2],
+        show_colorbar=True,
+        cbar_label="old-new",
+        label=errstr,
+        **kwgs,
+    )
     axes[0].set_ylabel("Frequency [Hz]")
     axes[1].set_ylabel("")
     axes[2].set_ylabel("")

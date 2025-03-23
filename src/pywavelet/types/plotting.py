@@ -84,6 +84,7 @@ def plot_wavelet_grid(
     nan_color: Optional[str] = "black",
     detailed_axes: bool = False,
     show_gridinfo: bool = True,
+    txtbox_kwargs: dict = {},
     trend_color: Optional[str] = None,
     whiten_by: Optional[np.ndarray] = None,
     **kwargs,
@@ -253,6 +254,9 @@ def plot_wavelet_grid(
     NfNt_label = f"{Nf}x{Nt}" if show_gridinfo else ""
     txt = f"{label}\n{NfNt_label}" if label else NfNt_label
     if txt:
+        txtbox_kwargs.setdefault("boxstyle", "round")
+        txtbox_kwargs.setdefault("facecolor", "white")
+        txtbox_kwargs.setdefault("alpha", 0.2)
         ax.text(
             0.05,
             0.95,
@@ -260,7 +264,7 @@ def plot_wavelet_grid(
             transform=ax.transAxes,
             fontsize=14,
             verticalalignment="top",
-            bbox=dict(boxstyle="round", facecolor=None, alpha=0.2),
+            bbox=txtbox_kwargs,
         )
 
     # Adjust layout

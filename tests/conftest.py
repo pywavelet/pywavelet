@@ -1,5 +1,6 @@
 import os
 
+import jax
 import numpy as np
 import pytest
 from utils import (
@@ -8,11 +9,9 @@ from utils import (
     generate_sine_time_domain_signal,
 )
 
+from pywavelet.logger import logger
 from pywavelet.types import Wavelet
 from pywavelet.types.wavelet_bins import compute_bins
-from pywavelet.logger import logger
-
-import jax
 
 jax.config.update("jax_enable_x64", True)
 
@@ -24,13 +23,14 @@ os.environ["NUMBA_DISABLE_JIT"] = "1"
 HERE = os.path.abspath(os.path.dirname(__file__))
 DATA_DIR = f"{HERE}/test_data"
 
-fs = 1024
 fmax = 50
 frange = [10, fmax]
-dt = 1 / fs
-Nt = 2 ** 6
-Nf = 2 ** 7
-mult = 16
+f0 = 20
+dt = 0.0125
+fs = 1 / dt
+A = 2
+Nt = 128
+Nf = 256
 ND = Nt * Nf
 ts = np.arange(0, ND) * dt
 
@@ -54,22 +54,20 @@ def chirp_freq():
 
 @pytest.fixture()
 def sine_time():
-    return generate_sine_time_domain_signal(ts, ND, f_true=10)
+    return generate_sine_time_domain_signal(ts, f_true=f0)
 
 
 @pytest.fixture()
 def sine_freq():
-    return generate_sine_time_domain_signal(
-        ts, ND, f_true=10
-    ).to_frequencyseries()
+    return generate_sine_time_domain_signal(ts, f_true=f0).to_frequencyseries()
 
 
 def monochromatic_wnm(
-        f0: float = 20,
-        dt: float = 0.0125,
-        A: float = 2,
-        Nt: int = 128,
-        Nf: int = 256,
+    f0: float = 20,
+    dt: float = 0.0125,
+    A: float = 2,
+    Nt: int = 128,
+    Nf: int = 256,
 ):
     T = Nt * Nf * dt
     N = Nt * Nf
