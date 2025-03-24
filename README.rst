@@ -23,6 +23,8 @@ pywavelet is available on PyPI and can be installed with `pip <https://pip.pypa.
     $ pip install pywavelet
 
 
+Note: We have transforms availible in numpy, JAX and Cupy.
+
 
 For developers
 --------------
