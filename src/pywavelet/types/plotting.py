@@ -303,7 +303,7 @@ def plot_periodogram(
     flow = np.min(np.abs(freq))
     ax.set_xlabel("Frequency [Hz]")
     ax.set_ylabel("Periodigram")
-    ax.set_xlim(left=flow, right=nyquist_frequency / 2)
+    # ax.set_xlim(left=flow, right=nyquist_frequency / 2)
     return ax.figure, ax
 
 

@@ -13,6 +13,7 @@ from utils import (
     to_numpy,
 )
 
+from pywavelet import set_backend
 from pywavelet.types import FrequencySeries, TimeSeries, Wavelet
 
 logger = logging.getLogger("pywavelet")
@@ -53,6 +54,7 @@ def test_freqdomain_sine_roundtrip(backend, plot_dir, sine_freq):
 
 
 def test_conversion_from_hf_ht(sine_freq):
+    set_backend("numpy")
     ht = sine_freq.to_timeseries()
     w1 = sine_freq.to_wavelet(Nf=Nf, Nt=Nt)
     w2 = ht.to_wavelet(Nf=Nf, Nt=Nt)

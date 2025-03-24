@@ -23,7 +23,7 @@ os.environ["NUMBA_DISABLE_JIT"] = "1"
 HERE = os.path.abspath(os.path.dirname(__file__))
 DATA_DIR = f"{HERE}/test_data"
 
-fmax = 50
+fmax = 35.0
 frange = [10, fmax]
 f0 = 20
 dt = 0.0125

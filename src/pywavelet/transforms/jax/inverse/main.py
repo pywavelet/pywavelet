@@ -10,6 +10,7 @@ def from_wavelet_to_time(
     wave_in: Wavelet,
     dt: float,
     nx: float = 4.0,
+    mult: int = None,
 ) -> TimeSeries:
     """Inverse wavelet transform to time domain.
 
@@ -59,9 +60,7 @@ def from_wavelet_to_freq(
         wave_in.data, phif=phif, Nf=wave_in.Nf, Nt=wave_in.Nt
     )
 
-    freq_data *= 2 ** (
-        -1 / 2
-    )  # Normalise to get the proper backwards transformation
+    freq_data *= 1.0 / jnp.sqrt(2)
 
-    freqs = rfftfreq(wave_in.ND * 2, d=dt)[1:]
+    freqs = rfftfreq(wave_in.ND, d=dt)
     return FrequencySeries(data=freq_data, freq=freqs)

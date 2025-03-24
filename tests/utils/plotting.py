@@ -1,4 +1,5 @@
 import subprocess
+from cProfile import label
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -52,7 +53,9 @@ def __symlog_bins(
     return bins, lin_thresh
 
 
-def plot_residuals(residuals: np.ndarray, ax: plt.Axes, symlog=True):
+def plot_residuals(
+    residuals: np.ndarray, ax: plt.Axes, symlog=False, log_bins=True
+):
     mean, std = np.mean(residuals), np.std(residuals)
     ax.text(
         0.05,
@@ -68,6 +71,14 @@ def plot_residuals(residuals: np.ndarray, ax: plt.Axes, symlog=True):
         bins, lin_thresh = __symlog_bins(residuals)
         ax.hist(residuals, bins=bins, density=False)
         ax.set_xscale("symlog", linthresh=lin_thresh)
+    if log_bins:
+        bins = np.logspace(
+            np.log10(np.min(np.abs(residuals))),
+            np.log10(np.max(np.abs(residuals))),
+            100,
+        )
+        ax.hist(residuals, bins=bins, density=False)
+        ax.set_xscale("log")
     else:
         ax.hist(residuals, bins=100, density=False)
     ax.set_xlabel("Residuals")
@@ -86,9 +97,7 @@ def plot_wavelet_comparison(
     axes[2].set_title("Diff")
     errstr = f"Σ|old-new|: {net_err:.2e}"
     txtbox_kwargs = dict(alpha=0.5, facecolor="white")
-    vmin = min([np.min(np.abs(cur.data)), np.min(np.abs(cached.data))])
-    vmax = max([np.max(np.abs(cur.data)), np.max(np.abs(cached.data))])
-    norm = LogNorm(vmin, vmax)
+    norm = _get_log_norm(cur.data, cached.data, default_vmin=1e-10)
     kwgs = dict(
         norm=norm, zscale="log", absolute=True, txtbox_kwargs=txtbox_kwargs
     )
@@ -112,6 +121,27 @@ def plot_wavelet_comparison(
     return cached
 
 
+def _get_log_norm(cur_data, cached_data, default_vmin=1e-10):
+    abs_cur_data = np.abs(cur_data)
+    abs_cached_data = np.abs(cached_data)
+
+    vmin_cur = (
+        np.min(abs_cur_data[abs_cur_data > 0])
+        if len(abs_cur_data[abs_cur_data > 0]) > 0
+        else default_vmin
+    )
+    vmin_cached = (
+        np.min(abs_cached_data[abs_cached_data > 0])
+        if len(abs_cached_data[abs_cached_data > 0]) > 0
+        else default_vmin
+    )
+
+    vmin = min(vmin_cur, vmin_cached)
+    vmax = max(np.max(abs_cur_data), np.max(abs_cached_data))
+
+    return LogNorm(vmin, vmax)
+
+
 def plot_timedomain_comparisons(
     ht: TimeSeries, h_reconstructed: TimeSeries, wavelet: Wavelet, fname: str
 ):
@@ -126,8 +156,8 @@ def plot_timedomain_comparisons(
     )
     axes[0].legend()
     wavelet.plot(ax=axes[1])
-    r = ht.data - h_reconstructed.data
-    plot_residuals(ht.data - h_reconstructed.data, axes[2])
+    error = np.sqrt((ht.data - h_reconstructed.data) ** 2)
+    plot_residuals(error, axes[2])
     axes[0].set_title("Timeseries")
     axes[1].set_title("Wavelet")
     axes[2].set_title("Residuals")
@@ -142,23 +172,47 @@ def plot_freqdomain_comparisions(
     fname: str,
 ):
     fig, axes = plt.subplots(1, 3, figsize=(15, 5))
-    hf.plot_periodogram(ax=axes[0], label="Original")
+    hf.plot_periodogram(ax=axes[0], label=f"Original (n={hf.ND})")
     h_reconstructed.plot_periodogram(
         ax=axes[0],
-        label="Reconstructed",
+        label=f"Reconstructed (n={h_reconstructed.ND})",
         linestyle="--",
         color="tab:orange",
         alpha=0.5,
     )
-    axes[0].legend()
+    axes[0].set_xscale("linear")
+    ax_diff = axes[0].twinx()
+    ax_diff.plot(
+        hf.freq,
+        np.abs(np.abs(hf.data) - np.abs(h_reconstructed.data)),
+        color="tab:red",
+        label="Diff",
+        alpha=0.25,
+        zorder=-1,
+    )
+    # add diff to legend
+    axes[0].legend(loc="upper left", frameon=False)
+    ax_diff.legend(loc="upper right", frameon=False)
+    # put ticks + ticklabels INSIDE (and in red
+    ax_diff.tick_params(
+        axis="y",
+        colors="red",
+        direction="in",
+        labelleft=True,
+        labelright=False,
+    )
+    ax_diff.yaxis.label.set_color("red")
+    ax_diff.spines["right"].set_color("red")
+    ax_diff.set_yscale("log")
+
     wavelet.plot(ax=axes[1])
     try:
         r = np.abs(hf.data) - np.abs(h_reconstructed.data)
-        plot_residuals(r, axes[2])
+        plot_residuals(r, axes[2], log_bins=False)
     except Exception as e:
         print(e)
 
-    axes[2].set_title("Residuals (in WDF f-range)")
+    axes[2].set_title("Residuals (freq-domain)")
     axes[0].set_title("Periodogram")
     axes[1].set_title("Wavelet")
     plt.tight_layout()

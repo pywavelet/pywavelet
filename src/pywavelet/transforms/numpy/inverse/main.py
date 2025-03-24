@@ -7,8 +7,6 @@ from .to_time import inverse_wavelet_time_helper_fast
 
 __all__ = ["from_wavelet_to_time", "from_wavelet_to_freq"]
 
-INV_ROOT2 = 1.0 / np.sqrt(2)
-
 
 def from_wavelet_to_time(
     wave_in: Wavelet,
@@ -50,7 +48,7 @@ def from_wavelet_to_time(
     h_t = inverse_wavelet_time_helper_fast(
         wave_in.data.T, phi, wave_in.Nf, wave_in.Nt, mult
     )
-    h_t *= INV_ROOT2  # Normalize to get proper backward transformation
+    h_t *= 1.0 / np.sqrt(2)  # Normalize to get proper backward transformation
     ts = np.arange(0, wave_in.Nf * wave_in.Nt) * dt
     return TimeSeries(data=h_t, time=ts)
 
@@ -89,7 +87,7 @@ def from_wavelet_to_freq(
         wave_in.data, phif, wave_in.Nf, wave_in.Nt
     )
 
-    freq_data *= INV_ROOT2
+    freq_data *= 1.0 / np.sqrt(2)
 
     freqs = np.fft.rfftfreq(wave_in.ND, d=dt)
     return FrequencySeries(data=freq_data, freq=freqs)
