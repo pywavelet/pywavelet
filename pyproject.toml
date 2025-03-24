@@ -49,6 +49,7 @@ dev = [
     "mypy",
     "jupyter-book",
     "GitPython",
+    "nbconvert",
 ]
 
 [tool.setuptools_scm]

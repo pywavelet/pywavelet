@@ -35,11 +35,20 @@ ND = Nt * Nf
 ts = np.arange(0, ND) * dt
 
 
-@pytest.fixture()
-def plot_dir():
+def _gen_testdir():
     dirname = f"{HERE}/out_plots_{BRANCH}"
     os.makedirs(dirname, exist_ok=True)
     return dirname
+
+
+@pytest.fixture()
+def plot_dir():
+    return _gen_testdir()
+
+
+@pytest.fixture()
+def outdir():
+    return _gen_testdir()
 
 
 @pytest.fixture()

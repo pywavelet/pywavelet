@@ -1,4 +1,5 @@
 import logging
+import os
 
 import numpy as np
 import pytest
@@ -69,6 +70,9 @@ def _run_freqdomain_checks(hf, label, outdir, Nf=Nf, dt=dt):
     from pywavelet.backend import current_backend, xp
     from pywavelet.transforms import from_freq_to_wavelet, from_wavelet_to_freq
 
+    outdir = f"{outdir}/{label}"
+    os.makedirs(outdir, exist_ok=True)
+
     wavelet = from_freq_to_wavelet(hf, Nf=Nf)
     wavelet_np = to_numpy(wavelet)
 
@@ -91,6 +95,9 @@ def _run_freqdomain_checks(hf, label, outdir, Nf=Nf, dt=dt):
 def _run_timedomain_checks(ht, label, outdir, Nt=Nt, dt=dt):
     from pywavelet.backend import current_backend
     from pywavelet.transforms import from_time_to_wavelet, from_wavelet_to_time
+
+    outdir = f"{outdir}/{label}"
+    os.makedirs(outdir, exist_ok=True)
 
     wavelet = from_time_to_wavelet(ht, Nt=Nt)
     _assert_wavelet_matches_cached_wavelet(wavelet, label, outdir)
