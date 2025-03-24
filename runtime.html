@@ -393,13 +393,25 @@ document.write(`
 <h1>Runtime Comparisons<a class="headerlink" href="#runtime-comparisons" title="Link to this heading">#</a></h1>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">timeit</span><span class="w"> </span><span class="kn">import</span> <span class="n">timeit</span>
+<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">importlib</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">jax.numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">jnp</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">numba.cuda</span><span class="w"> </span><span class="kn">import</span> <span class="n">runtime</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqdm.auto</span><span class="w"> </span><span class="kn">import</span> <span class="n">tqdm</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pywavelet.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">FrequencySeries</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pywavelet.transforms.phi_computer</span><span class="w"> </span><span class="kn">import</span> <span class="n">phitilde_vec_norm</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">timeit</span><span class="w"> </span><span class="kn">import</span> <span class="n">repeat</span> <span class="k">as</span> <span class="n">timing_repeat</span>
 
+
+
+<span class="n">cupy_available</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">find_spec</span><span class="p">(</span><span class="s2">&quot;cupy&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+
+<span class="k">if</span> <span class="n">cupy_available</span><span class="p">:</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">cupy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">cp</span>
+    
 
 <span class="k">def</span><span class="w"> </span><span class="nf">generate_freq_domain_signal</span><span class="p">(</span>
-    <span class="n">ND</span><span class="p">,</span> <span class="n">f0</span><span class="o">=</span><span class="mf">20.0</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="mf">0.0125</span><span class="p">,</span> <span class="n">A</span><span class="o">=</span><span class="mi">2</span>
+        <span class="n">ND</span><span class="p">,</span> <span class="n">f0</span><span class="o">=</span><span class="mf">20.0</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="mf">0.0125</span><span class="p">,</span> <span class="n">A</span><span class="o">=</span><span class="mi">2</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FrequencySeries</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Generates a frequency domain signal.</span>
@@ -417,62 +429,108 @@ document.write(`
     <span class="n">y</span> <span class="o">=</span> <span class="n">A</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">f0</span> <span class="o">*</span> <span class="n">ts</span><span class="p">)</span>
     <span class="n">yf</span> <span class="o">=</span> <span class="n">FrequencySeries</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">ts</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">yf</span>
-</pre></div>
-</div>
-</div>
-</div>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pywavelet.transforms.numpy.forward.from_freq</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">transform_wavelet_freq_helper</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pywavelet.transforms.phi_computer</span><span class="w"> </span><span class="kn">import</span> <span class="n">phitilde_vec_norm</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">timeit</span><span class="w"> </span><span class="kn">import</span> <span class="n">timeit</span>
 
-<span class="n">NF_values</span> <span class="o">=</span> <span class="p">[</span><span class="mi">8</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">64</span><span class="p">,</span> <span class="mi">128</span><span class="p">]</span>
-<span class="n">results</span> <span class="o">=</span> <span class="p">{}</span>
 
-<span class="k">for</span> <span class="n">Nf</span> <span class="ow">in</span> <span class="n">NF_values</span><span class="p">:</span>
-
-    <span class="n">Nt</span> <span class="o">=</span> <span class="n">Nf</span> <span class="o">*</span> <span class="mi">2</span>
-    <span class="n">ND</span> <span class="o">=</span> <span class="n">Nf</span> <span class="o">*</span> <span class="n">Nt</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ND: </span><span class="si">{</span><span class="n">ND</span><span class="si">}</span><span class="s2">, Nf: </span><span class="si">{</span><span class="n">Nf</span><span class="si">}</span><span class="s2">, Nt: </span><span class="si">{</span><span class="n">Nt</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="n">yf</span> <span class="o">=</span> <span class="n">generate_freq_domain_signal</span><span class="p">(</span><span class="n">ND</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">generate_func_args</span><span class="p">(</span><span class="n">ND</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="s2">&quot;numpy&quot;</span><span class="p">):</span>
+    <span class="n">Nf</span> <span class="o">=</span> <span class="n">Nt</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">ND</span><span class="p">))</span>
+    <span class="n">yf</span> <span class="o">=</span> <span class="n">generate_freq_domain_signal</span><span class="p">(</span><span class="n">ND</span><span class="p">)</span><span class="o">.</span><span class="n">data</span>
     <span class="n">phif</span> <span class="o">=</span> <span class="n">phitilde_vec_norm</span><span class="p">(</span><span class="n">Nf</span><span class="p">,</span> <span class="n">Nt</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="mf">4.0</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">backend</span> <span class="o">==</span> <span class="s2">&quot;jax&quot;</span><span class="p">:</span>
+        <span class="n">yf</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">yf</span><span class="p">)</span>
+        <span class="n">phif</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">phif</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">backend</span> <span class="o">==</span> <span class="s2">&quot;cupy&quot;</span> <span class="ow">and</span> <span class="n">cupy_available</span><span class="p">:</span>
+        <span class="n">yf</span> <span class="o">=</span> <span class="n">cp</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">yf</span><span class="p">)</span>
+        <span class="n">phif</span> <span class="o">=</span> <span class="n">cp</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">phif</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">yf</span><span class="p">,</span> <span class="n">Nf</span><span class="p">,</span> <span class="n">Nt</span><span class="p">,</span> <span class="n">phif</span>
 
-    <span class="c1"># Warm up run</span>
-    <span class="n">transform_wavelet_freq_helper</span><span class="p">(</span><span class="n">yf</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">Nf</span><span class="p">,</span> <span class="n">Nt</span><span class="p">,</span> <span class="n">phif</span><span class="p">)</span>
 
-    <span class="c1"># Timeit run</span>
-    <span class="n">time_taken</span> <span class="o">=</span> <span class="n">timeit</span><span class="p">(</span>
-        <span class="k">lambda</span><span class="p">:</span> <span class="n">transform_wavelet_freq_helper</span><span class="p">(</span><span class="n">yf</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">Nf</span><span class="p">,</span> <span class="n">Nt</span><span class="p">,</span> <span class="n">phif</span><span class="p">),</span> <span class="n">number</span><span class="o">=</span><span class="mi">5</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">collect_runtime</span><span class="p">(</span>
+        <span class="n">func</span><span class="p">,</span> <span class="n">func_args</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">nreps</span><span class="o">=</span><span class="mi">5</span>
+<span class="p">):</span>
+    <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">func_args</span><span class="p">)</span>  <span class="c1"># Warm up run</span>
+    <span class="n">times</span> <span class="o">=</span> <span class="n">timing_repeat</span><span class="p">(</span>
+        <span class="k">lambda</span><span class="p">:</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">func_args</span><span class="p">),</span>
+        <span class="n">number</span><span class="o">=</span><span class="n">n</span><span class="p">,</span>
+        <span class="n">repeat</span><span class="o">=</span><span class="n">nreps</span>
     <span class="p">)</span>
-    <span class="n">results</span><span class="p">[</span><span class="n">ND</span><span class="p">]</span> <span class="o">=</span> <span class="n">time_taken</span>
+    
+    
+    <span class="k">return</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">times</span><span class="p">),</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">times</span><span class="p">)))</span>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">collect_runtimes</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">backend</span><span class="p">,</span> <span class="n">NF_values</span><span class="p">,</span> <span class="n">number</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">repeat</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">bar</span> <span class="o">=</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">NF_values</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Running&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">Nf</span> <span class="ow">in</span> <span class="n">bar</span><span class="p">:</span>
+        <span class="n">ND</span> <span class="o">=</span> <span class="n">Nf</span> <span class="o">*</span> <span class="n">Nf</span>
+        <span class="n">bar</span><span class="o">.</span><span class="n">set_postfix</span><span class="p">(</span><span class="n">ND</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;2**</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log2</span><span class="p">(</span><span class="n">ND</span><span class="p">))</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">func_args</span> <span class="o">=</span> <span class="n">generate_func_args</span><span class="p">(</span><span class="n">ND</span><span class="p">,</span> <span class="n">backend</span><span class="p">)</span>
+        <span class="n">results</span><span class="p">[</span><span class="n">ND</span><span class="p">]</span> <span class="o">=</span> <span class="n">collect_runtime</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">func_args</span><span class="p">,</span> <span class="n">number</span><span class="p">,</span> <span class="n">repeat</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">results</span>
+
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pywavelet.transforms.jax.forward.from_freq</span><span class="w"> </span><span class="kn">import</span> <span class="n">transform_wavelet_freq_helper</span> <span class="k">as</span> <span class="n">jax_transform</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pywavelet.transforms.numpy.forward.from_freq</span><span class="w"> </span><span class="kn">import</span> <span class="n">transform_wavelet_freq_helper</span> <span class="k">as</span> <span class="n">np_transform</span>
+
+
+<span class="n">min_pow2</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">max_pow2</span> <span class="o">=</span> <span class="mi">12</span>
+<span class="n">NF</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span> <span class="o">**</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">min_pow2</span><span class="p">,</span> <span class="n">max_pow2</span><span class="p">)]</span>
+
+<span class="n">runtimes</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">runtimes</span><span class="p">[</span><span class="s2">&quot;numpy&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">collect_runtimes</span><span class="p">(</span><span class="n">np_transform</span><span class="p">,</span> <span class="s2">&quot;numpy&quot;</span><span class="p">,</span> <span class="n">NF</span><span class="p">,</span> <span class="n">number</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">repeat</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="n">runtimes</span><span class="p">[</span><span class="s2">&quot;jax&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">collect_runtimes</span><span class="p">(</span><span class="n">jax_transform</span><span class="p">,</span> <span class="s2">&quot;jax&quot;</span><span class="p">,</span> <span class="n">NF</span><span class="p">,</span> <span class="n">number</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">repeat</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+
+
+
+<span class="k">if</span> <span class="n">cupy_available</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pywavelet.transforms.cupy.forward.from_freq</span><span class="w"> </span><span class="kn">import</span> <span class="n">transform_wavelet_freq_helper</span> <span class="k">as</span> <span class="n">cp_transform</span>
+    <span class="n">runtimes</span><span class="p">[</span><span class="s1">&#39;cupy&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">collect_runtimes</span><span class="p">(</span><span class="n">cp_transform</span><span class="p">,</span> <span class="s2">&quot;cupy&quot;</span><span class="p">,</span> <span class="n">NF</span><span class="p">,</span> <span class="n">number</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">repeat</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>ND: 128, Nf: 8, Nt: 16
-ND: 512, Nf: 16, Nt: 32
-ND: 2048, Nf: 32, Nt: 64
-ND: 8192, Nf: 64, Nt: 128
-ND: 32768, Nf: 128, Nt: 256
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Running: 100%|██████████| 10/10 [00:05&lt;00:00,  2.00it/s, ND=2**22]
+Running: 100%|██████████| 10/10 [00:00&lt;00:00, 14.34it/s, ND=2**22]
 </pre></div>
 </div>
 </div>
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">results</span>
+<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_backend_runtime</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">runtimes</span><span class="p">,</span> <span class="n">backend</span><span class="p">,</span> <span class="n">color</span><span class="p">):</span>
+    <span class="n">NDs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">runtimes</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+    <span class="n">times</span> <span class="o">=</span> <span class="p">[</span><span class="n">runtimes</span><span class="p">[</span><span class="n">ND</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">ND</span> <span class="ow">in</span> <span class="n">NDs</span><span class="p">]</span>
+    <span class="n">stds</span> <span class="o">=</span> <span class="p">[</span><span class="n">runtimes</span><span class="p">[</span><span class="n">ND</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">ND</span> <span class="ow">in</span> <span class="n">NDs</span><span class="p">]</span>
+    <span class="c1"># plot a band around the median runtime</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span><span class="n">NDs</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">times</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">stds</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">times</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">stds</span><span class="p">),</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">NDs</span><span class="p">,</span> <span class="n">times</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">NDs</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">NDs</span><span class="p">))</span>
+    
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mf">3.5</span><span class="p">))</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">backend</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">runtimes</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+    <span class="n">plot_backend_runtime</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">runtimes</span><span class="p">[</span><span class="n">backend</span><span class="p">],</span> <span class="n">backend</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;C</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_yscale</span><span class="p">(</span><span class="s2">&quot;log&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xscale</span><span class="p">(</span><span class="s2">&quot;log&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Number of Data Points&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Runtime (s)&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">frameon</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>{128: 9.749794844537973e-05,
- 512: 0.00019677798263728619,
- 2048: 0.0004649469628930092,
- 8192: 0.0012474380200728774,
- 32768: 0.003837117925286293}
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.legend.Legend at 0x13561b5b0&gt;
+</pre></div>
+</div>
+<img alt="_images/80c6c5f5b5ca8f5ef66159c2afb6b77cbdc3a3fd6e16c804c23c7e149f4263d1.png" src="_images/80c6c5f5b5ca8f5ef66159c2afb6b77cbdc3a3fd6e16c804c23c7e149f4263d1.png" />
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
 </pre></div>
 </div>
 </div>
