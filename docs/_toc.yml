@@ -8,6 +8,7 @@ parts:
   chapters:
   - file: api.rst
   - file: example.ipynb
+  - file: runtime.ipynb
 - caption:  Case Studies
   chapters:
   - url: https://www.youtube.com/watch?v=dQw4w9WgXcQ&themeRefresh=1
