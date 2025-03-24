@@ -5,6 +5,166 @@ CHANGELOG
 =========
 
 
+.. _changelog-v0.2.6:
+
+v0.2.6 (2025-03-24)
+===================
+
+Bug Fixes
+---------
+
+* fix: add note in readme about JAX and cupy (`d3cd8d9`_)
+
+Unknown
+-------
+
+* add runtimes (`6cdfb28`_)
+
+* add runtime plot (`14b250b`_)
+
+* add runtime doc (`3d8b4cd`_)
+
+* add runtime doc (`7230f92`_)
+
+* add more tests and runtime doc (`b8dce3f`_)
+
+* add roundtrip comparisons (`81d6fc7`_)
+
+* remove dt (`d78b4b3`_)
+
+* remove mult (`b5ab983`_)
+
+*  add corrected sinewave for roundtrip test, remove incorrect f0 test (`e2f8317`_)
+
+* add WDM amplitude tests (`b99fc0d`_)
+
+* add various transforms (`7d97420`_)
+
+* fix cupy inverse (`b1f7dfa`_)
+
+* add plotting (`b0ad4fa`_)
+
+* add more tests (`aaeae9b`_)
+
+* add more tests (`6627e03`_)
+
+* add backend test (`ccb1193`_)
+
+* add more logging (`f2d6541`_)
+
+* add more logs (`0828947`_)
+
+* add more tests (`8c80929`_)
+
+* add more tests (`d1cb636`_)
+
+* Merge branch 'main' of github.com:pywavelet/pywavelet (`ab6ba0e`_)
+
+* Update __init__.py (`b607ae9`_)
+
+* add more logs (`60e9525`_)
+
+* add notes (`83e4ff6`_)
+
+* increase the py version (`0d6568b`_)
+
+* setup testing framework for cupy (`5009d79`_)
+
+* add typing for phi (`16ef510`_)
+
+* Check which backend (`f17fe1b`_)
+
+* Check which backend (`196141c`_)
+
+* add typing libs (beartype + Jaxtyping) (`3bffe6a`_)
+
+* Add support for more backends (`dadf161`_)
+
+* Adding cupy methods (`9fe44ab`_)
+
+* Remove unnecessary beta(d,d,1) (`19b6d8e`_)
+
+* Remove unused imports (`a2b42c8`_)
+
+* run formatters (`380fba8`_)
+
+* begin adding cupy (`93e0123`_)
+
+* add more tests (`a91f509`_)
+
+* Merge branch 'main' of github.com:avivajpeyi/pywavelet into main (`a149dc4`_)
+
+* [pre-commit.ci] pre-commit autoupdate (#21)
+
+* [pre-commit.ci] pre-commit autoupdate
+
+updates:
+- [github.com/pre-commit/pre-commit-hooks: v4.5.0 → v5.0.0](https://github.com/pre-commit/pre-commit-hooks/compare/v4.5.0...v5.0.0)
+- https://github.com/pre-commit/mirrors-isort → https://github.com/PyCQA/isort
+- [github.com/PyCQA/isort: v5.10.1 → 6.0.1](https://github.com/PyCQA/isort/compare/v5.10.1...6.0.1)
+- https://github.com/ambv/black → https://github.com/psf/black
+- [github.com/psf/black: 23.10.0 → 25.1.0](https://github.com/psf/black/compare/23.10.0...25.1.0)
+- [github.com/psf/black: 23.10.0 → 25.1.0](https://github.com/psf/black/compare/23.10.0...25.1.0)
+
+* [pre-commit.ci] auto fixes from pre-commit.com hooks
+
+for more information, see https://pre-commit.ci
+
+---------
+
+Co-authored-by: pre-commit-ci[bot] <66853113+pre-commit-ci[bot]@users.noreply.github.com> (`6623f65`_)
+
+* add check for vmin > vmax (`2d6eec3`_)
+
+* more plotting for phi (`b124dc7`_)
+
+* add additional JAX tests (`c0d8396`_)
+
+.. _d3cd8d9: https://github.com/pywavelet/pywavelet/commit/d3cd8d92b5e6cf398ff3a4948b911533abe842f1
+.. _6cdfb28: https://github.com/pywavelet/pywavelet/commit/6cdfb28b152a7f7ad499f0b6ba6ef69da9284c57
+.. _14b250b: https://github.com/pywavelet/pywavelet/commit/14b250b55dbea88c3b7c22b5faca531113d34477
+.. _3d8b4cd: https://github.com/pywavelet/pywavelet/commit/3d8b4cdc8dea6af33b08985cb97f0897984838fc
+.. _7230f92: https://github.com/pywavelet/pywavelet/commit/7230f92dee98cea0e402111ad279f78c6134d565
+.. _b8dce3f: https://github.com/pywavelet/pywavelet/commit/b8dce3fdf2f0b1261b6a74aa8af03465c87017ff
+.. _81d6fc7: https://github.com/pywavelet/pywavelet/commit/81d6fc73ec9c37d7e5990f7008f1a468490b17ea
+.. _d78b4b3: https://github.com/pywavelet/pywavelet/commit/d78b4b32b81b1b2e8bc6c4808c088df140f316dd
+.. _b5ab983: https://github.com/pywavelet/pywavelet/commit/b5ab983f88a4dc5f6b7e75aa9c974f1c0c601d03
+.. _e2f8317: https://github.com/pywavelet/pywavelet/commit/e2f8317f980927f34fc447e3b093ca43e2f8f3c2
+.. _b99fc0d: https://github.com/pywavelet/pywavelet/commit/b99fc0d3a29b8c741c92e6a1cae9eabc409d1fbc
+.. _7d97420: https://github.com/pywavelet/pywavelet/commit/7d97420b945dd8abb4dd9e201246719d39c4bc4c
+.. _b1f7dfa: https://github.com/pywavelet/pywavelet/commit/b1f7dfa17df3215260150e41c0cf84e76a354d1b
+.. _b0ad4fa: https://github.com/pywavelet/pywavelet/commit/b0ad4fad4537bf3375bb100f6b5be3042291e31e
+.. _aaeae9b: https://github.com/pywavelet/pywavelet/commit/aaeae9b232e4328bfa2a566c7438f41f2dca0e31
+.. _6627e03: https://github.com/pywavelet/pywavelet/commit/6627e0353d539b358e8bc6e786d3442a2b2b8072
+.. _ccb1193: https://github.com/pywavelet/pywavelet/commit/ccb1193e968c9617ed866318326421fb2ae80645
+.. _f2d6541: https://github.com/pywavelet/pywavelet/commit/f2d6541caa41f171a19abd5cfdb3e132fc831b8b
+.. _0828947: https://github.com/pywavelet/pywavelet/commit/082894710eaa2f4a485a86524917068e3098b0c4
+.. _8c80929: https://github.com/pywavelet/pywavelet/commit/8c80929e35211d482d15845fd9ef0cca62704b4b
+.. _d1cb636: https://github.com/pywavelet/pywavelet/commit/d1cb636fb92fbec238de89129729a70f7fa33bb6
+.. _ab6ba0e: https://github.com/pywavelet/pywavelet/commit/ab6ba0ed98a6597c9c8aef524a2f03b1b6fbd13e
+.. _b607ae9: https://github.com/pywavelet/pywavelet/commit/b607ae971f1b04870f41bbaee95a2a30eef628d4
+.. _60e9525: https://github.com/pywavelet/pywavelet/commit/60e952536a2812f474a2845f81dee52884b1685b
+.. _83e4ff6: https://github.com/pywavelet/pywavelet/commit/83e4ff6e5ac5ee1fd51970a73c0401106cff453a
+.. _0d6568b: https://github.com/pywavelet/pywavelet/commit/0d6568bc305d85ac7f5733365e50e51538d45329
+.. _5009d79: https://github.com/pywavelet/pywavelet/commit/5009d7957d9d796a9e2258659e2815a35354a7a5
+.. _16ef510: https://github.com/pywavelet/pywavelet/commit/16ef51086b1ba10db0d4f252caf3a560fee4f06b
+.. _f17fe1b: https://github.com/pywavelet/pywavelet/commit/f17fe1b0cddb4376bdb18a092d6f83bc48dd9498
+.. _196141c: https://github.com/pywavelet/pywavelet/commit/196141ce52946228a92aa1f4b0c14fdc66cb44a1
+.. _3bffe6a: https://github.com/pywavelet/pywavelet/commit/3bffe6a7af4000b1bcece2e2fb1c56487980dd15
+.. _dadf161: https://github.com/pywavelet/pywavelet/commit/dadf161bed6c049c8c24716f475f94b9d6e9fabf
+.. _9fe44ab: https://github.com/pywavelet/pywavelet/commit/9fe44ab0d0862110137e02d746e1af1591373c66
+.. _19b6d8e: https://github.com/pywavelet/pywavelet/commit/19b6d8e169c87f780afe809863762574a9a6334b
+.. _a2b42c8: https://github.com/pywavelet/pywavelet/commit/a2b42c885dd248a2787b6ce7ae549f3d15044af3
+.. _380fba8: https://github.com/pywavelet/pywavelet/commit/380fba8f074d7fbe9bc4ed51461688c45dfc7b0a
+.. _93e0123: https://github.com/pywavelet/pywavelet/commit/93e0123dce8f4bf44249489a55a84865ef989592
+.. _a91f509: https://github.com/pywavelet/pywavelet/commit/a91f509c1c7e18d75c6ceeff22242b1e463f4191
+.. _a149dc4: https://github.com/pywavelet/pywavelet/commit/a149dc4178581f26745b0725346ad469f4aed8d6
+.. _6623f65: https://github.com/pywavelet/pywavelet/commit/6623f65aa13a020120d52363c2bb7b6dd425845f
+.. _2d6eec3: https://github.com/pywavelet/pywavelet/commit/2d6eec342676c1dadb5ce7318edf781572dde5c4
+.. _b124dc7: https://github.com/pywavelet/pywavelet/commit/b124dc75c13540a946b665e0bbb70de43ffe16fd
+.. _c0d8396: https://github.com/pywavelet/pywavelet/commit/c0d8396587737ac9d9559e79c175a043273b8ce6
+
+
 .. _changelog-v0.2.5:
 
 v0.2.5 (2025-01-28)
@@ -25,7 +185,13 @@ for more information, see https://pre-commit.ci
 
 Co-authored-by: pre-commit-ci[bot] <66853113+pre-commit-ci[bot]@users.noreply.github.com> (`3228f7b`_)
 
+Chores
+------
+
+* chore(release): 0.2.5 (`34b18c7`_)
+
 .. _3228f7b: https://github.com/pywavelet/pywavelet/commit/3228f7be0d7efb48812920e822a14e795ebac57f
+.. _34b18c7: https://github.com/pywavelet/pywavelet/commit/34b18c7d4074992d6c1ce75806efb3edab5ce49b
 
 
 .. _changelog-v0.2.4:
