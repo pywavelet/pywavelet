@@ -5,6 +5,19 @@ CHANGELOG
 =========
 
 
+.. _changelog-v0.2.7:
+
+v0.2.7 (2025-03-25)
+===================
+
+Unknown
+-------
+
+* Merge branch 'main' of github.com:pywavelet/pywavelet (`ef5aa31`_)
+
+.. _ef5aa31: https://github.com/pywavelet/pywavelet/commit/ef5aa31e72c8a838cfb008c03bd47b009df728dc
+
+
 .. _changelog-v0.2.6:
 
 v0.2.6 (2025-03-24)
@@ -13,7 +26,14 @@ v0.2.6 (2025-03-24)
 Bug Fixes
 ---------
 
+* fix: add more checkingn for cupy and jax backends (`75e54c0`_)
+
 * fix: add note in readme about JAX and cupy (`d3cd8d9`_)
+
+Chores
+------
+
+* chore(release): 0.2.6 (`d2e3cb2`_)
 
 Unknown
 -------
@@ -120,7 +140,9 @@ Co-authored-by: pre-commit-ci[bot] <66853113+pre-commit-ci[bot]@users.noreply.gi
 
 * add additional JAX tests (`c0d8396`_)
 
+.. _75e54c0: https://github.com/pywavelet/pywavelet/commit/75e54c00dd9ddfff98a7f0612f54abf1ac17184e
 .. _d3cd8d9: https://github.com/pywavelet/pywavelet/commit/d3cd8d92b5e6cf398ff3a4948b911533abe842f1
+.. _d2e3cb2: https://github.com/pywavelet/pywavelet/commit/d2e3cb271b06d1d9bc3060e924fa5bcd57ceb269
 .. _6cdfb28: https://github.com/pywavelet/pywavelet/commit/6cdfb28b152a7f7ad499f0b6ba6ef69da9284c57
 .. _14b250b: https://github.com/pywavelet/pywavelet/commit/14b250b55dbea88c3b7c22b5faca531113d34477
 .. _3d8b4cd: https://github.com/pywavelet/pywavelet/commit/3d8b4cdc8dea6af33b08985cb97f0897984838fc
