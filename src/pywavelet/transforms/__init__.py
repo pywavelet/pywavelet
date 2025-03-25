@@ -1,4 +1,10 @@
+from ..logger import logger
+
 from ..backend import current_backend
+
+
+logger.debug(f"Using {current_backend} backend")
+
 
 if current_backend == "jax":
     from .jax import (

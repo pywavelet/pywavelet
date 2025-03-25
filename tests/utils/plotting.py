@@ -171,23 +171,24 @@ def plot_freqdomain_comparisions(
     wavelet: Wavelet,
     fname: str,
 ):
+    err = np.abs(hf.data - h_reconstructed.data)
     fig, axes = plt.subplots(1, 3, figsize=(15, 5))
     hf.plot_periodogram(ax=axes[0], label=f"Original (n={hf.ND})")
     h_reconstructed.plot_periodogram(
         ax=axes[0],
         label=f"Reconstructed (n={h_reconstructed.ND})",
         linestyle="--",
-        color="tab:orange",
-        alpha=0.5,
+        color="k",
+        alpha=0.9,
     )
     axes[0].set_xscale("linear")
     ax_diff = axes[0].twinx()
     ax_diff.plot(
         hf.freq,
-        np.abs(np.abs(hf.data) - np.abs(h_reconstructed.data)),
+        err,
         color="tab:red",
         label="Diff",
-        alpha=0.25,
+        alpha=0.2,
         zorder=-1,
     )
     # add diff to legend
@@ -207,8 +208,7 @@ def plot_freqdomain_comparisions(
 
     wavelet.plot(ax=axes[1])
     try:
-        r = np.abs(hf.data) - np.abs(h_reconstructed.data)
-        plot_residuals(r, axes[2], log_bins=False)
+        plot_residuals(err, axes[2], log_bins=True)
     except Exception as e:
         print(e)
 

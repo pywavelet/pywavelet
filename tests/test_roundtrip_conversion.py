@@ -27,26 +27,31 @@ def test_timedomain_sine_roundtrip(plot_dir, sine_time):
 
 @pytest.mark.parametrize("backend", ["numpy", "jax", "cupy"])
 def test_freqdomain_chirp_roundtrip(backend, plot_dir, chirp_freq):
+    if backend == "cupy" and not cuda_available:
+        pytest.skip("CUDA is not available")
+
     from pywavelet import set_backend
 
     set_backend(backend)
-    if backend == "cupy" and not cuda_available:
-        pytest.skip("CUDA is not available")
+    if backend == "cupy":
+        chirp_freq = to_cupy(chirp_freq)
+    elif backend == "jax":
+        chirp_freq = to_jax(chirp_freq)
+
     _run_freqdomain_checks(chirp_freq, "roundtrip_chirp_freq", plot_dir)
     logger.info("-------test complete--------")
 
 
 @pytest.mark.parametrize("backend", ["numpy", "jax", "cupy"])
 def test_freqdomain_sine_roundtrip(backend, plot_dir, sine_freq):
+    if backend == "cupy" and not cuda_available:
+        pytest.skip("CUDA is not available")
+
     from pywavelet import set_backend
 
     set_backend(backend)
     if backend == "cupy":
-        if not cuda_available:
-            pytest.skip("CUDA is not available")
-        else:
-            sine_freq = to_cupy(sine_freq)
-
+        sine_freq = to_cupy(sine_freq)
     elif backend == "jax":
         sine_freq = to_jax(sine_freq)
 
@@ -114,16 +119,16 @@ def _assert_roundtrip_valid(h_old, h_new, wavelet):
 
     residuals = np.abs(h_old.data - h_new.data)
     mean, std = np.mean(residuals), np.std(residuals)
-    assert mean < 1e-3, f"Mean residual is too large: {mean}"
-    assert std < 1e-3, f"Standard deviation of residuals is too large: {std}"
     assert (
-        np.max(np.abs(residuals)) < 1e-2
-    ), f"Max residual is too large: {np.max(np.abs(residuals))}"
-    assert not np.isnan(residuals).any(), "Residuals contain NaNs"
+            h_old.ND == h_new.ND == wavelet.ND
+    ), f"ND dont match for : hf_orig{h_old.ND}, hf_round{h_new.ND}, wdm{wavelet.ND}"
+    assert mean < 1e-3, f"Mean(hf_orig - hf_roundtrip) is too large: {mean:.2f}"
+    assert std < 1e-3, f"std(hf_orig - hf_roundtrip) is too large: {std}"
+    assert (
+            np.max(np.abs(residuals)) < 1e-2
+    ), f"Max(hf_orig - hf_roundtrip) is too large: {np.max(np.abs(residuals))}"
+    assert not np.isnan(residuals).any(), "(hf_orig - hf_roundtrip) contain NaNs"
     assert np.allclose(h_old.shape, h_new.shape)
-    assert (
-        h_old.ND == h_old.ND == wavelet.ND
-    ), f"ND dont match: {h_old.ND}, {h_new.ND}, {wavelet.ND}"
 
 
 def _assert_wavelet_matches_cached_wavelet(cur: "Wavelet", label, outdir):
@@ -149,19 +154,19 @@ def _assert_wavelet_matches_cached_wavelet(cur: "Wavelet", label, outdir):
     label = f"{label}_{current_backend}"
     plot_wavelet_comparison(cur, cached, err, label, outdir)
 
-    assert net_err < 0.9, f"Net error (orig - new WDM) is too large: {net_err}"
+    assert net_err < 0.9, f"Sum(np_cache - new_{current_backend}_WDM) is too large: {net_err:.2f}"
     assert (
-        cur.__repr__() == cached.__repr__()
+            cur.__repr__() == cached.__repr__()
     ), f"Current[{cur.__repr__()}] != Old[{cached.__repr__()}]"
     assert (
-        cur.shape == cached.shape
-    ), f"Wavelets dont match current: {cur}, old: {cached}"
+            cur.shape == cached.shape
+    ), f"Wavelets dont match current: {cur}, np_cache: {cached}"
     assert np.allclose(
         cur.freq, cached.freq
-    ), f"Freqs dont match current: {cur.freq}, old: {cached.freq}"
+    ), f"Freqs dont match current: {cur.freq}, np_cache: {cached.freq}"
     assert np.allclose(
         cur.time, cached.time
-    ), f"Times dont match current: {cur.time}, old: {cached.time}"
+    ), f"Times dont match current: {cur.time}, np_cache: {cached.time}"
     assert np.allclose(
         cur.data, cached.data
-    ), f"Data doesnt match current: {cur.data}, old: {cached.data}"
+    ), f"Data doesnt match current: {cur.data}, np_cache: {cached.data}"
