@@ -511,7 +511,7 @@ document.write(`
 <span class="c1"># plot grid of errors as a function of amplitude and frequency</span>
 <span class="n">c</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">pcolormesh</span><span class="p">(</span><span class="n">f0s</span><span class="p">,</span> <span class="n">amplitudes</span><span class="p">,</span> <span class="n">errors</span><span class="p">)</span>
 
-<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Frequency&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;f0&#39;</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Amplitude&#39;</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;MSE&#39;</span><span class="p">)</span>
 <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;MSE&#39;</span><span class="p">)</span>
@@ -519,10 +519,10 @@ document.write(`
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.colorbar.Colorbar at 0x12111f910&gt;
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.colorbar.Colorbar at 0x1208c54b0&gt;
 </pre></div>
 </div>
-<img alt="_images/fa97f7d4df01ca3a4580c805855c68e4229deb5b62bd4c146781852914fc2d4f.png" src="_images/fa97f7d4df01ca3a4580c805855c68e4229deb5b62bd4c146781852914fc2d4f.png" />
+<img alt="_images/447dc018d08d17b12771b24ff362acc087b4d2ccbbcc39823880f4c8037ea50c.png" src="_images/447dc018d08d17b12771b24ff362acc087b4d2ccbbcc39823880f4c8037ea50c.png" />
 </div>
 </div>
 <div class="cell docutils container">
@@ -531,7 +531,9 @@ document.write(`
 <span class="n">amplitudes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="n">Namp</span><span class="p">)</span>
 <span class="n">default_wdm</span> <span class="o">=</span> <span class="n">monochromatic_wnm</span><span class="p">(</span><span class="o">*</span><span class="n">default_params</span><span class="o">.</span><span class="n">list</span><span class="p">)</span>
 <span class="c1"># arrange f0s such that the bin is  an integer multiple of Delta_F</span>
-<span class="n">f0s</span> <span class="o">=</span> <span class="n">default_wdm</span><span class="o">.</span><span class="n">freq</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+<span class="n">f0s</span> <span class="o">=</span> <span class="n">default_wdm</span><span class="o">.</span><span class="n">freq</span><span class="p">[</span><span class="mi">2</span><span class="p">::</span><span class="mi">2</span><span class="p">]</span>
+<span class="c1"># get midpoints of f0s </span>
+
 <span class="n">Nfreq</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">f0s</span><span class="p">)</span>
 
 
@@ -553,7 +555,7 @@ document.write(`
 <span class="c1"># plot grid of errors as a function of amplitude and frequency</span>
 <span class="n">c</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">pcolormesh</span><span class="p">(</span><span class="n">f0s</span><span class="p">,</span> <span class="n">amplitudes</span><span class="p">,</span> <span class="n">errors</span><span class="p">,</span> <span class="n">norm</span><span class="o">=</span><span class="n">LogNorm</span><span class="p">())</span>
 
-<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Frequency&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;f0&#39;</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Amplitude&#39;</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;MSE&#39;</span><span class="p">)</span>
 <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;MSE&#39;</span><span class="p">)</span>
@@ -561,10 +563,38 @@ document.write(`
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.colorbar.Colorbar at 0x121373b80&gt;
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.colorbar.Colorbar at 0x12035a110&gt;
 </pre></div>
 </div>
-<img alt="_images/65a89082ac05c6faf971dbf4709f4dfc3d6ea0c607f800a96105bd8b0aa8acf2.png" src="_images/65a89082ac05c6faf971dbf4709f4dfc3d6ea0c607f800a96105bd8b0aa8acf2.png" />
+<img alt="_images/64cca77d8493d2264a304864ef24418a598a7fc93a342cb059341310414af149.png" src="_images/64cca77d8493d2264a304864ef24418a598a7fc93a342cb059341310414af149.png" />
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">f0s</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>array([ 2.5,  5. ,  7.5, 10. , 12.5, 15. , 17.5, 20. , 22.5, 25. , 27.5,
+       30. , 32.5, 35. , 37.5])
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">default_wdm</span><span class="o">.</span><span class="n">freq</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>array([ 0.  ,  1.25,  2.5 ,  3.75,  5.  ,  6.25,  7.5 ,  8.75, 10.  ,
+       11.25, 12.5 , 13.75, 15.  , 16.25, 17.5 , 18.75, 20.  , 21.25,
+       22.5 , 23.75, 25.  , 26.25, 27.5 , 28.75, 30.  , 31.25, 32.5 ,
+       33.75, 35.  , 36.25, 37.5 , 38.75])
+</pre></div>
+</div>
 </div>
 </div>
 </section>
