@@ -7,13 +7,15 @@ parts:
 - caption: " "
   chapters:
   - file: api.rst
-  - file: example.ipynb
-  - file: runtime.ipynb
-- caption:  Case Studies
-  chapters:
-  - url: https://www.youtube.com/watch?v=dQw4w9WgXcQ&themeRefresh=1
-    title: LISA white-dwarf
-  - url: https://www.youtube.com/watch?v=dQw4w9WgXcQ&themeRefresh=1
-    title: LVK compact binary
-  - url: https://www.youtube.com/watch?v=dQw4w9WgXcQ&themeRefresh=1
-    title: Analysis with gaps
+  - file: examples/basic.ipynb
+  - file: examples/runtime.ipynb
+  - file: examples/accuracy.ipynb
+  - file: examples/example_signals.ipynb
+#- caption:  Case Studies
+#  chapters:
+#  - url: https://www.youtube.com/watch?v=dQw4w9WgXcQ&themeRefresh=1
+#    title: LISA white-dwarf
+#  - url: https://www.youtube.com/watch?v=dQw4w9WgXcQ&themeRefresh=1
+#    title: LVK compact binary
+#  - url: https://www.youtube.com/watch?v=dQw4w9WgXcQ&themeRefresh=1
+#    title: Analysis with gaps

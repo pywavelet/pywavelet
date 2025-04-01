@@ -1,7 +1,7 @@
 # see https://jupyterbook.org/customize/config.html
 title: Pywavelet
 author: pywavelet developers
-logo: logo.png
+logo: _static/logo.png
 
 execute:
   execute_notebooks: 'off'
