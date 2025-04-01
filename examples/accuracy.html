@@ -383,18 +383,26 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section class="tex2jax_ignore mathjax_ignore" id="backend-accuracy-checks">
+  <a target="_blank" href="https://colab.research.google.com/github/pywavelet/pywavelet/blob/main/docs/examples/accuracy.ipynb">
+  <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
+</a>
+<section class="tex2jax_ignore mathjax_ignore" id="backend-accuracy-checks">
 <h1>Backend Accuracy checks<a class="headerlink" href="#backend-accuracy-checks" title="Link to this heading">#</a></h1>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span><span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>pywavelet<span class="w"> </span>-q
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span><span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>pywavelet<span class="w"> </span>-q
 </pre></div>
 </div>
 </div>
 </div>
-<div class="cell docutils container">
+<div class="cell tag_hide-input docutils container">
+<details class="hide above-input">
+<summary aria-label="Toggle hidden content">
+<span class="collapsed">Show code cell source</span>
+<span class="expanded">Hide code cell source</span>
+</summary>
 <div class="cell_input docutils container">
-<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pywavelet.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">Wavelet</span><span class="p">,</span> <span class="n">FrequencySeries</span><span class="p">,</span> <span class="n">TimeSeries</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pywavelet.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">Wavelet</span><span class="p">,</span> <span class="n">FrequencySeries</span><span class="p">,</span> <span class="n">TimeSeries</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pywavelet.types.wavelet_bins</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_bins</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
@@ -479,6 +487,7 @@ document.write(`
 </pre></div>
 </div>
 </div>
+</details>
 <div class="cell_output docutils container">
 <img alt="../_images/4d59b25c1ed3746dbf870f91b022635ea75bd305611ec5eef0efa557f044ad20.png" src="../_images/4d59b25c1ed3746dbf870f91b022635ea75bd305611ec5eef0efa557f044ad20.png" />
 <img alt="../_images/e8be9c646c48e131544d47af201c6514a8e35a943d3e91f85ca81c1fc0faeb79.png" src="../_images/e8be9c646c48e131544d47af201c6514a8e35a943d3e91f85ca81c1fc0faeb79.png" />
@@ -486,7 +495,7 @@ document.write(`
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">Namp</span><span class="p">,</span> <span class="n">Nfreq</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">20</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">Namp</span><span class="p">,</span> <span class="n">Nfreq</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">20</span>
 <span class="n">amplitudes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="n">Namp</span><span class="p">)</span>
 <span class="n">f0s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">38</span><span class="p">,</span> <span class="n">Nfreq</span><span class="p">)</span>
 
@@ -523,7 +532,7 @@ document.write(`
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">Namp</span><span class="p">,</span> <span class="n">Nfreq</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">20</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">Namp</span><span class="p">,</span> <span class="n">Nfreq</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">20</span>
 <span class="n">amplitudes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="n">Namp</span><span class="p">)</span>
 <span class="n">default_wdm</span> <span class="o">=</span> <span class="n">monochromatic_wnm</span><span class="p">(</span><span class="o">*</span><span class="n">default_params</span><span class="o">.</span><span class="n">list</span><span class="p">)</span>
 <span class="c1"># arrange f0s such that the bin is  an integer multiple of Delta_F</span>
@@ -567,7 +576,7 @@ document.write(`
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">f0s</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">f0s</span>
 </pre></div>
 </div>
 </div>
@@ -580,7 +589,7 @@ document.write(`
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">default_wdm</span><span class="o">.</span><span class="n">freq</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">default_wdm</span><span class="o">.</span><span class="n">freq</span>
 </pre></div>
 </div>
 </div>

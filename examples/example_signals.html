@@ -382,13 +382,21 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section class="tex2jax_ignore mathjax_ignore" id="emri-galactic-binary-and-mbh-transformation-examples">
+  <a target="_blank" href="https://colab.research.google.com/github/pywavelet/pywavelet/blob/main/docs/examples/example_signals.ipynb">
+  <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
+</a>
+<section class="tex2jax_ignore mathjax_ignore" id="emri-galactic-binary-and-mbh-transformation-examples">
 <h1>EMRI, Galactic Binary, and MBH Transformation examples<a class="headerlink" href="#emri-galactic-binary-and-mbh-transformation-examples" title="Link to this heading">#</a></h1>
 <p>We generate the signals using the <code class="docutils literal notranslate"><span class="pre">fastemriwaveforms</span></code>, <code class="docutils literal notranslate"><span class="pre">bbhx</span></code> and <code class="docutils literal notranslate"><span class="pre">gbbgpu</span></code> packages.
 The signals are saved to an HDF5 file.</p>
-<div class="cell docutils container">
+<div class="cell tag_hide-input docutils container">
+<details class="hide above-input">
+<summary aria-label="Toggle hidden content">
+<span class="collapsed">Show code cell source</span>
+<span class="expanded">Hide code cell source</span>
+</summary>
 <div class="cell_input docutils container">
-<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="c1">## Installations (uncomment and run)</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">## Installations (uncomment and run)</span>
 <span class="c1"># !apt-get install liblapacke-dev libgsl-dev</span>
 <span class="c1"># !ln -s /usr/lib/x86_64-linux-gnu/libhdf5_serial_hl.so /usr/lib/x86_64-linux-gnu/libhdf5_hl.so</span>
 <span class="c1"># !ln -s /usr/lib/x86_64-linux-gnu/libhdf5_serial.so /usr/lib/x86_64-linux-gnu/libhdf5.so</span>
@@ -396,10 +404,16 @@ The signals are saved to an HDF5 file.</p>
 </pre></div>
 </div>
 </div>
+</details>
 </div>
-<div class="cell docutils container">
+<div class="cell tag_hide-input docutils container">
+<details class="hide above-input">
+<summary aria-label="Toggle hidden content">
+<span class="collapsed">Show code cell source</span>
+<span class="expanded">Hide code cell source</span>
+</summary>
 <div class="cell_input docutils container">
-<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">h5py</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Tuple</span>
@@ -583,11 +597,17 @@ The signals are saved to an HDF5 file.</p>
 </pre></div>
 </div>
 </div>
+</details>
 </div>
 <p>Next we load the data, compute the WDM transforms and plot the results.</p>
-<div class="cell docutils container">
+<div class="cell tag_hide-input docutils container">
+<details class="hide above-input">
+<summary aria-label="Toggle hidden content">
+<span class="collapsed">Show code cell source</span>
+<span class="expanded">Hide code cell source</span>
+</summary>
 <div class="cell_input docutils container">
-<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">h5py</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">h5py</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">lisatools.sensitivity</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_sensitivity</span>
@@ -765,6 +785,7 @@ The signals are saved to an HDF5 file.</p>
 </pre></div>
 </div>
 </div>
+</details>
 </div>
 <p><img alt="" src="../_images/example_transforms.png" /></p>
 </section>
