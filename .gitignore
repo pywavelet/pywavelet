@@ -16,8 +16,8 @@ __pycache__/
 *.so
 out_*
 *_version.py
-
-
+*.csv
+*.json
 *.pdf
 # Distribution / packaging
 .Python
@@ -121,3 +121,4 @@ venv.bak/
 # VSCode
 .vscode/
 /docs/runtime_data_cpu.csv
+/docs/examples/data.h5

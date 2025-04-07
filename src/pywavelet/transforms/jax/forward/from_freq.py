@@ -1,12 +1,18 @@
 from functools import partial
 
+import jax
 import jax.numpy as jnp
 from jax import jit
 from jax.numpy.fft import ifft
+X64_PRECISION = jax.config.jax_enable_x64
+
+CMPLX_DTYPE = jnp.complex128 if X64_PRECISION else jnp.complex64
+
 
 import logging
 
 logger = logging.getLogger('pywavelet')
+
 
 
 @partial(jit, static_argnames=("Nf", "Nt"))
@@ -47,8 +53,8 @@ def transform_wavelet_freq_helper(
 
     # Initialize a 2D array to store intermediate FFT input values
     DX = jnp.zeros(
-        (Nf, Nt), dtype=jnp.complex64
-    )  # TODO: Check dtype -- is complex64 sufficient?
+        (Nf, Nt), dtype=CMPLX_DTYPE
+    )
     DX = DX.at[:, Nt // 2].set(
         initial_values
     )  # Set initial values at the center of the transformation (2 sided FFT)

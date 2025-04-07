@@ -3,17 +3,17 @@ from typing import Union
 import numpy as np
 from scipy.interpolate import interp1d
 
-from .types import FrequencySeries, TimeSeries, Wavelet, WaveletMask
+from ..types import FrequencySeries, TimeSeries, Wavelet, WaveletMask
 
 DATA_TYPE = Union[TimeSeries, FrequencySeries, Wavelet]
 
 
 def evolutionary_psd_from_stationary_psd(
-    psd: np.ndarray,
-    psd_f: np.ndarray,
-    f_grid: np.ndarray,
-    t_grid: np.ndarray,
-    dt: float,
+        psd: np.ndarray,
+        psd_f: np.ndarray,
+        f_grid: np.ndarray,
+        t_grid: np.ndarray,
+        dt: float,
 ) -> Wavelet:
     """
     PSD[ti,fi] = PSD[fi] / dt
@@ -35,7 +35,7 @@ def evolutionary_psd_from_stationary_psd(
 
 
 def noise_weighted_inner_product(
-    d: Wavelet, h: Wavelet, PSD: Wavelet
+        d: Wavelet, h: Wavelet, PSD: Wavelet
 ) -> float:
     return np.nansum((d.data * h.data) / PSD.data)
 
@@ -64,7 +64,7 @@ def compute_snr(d: Wavelet, h: Wavelet, PSD: Wavelet) -> float:
 
 
 def compute_likelihood(
-    data: Wavelet, template: Wavelet, psd: Wavelet, mask: WaveletMask = None
+        data: Wavelet, template: Wavelet, psd: Wavelet, mask: WaveletMask = None
 ) -> float:
     d = data.data
     h = template.data

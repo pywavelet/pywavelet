@@ -7,7 +7,7 @@ import pytest
 from nbconvert import PythonExporter
 
 HERE = os.path.dirname(__file__)
-DOCS_DIR = os.path.abspath(os.path.join(HERE, "..", "docs"))
+DOCS_DIR = os.path.abspath(os.path.join(HERE, "..", "docs/examples"))
 
 # List of notebooks to test
 notebooks = [
