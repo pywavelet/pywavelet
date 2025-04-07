@@ -87,22 +87,17 @@ def _generate_func_args(ND: int, label="numpy") -> Tuple:
 
 
 def _collect_runtime(func: Callable, func_args: Tuple, nrep: int = 5) -> Tuple[float, float]:
-    warm_time = 0
-    for i in range(2):
-        t0 = time.process_time()
-        func(*func_args)  # Warm up run
-        warm_time = time.process_time() - t0
+    # Single warm-up run to reduce startup overhead
+    func(*func_args)
 
-    if warm_time < 0.001:
-        number = 1000
-    elif warm_time < 0.1:
-        number = 10
-    else:
-        number = 1
-    # see https://stackoverflow.com/questions/48258008/n-and-r-arguments-to-ipythons-timeit-magic/59543135#59543135
+    times = []
+    for _ in range(nrep):
+        start = time.process_time()
+        func(*func_args)
+        end = time.process_time()
+        times.append(end - start)
 
-    times = timing_repeat(lambda: func(*func_args), number=number, repeat=nrep)
-    return np.median(times), np.std(times)
+    return np.median(times),  np.std(times)
 
 
 def _collect_runtimes(func: Callable, label: str, max_log2f: int, nrep: int = 5, outdir: str = '.') -> pd.DataFrame:
