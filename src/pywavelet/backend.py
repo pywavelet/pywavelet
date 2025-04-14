@@ -1,15 +1,16 @@
 import importlib
 import os
+import numpy as np
 from rich.table import Table, Text
 from rich.console import Console
-
-
-
+from typing import Tuple
 from .logger import logger
 
 JAX = "jax"
 CUPY = "cupy"
 NUMPY = "numpy"
+
+VALID_PRECISIONS = ["float32", "float64"]
 
 
 def cuda_is_available() -> bool:
@@ -97,22 +98,53 @@ def get_backend_from_env():
 def get_precision_from_env()->str:
     """Get the precision from the environment variable."""
     precision = os.getenv("PYWAVELET_PRECISION", "float32").lower()
-    if precision == "float32":
-        return "float32"
-    elif precision == "float64":
-        return "float64"
-    else:
-        logger.error(f"Precision {precision} is not supported.")
-        return "float32"
+    if precision not in VALID_PRECISIONS:
+        logger.error(f"Precision {precision} is not supported, defaulting to float32.")
+        precision = "float32"
+    return precision
 
 def set_precision(precision: str)->None:
-    if precision == "float32":
-        os.environ["PYWAVELET_PRECISION"] = "float32"
-    elif precision == "float64":
-        os.environ["PYWAVELET_PRECISION"] = "float64"
-    else:
+    """Set the precision for the backend."""
+    precision = precision.lower()
+    if precision not in VALID_PRECISIONS:
         logger.error(f"Precision {precision} is not supported.")
+        return
+    else:
+        os.environ["PYWAVELET_PRECISION"] = precision
+        logger.info(f"Setting precision to {precision}.")
+        return
 
+def get_dtype_from_env()->Tuple[np.dtype, np.dtype]:
+    """Get the data type from the environment variable."""
+    precision = get_precision_from_env()
+    backend = get_backend_from_env()
+    if backend == JAX:
+        import jax.numpy as jnp
+        if precision == "float32":
+            float_dtype = jnp.float32
+            complex_dtype = jnp.complex64
+        elif precision == "float64":
+            float_dtype = jnp.float64
+            complex_dtype = jnp.complex128
+
+    elif backend == CUPY:
+        import cupy as cp
+        if precision == "float32":
+            float_dtype = cp.float32
+            complex_dtype = cp.complex64
+        elif precision == "float64":
+            float_dtype = cp.float64
+            complex_dtype = cp.complex128
+
+    else:
+        if precision == "float32":
+            float_dtype = np.float32
+            complex_dtype = np.complex64
+        elif precision == "float64":
+            float_dtype = np.float64
+            complex_dtype = np.complex128
+
+    return float_dtype, complex_dtype
 
 
 cuda_available = cuda_is_available()
@@ -121,3 +153,6 @@ cuda_available = cuda_is_available()
 xp, fft, ifft, irfft, rfft, rfftfreq, betainc, current_backend = (
     get_backend_from_env()
 )
+
+# Get the chosen precision
+float_dtype, complex_dtype = get_dtype_from_env()

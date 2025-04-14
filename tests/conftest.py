@@ -10,7 +10,7 @@ from utils import (
 )
 
 from pywavelet.logger import logger
-from pywavelet.types import Wavelet
+from pywavelet.types import Wavelet, FrequencySeries, TimeSeries
 from pywavelet.types.wavelet_bins import compute_bins
 
 jax.config.update("jax_enable_x64", True)
@@ -42,32 +42,32 @@ def _gen_testdir():
 
 
 @pytest.fixture()
-def plot_dir():
+def plot_dir()->str:
     return _gen_testdir()
 
 
 @pytest.fixture()
-def outdir():
+def outdir()->str:
     return _gen_testdir()
 
 
 @pytest.fixture()
-def chirp_time():
+def chirp_time()->TimeSeries:
     return generate_chirp_time_domain_signal(ts, frange)
 
 
 @pytest.fixture()
-def chirp_freq():
+def chirp_freq()->FrequencySeries:
     return generate_chirp_time_domain_signal(ts, frange).to_frequencyseries()
 
 
 @pytest.fixture()
-def sine_time():
+def sine_time()->TimeSeries:
     return generate_sine_time_domain_signal(ts, f_true=f0)
 
 
 @pytest.fixture()
-def sine_freq():
+def sine_freq()->FrequencySeries:
     return generate_sine_time_domain_signal(ts, f_true=f0).to_frequencyseries()
 
 

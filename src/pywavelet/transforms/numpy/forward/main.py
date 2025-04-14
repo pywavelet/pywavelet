@@ -8,6 +8,7 @@ from ....types.wavelet_bins import _get_bins, _preprocess_bins
 from ...phi_computer import phi_vec, phitilde_vec_norm
 from .from_freq import transform_wavelet_freq_helper
 from .from_time import transform_wavelet_time_helper
+from ....backend import float_dtype, complex_dtype
 
 __all__ = ["from_time_to_wavelet", "from_freq_to_wavelet"]
 
@@ -112,7 +113,8 @@ def from_freq_to_wavelet(
     """
     Nf, Nt = _preprocess_bins(freqseries, Nf, Nt)
     t_bins, f_bins = _get_bins(freqseries, Nf, Nt)
-    phif = phitilde_vec_norm(Nf, Nt, d=nx)
-    wave = transform_wavelet_freq_helper(freqseries.data, Nf, Nt, phif)
-
-    return Wavelet((2 / Nf) * wave.T * np.sqrt(2), time=t_bins, freq=f_bins)
+    phif = np.array(phitilde_vec_norm(Nf, Nt, d=nx), dtype=float_dtype)
+    data = np.array(freqseries.data, dtype=complex_dtype)
+    wave = transform_wavelet_freq_helper(data, Nf, Nt, phif, float_dtype=float_dtype, complex_dtype=complex_dtype)
+    factor = (float_dtype)((2 / Nf) * np.sqrt(2))
+    return Wavelet(factor * wave.T, time=t_bins, freq=f_bins)

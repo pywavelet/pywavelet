@@ -1,6 +1,7 @@
 from typing import Optional, Tuple, Union
 
 import matplotlib.pyplot as plt
+from astropy.utils.metadata.utils import dtype
 from scipy.signal import butter, sosfiltfilt
 from scipy.signal.windows import tukey
 

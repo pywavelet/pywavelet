@@ -6,11 +6,10 @@ import importlib
 import os
 
 from . import backend as _backend
+from ._version import __version__
 
-__version__ = "0.0.2"
 
-
-def set_backend(backend: str):
+def set_backend(backend: str, precision: str = "float32") -> None:
     """Set the backend for the wavelet transform.
 
     Parameters
@@ -21,6 +20,7 @@ def set_backend(backend: str):
     from . import types
     from . import transforms
     os.environ["PYWAVELET_BACKEND"] = backend
+    os.environ["PYWAVELET_PRECISION"] = precision
 
     importlib.reload(_backend)
     importlib.reload(types)

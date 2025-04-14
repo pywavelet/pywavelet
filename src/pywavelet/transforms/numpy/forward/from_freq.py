@@ -12,7 +12,12 @@ logger = logging.getLogger("pywavelet")
 
 
 def transform_wavelet_freq_helper(
-    data: np.ndarray, Nf: int, Nt: int, phif: np.ndarray
+    data: np.ndarray,
+    Nf: int,
+    Nt: int,
+    phif: np.ndarray,
+    float_dtype: np.dtype = np.float64,
+    complex_dtype: np.dtype = np.complex128,
 ) -> np.ndarray:
     """
     Forward wavelet transform helper using the fast wavelet domain transform,
@@ -38,8 +43,8 @@ def transform_wavelet_freq_helper(
     logger.debug(
         f"[NUMPY TRANSFORM] Input types [data:{type(data)}, phif:{type(phif)}]"
     )
-    wave = np.zeros((Nt, Nf), dtype=np.float64)
-    DX = np.zeros(Nt, dtype=np.complex128)
+    wave = np.zeros((Nt, Nf), dtype=float_dtype)
+    DX = np.zeros(Nt, dtype=complex_dtype)
     # Create a copy of the input data (if needed).
     freq_strain = data.copy()
     __core(Nf, Nt, DX, freq_strain, phif, wave)
@@ -64,7 +69,7 @@ def __core(
     for f_bin in range(0, Nf + 1):
         __fill_wave_1(f_bin, Nt, Nf, DX, data, phif)
         # Use rocket-fft's ifft (which is JIT-able) instead of np.fft.ifft.
-        DX_trans = np.fft.ifft(DX, Nt)
+        DX_trans = np.fft.ifft(DX, Nt,)
         __fill_wave_2(f_bin, DX_trans, wave, Nt, Nf)
 
 

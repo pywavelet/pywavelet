@@ -7,8 +7,7 @@ the wavelet domain.
 Everything in this module is retured as a npfloat64 array.
 """
 import numpy as np
-from beartype import beartype
-from jaxtyping import Array, Float64, jaxtyped
+from jaxtyping import Float64
 from scipy.special import betainc
 from numpy.fft import ifft
 from functools import lru_cache
