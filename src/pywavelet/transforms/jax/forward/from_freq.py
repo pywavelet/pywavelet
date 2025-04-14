@@ -4,6 +4,8 @@ import jax
 import jax.numpy as jnp
 from jax import jit
 from jax.numpy.fft import ifft
+from .... import backend
+
 X64_PRECISION = jax.config.jax_enable_x64
 
 CMPLX_DTYPE = jnp.complex128 if X64_PRECISION else jnp.complex64
@@ -15,9 +17,9 @@ logger = logging.getLogger('pywavelet')
 
 
 
-@partial(jit, static_argnames=("Nf", "Nt"))
+@partial(jit, static_argnames=("Nf", "Nt", 'float_dtype', 'complex_dtype'))
 def transform_wavelet_freq_helper(
-    data: jnp.ndarray, Nf: int, Nt: int, phif: jnp.ndarray
+    data: jnp.ndarray, Nf: int, Nt: int, phif: jnp.ndarray, float_dtype=jnp.float64, complex_dtype=jnp.complex128
 ) -> jnp.ndarray:
     """
     Transforms input data from the frequency domain to the wavelet domain using a
@@ -33,10 +35,10 @@ def transform_wavelet_freq_helper(
     - wave (jnp.ndarray): 2D array of wavelet-transformed data with shape (Nf, Nt).
     """
 
-    logger.debug(f"[JAX TRANSFORM] Input types [data:{type(data)}, phif:{type(phif)}]")
+    logger.debug(f"[JAX TRANSFORM] Input types [data:{type(data)},{data.dtype}, phif:{type(phif)},{phif.dtype}]")
 
     # Initialize the wavelet output array with zeros (time-rows, frequency-columns)
-    wave = jnp.zeros((Nt, Nf))
+    wave = jnp.zeros((Nt, Nf), dtype=float_dtype)
     f_bins = jnp.arange(Nf)  # Frequency bin indices
 
     # Compute base indices for time (i_base) and frequency (jj_base)
@@ -53,7 +55,7 @@ def transform_wavelet_freq_helper(
 
     # Initialize a 2D array to store intermediate FFT input values
     DX = jnp.zeros(
-        (Nf, Nt), dtype=CMPLX_DTYPE
+        (Nf, Nt), dtype=complex_dtype
     )
     DX = DX.at[:, Nt // 2].set(
         initial_values

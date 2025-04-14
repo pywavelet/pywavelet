@@ -4,6 +4,8 @@ import numpy as np
 from rich.table import Table, Text
 from rich.console import Console
 from typing import Tuple
+
+
 from .logger import logger
 
 JAX = "jax"
@@ -17,17 +19,18 @@ def cuda_is_available() -> bool:
     """Check if CUDA is available."""
     # Check if CuPy is available and CUDA is accessible
     cupy_available = importlib.util.find_spec("cupy") is not None
+    _cuda_available = False
     if cupy_available:
         import cupy
 
         try:
             cupy.cuda.runtime.getDeviceCount()  # Check if any CUDA device is available
-            cuda_available = True
+            _cuda_available = True
         except cupy.cuda.runtime.CUDARuntimeError:
-            cuda_available = False
+            _cuda_available = False
     else:
-        cuda_available = False
-    return cuda_available
+        _cuda_available = False
+    return _cuda_available
 
 
 def jax_is_available() -> bool:
@@ -117,13 +120,21 @@ def set_precision(precision: str)->None:
 def get_dtype_from_env()->Tuple[np.dtype, np.dtype]:
     """Get the data type from the environment variable."""
     precision = get_precision_from_env()
-    backend = get_backend_from_env()
+    backend = get_backend_from_env()[-1]
     if backend == JAX:
-        import jax.numpy as jnp
+
         if precision == "float32":
+            import jax
+            jax.config.update("jax_enable_x64", False)
+
+            import jax.numpy as jnp
             float_dtype = jnp.float32
             complex_dtype = jnp.complex64
         elif precision == "float64":
+            import jax
+            jax.config.update("jax_enable_x64", True)
+
+            import jax.numpy as jnp
             float_dtype = jnp.float64
             complex_dtype = jnp.complex128
 

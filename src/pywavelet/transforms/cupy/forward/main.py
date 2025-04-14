@@ -8,6 +8,7 @@ from ....types.wavelet_bins import _get_bins, _preprocess_bins
 from ...phi_computer import phi_vec, phitilde_vec_norm
 from .from_freq import transform_wavelet_freq_helper
 from .from_time import transform_wavelet_time_helper
+from .... import backend
 
 
 def from_time_to_wavelet(
@@ -16,7 +17,6 @@ def from_time_to_wavelet(
     Nt: Union[int, None] = None,
     nx: float = 4.0,
     mult: int = 32,
-    **kwargs,
 ) -> Wavelet:
     """Transforms time-domain data to wavelet-domain data.
 
@@ -45,7 +45,6 @@ def from_time_to_wavelet(
 
     """
     Nf, Nt = _preprocess_bins(timeseries, Nf, Nt)
-    dt = timeseries.dt
     t_bins, f_bins = _get_bins(timeseries, Nf, Nt)
 
     ND = Nf * Nt
@@ -73,7 +72,6 @@ def from_freq_to_wavelet(
     Nf: Union[int, None] = None,
     Nt: Union[int, None] = None,
     nx: float = 4.0,
-    **kwargs,
 ) -> Wavelet:
     """Transforms frequency-domain data to wavelet-domain data.
 
@@ -98,9 +96,10 @@ def from_freq_to_wavelet(
     """
     Nf, Nt = _preprocess_bins(freqseries, Nf, Nt)
     t_bins, f_bins = _get_bins(freqseries, Nf, Nt)
-    phif = cp.array(phitilde_vec_norm(Nf, Nt, d=nx))
+    phif = cp.array(phitilde_vec_norm(Nf, Nt, d=nx), dtype=backend.float_dtype)
+    data = cp.array(freqseries.data, dtype=backend.complex_dtype)
     wave = transform_wavelet_freq_helper(
-        cp.array(freqseries.data), Nf=Nf, Nt=Nt, phif=phif
+        data, Nf=Nf, Nt=Nt, phif=phif, float_dtype=backend.float_dtype, complex_dtype=backend.complex_dtype
     )
-
-    return Wavelet((2 / Nf) * wave * cp.sqrt(2), time=t_bins, freq=f_bins)
+    factor = (2 / Nf) * cp.sqrt(2)
+    return Wavelet(factor * wave , time=t_bins, freq=f_bins)

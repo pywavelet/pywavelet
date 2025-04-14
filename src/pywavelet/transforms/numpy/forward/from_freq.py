@@ -41,7 +41,7 @@ def transform_wavelet_freq_helper(
         f_bin==0 and f_bin==Nf are both stored in column 0.
     """
     logger.debug(
-        f"[NUMPY TRANSFORM] Input types [data:{type(data)}, phif:{type(phif)}]"
+        f"[NUMPY TRANSFORM] Input types [data:{type(data)},{data.dtype}, phif:{type(phif)},{phif.dtype}]"
     )
     wave = np.zeros((Nt, Nf), dtype=float_dtype)
     DX = np.zeros(Nt, dtype=complex_dtype)
