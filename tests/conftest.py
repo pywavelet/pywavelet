@@ -9,6 +9,7 @@ from utils import (
     generate_sine_time_domain_signal,
 )
 
+import pywavelet
 from pywavelet.logger import logger
 from pywavelet.types import Wavelet, FrequencySeries, TimeSeries
 from pywavelet.types.wavelet_bins import compute_bins
@@ -34,6 +35,8 @@ Nf = 256
 ND = Nt * Nf
 ts = np.arange(0, ND) * dt
 
+
+print(f"Testing {pywavelet.__file__}.")
 
 def _gen_testdir():
     dirname = f"{HERE}/out_plots_{BRANCH}"
