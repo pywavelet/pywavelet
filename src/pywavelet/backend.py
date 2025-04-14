@@ -93,6 +93,28 @@ def get_backend_from_env():
     return xp, fft, ifft, irfft, rfft, rfftfreq, betainc, backend
 
 
+
+def get_precision_from_env()->str:
+    """Get the precision from the environment variable."""
+    precision = os.getenv("PYWAVELET_PRECISION", "float32").lower()
+    if precision == "float32":
+        return "float32"
+    elif precision == "float64":
+        return "float64"
+    else:
+        logger.error(f"Precision {precision} is not supported.")
+        return "float32"
+
+def set_precision(precision: str)->None:
+    if precision == "float32":
+        os.environ["PYWAVELET_PRECISION"] = "float32"
+    elif precision == "float64":
+        os.environ["PYWAVELET_PRECISION"] = "float64"
+    else:
+        logger.error(f"Precision {precision} is not supported.")
+
+
+
 cuda_available = cuda_is_available()
 
 # Get the chosen backend

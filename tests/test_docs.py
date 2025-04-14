@@ -11,7 +11,7 @@ DOCS_DIR = os.path.abspath(os.path.join(HERE, "..", "docs/examples"))
 
 # List of notebooks to test
 notebooks = [
-    "example.ipynb",
+    "basic.ipynb",
 ]
 
 

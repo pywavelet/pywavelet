@@ -1,7 +1,15 @@
 import matplotlib.pyplot as plt
 import numpy as np
+from jaxtyping import install_import_hook
 
-from pywavelet.transforms import omega, phi_vec, phitilde_vec_norm
+with install_import_hook("pywavelet", "beartype.beartype"):
+    import pywavelet
+    import pywavelet.transforms.phi_computer
+    from pywavelet.transforms.phi_computer import (
+        omega,
+        phi_vec,
+        phitilde_vec_norm,
+    )
 
 
 def _plot(t, phi, f, phitilde, fname):

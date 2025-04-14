@@ -1,25 +1,35 @@
-import numpy as np
-from jaxtyping import Array, Float
+"""
+This module contains functions to compute the Fourier transform of the
+wavelet function and its normalization. The wavelet function is defined
+in the frequency domain and is used to transform time-domain data into
+the wavelet domain.
 
-from ..backend import betainc, ifft, xp
+Everything in this module is retured as a npfloat64 array.
+"""
+import numpy as np
+from beartype import beartype
+from jaxtyping import Array, Float64, jaxtyped
+from scipy.special import betainc
+from numpy.fft import ifft
+from functools import lru_cache
 
 __all__ = ["phitilde_vec_norm", "phi_vec", "omega"]
 
-
-def omega(Nf: int, Nt: int) -> Float[Array, " Nt//2+1"]:
+@lru_cache(maxsize=None)
+def omega(Nf: int, Nt: int) -> Float64[np.ndarray, "{Nt}//2+1"]:
     """Get the angular frequencies of the time domain signal."""
     df = 2 * np.pi / (Nf * Nt)
-    return df * np.arange(0, Nt // 2 + 1)
+    return df * np.arange(0, Nt // 2 + 1, dtype=np.float64)
 
-
-def phitilde_vec_norm(Nf: int, Nt: int, d: float) -> Float[Array, " Nt//2+1"]:
+@lru_cache(maxsize=None)
+def phitilde_vec_norm(Nf: int, Nt: int, d: float) -> Float64[np.ndarray, "{Nt}//2+1"]:
     """Normalize phitilde for inverse frequency domain transform."""
     omegas = omega(Nf, Nt)
     _phi_t = _phitilde_vec(omegas, Nf, d) * np.sqrt(np.pi)
-    return xp.array(_phi_t)
+    return np.array(_phi_t)
 
-
-def phi_vec(Nf: int, d: float = 4.0, q: int = 16) -> Float[Array, " 2*q*Nf"]:
+@lru_cache(maxsize=None)
+def phi_vec(Nf: int, d: float = 4.0, q: int = 16) -> Float64[np.ndarray, "2*{q}*{Nf}"]:
     """get time domain phi as fourier transform of _phitilde_vec
     q: number of Nf bins over which the window extends?
 
@@ -29,7 +39,6 @@ def phi_vec(Nf: int, d: float = 4.0, q: int = 16) -> Float[Array, " 2*q*Nf"]:
     half_K = q * Nf  # xp.int64(K/2)
 
     dom = 2 * np.pi / K  # max frequency is K/2*dom = pi/dt = OM
-
     DX = np.zeros(K, dtype=np.complex128)
 
     # zero frequency
@@ -37,9 +46,9 @@ def phi_vec(Nf: int, d: float = 4.0, q: int = 16) -> Float[Array, " 2*q*Nf"]:
 
     DX = DX.copy()
     # postive frequencies
-    DX[1 : half_K + 1] = _phitilde_vec(dom * np.arange(1, half_K + 1), Nf, d)
+    DX[1: half_K + 1] = _phitilde_vec(dom * np.arange(1, half_K + 1), Nf, d)
     # negative frequencies
-    DX[half_K + 1 :] = _phitilde_vec(
+    DX[half_K + 1:] = _phitilde_vec(
         -dom * np.arange(half_K - 1, 0, -1), Nf, d
     )
     DX = K * ifft(DX, K)
@@ -51,12 +60,14 @@ def phi_vec(Nf: int, d: float = 4.0, q: int = 16) -> Float[Array, " 2*q*Nf"]:
     nrm = np.sqrt(2.0) / np.sqrt(K / dom)  # *xp.linalg.norm(phi)
 
     phi *= nrm
-    return xp.array(phi)
+    return np.array(phi)
 
 
 def _phitilde_vec(
-    omega: Float[Array, " Nt//2+1"], Nf: int, d: float = 4.0
-) -> Float[Array, " Nt//2+1"]:
+        omega: Float64[np.ndarray, "dim"],
+        Nf: int,
+        d: float = 4.0
+) -> Float64[np.ndarray, "dim"]:
     """Compute phi_tilde(omega_i) array, nx is filter steepness, defaults to 4.
 
     Eq 11 of https://arxiv.org/pdf/2009.00043.pdf (Cornish et al. 2020)
@@ -66,8 +77,6 @@ def _phitilde_vec(
         1/sqrt(2π∆F) cos(nu_d π/2 * |omega|-A / B) if A < |omega_i| < A + B
 
     Where nu_d = normalized incomplete beta function
-
-
 
     Parameters
     ----------
@@ -93,22 +102,25 @@ def _phitilde_vec(
     if B <= 0:
         raise ValueError("B must be greater than 0")
 
-    phi = np.zeros(omega.size)
+    phi = np.zeros(omega.size, dtype=np.float64)
     mask = (A <= np.abs(omega)) & (np.abs(omega) < A + B)  # Minor changes
     vd = (np.pi / 2.0) * _nu_d(omega[mask], A, B, d=d)  # different from paper
-    phi[mask] = inverse_sqrt_dOmega * xp.cos(vd)
+    phi[mask] = inverse_sqrt_dOmega * np.cos(vd)
     phi[np.abs(omega) < A] = inverse_sqrt_dOmega
     return phi
 
 
 def _nu_d(
-    omega: Float[Array, " Nt//2+1"], A: float, B: float, d: float = 4.0
-) -> Float[Array, " Nt//2+1"]:
+        omega: Float64[np.ndarray, "dim"],
+        A: float,
+        B: float,
+        d: float = 4.0
+) -> Float64[np.ndarray, "dim"]:
     """Compute the normalized incomplete beta function.
 
     Parameters
     ----------
-    ω : xp.ndarray
+    omega : np.ndarray
         Array of angular frequencies
     A : float
         Lower bound for the beta function
@@ -119,7 +131,7 @@ def _nu_d(
 
     Returns
     -------
-    xp.ndarray
+    np.ndarray
         Array of ν_d values
 
     scipy.special.betainc
