@@ -56,8 +56,8 @@ def get_available_backends_table():
 
 def log_backend(level='info'):
     """Print the current backend and precision."""
-    backend = get_backend_from_env()[-1]
-    precision = get_precision_from_env()
+    backend = os.getenv("PYWAVELET_BACKEND", NUMPY).lower()
+    precision = os.getenv("PYWAVELET_PRECISION", "float32").lower()
     str = f"Current backend: {backend}[{precision}]"
     if level == 'info':
         logger.info(str)
