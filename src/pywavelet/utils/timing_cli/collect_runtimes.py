@@ -4,8 +4,7 @@ import numpy as np
 
 from ...types import FrequencySeries
 from ...transforms.phi_computer import phitilde_vec_norm
-from ...backend import cuda_available
-from timeit import repeat as timing_repeat
+from ...backend import cuda_available, get_precision_from_env, get_dtype_from_env
 from tqdm.auto import tqdm
 import pandas as pd
 from rich.console import Console
@@ -13,6 +12,12 @@ from rich.table import Table
 from rich import box
 
 __all__ = ["collect_runtimes_for_backend"]
+
+
+PRECISION = get_precision_from_env()
+print(f"Using precision: {PRECISION}")
+DTYPES = get_dtype_from_env()
+print(f"Using dtypes: {DTYPES}")
 
 
 def print_runtimes(runtimes: pd.DataFrame, label: str):
@@ -77,13 +82,18 @@ def _generate_func_args(ND: int, label="numpy") -> Tuple:
     if "jax" in label:
         from jax import numpy as jnp
 
-        yf = jnp.array(yf)
-        phif = jnp.array(phif)
+        yf = jnp.array(yf, dtype=DTYPES[1])
+        phif = jnp.array(phif, dtype=DTYPES[0])
     if "cupy" in label and cuda_available:
         import cupy as cp
-        yf = cp.array(yf)
-        phif = cp.array(phif)
-    return yf, Nf, Nt, phif
+        yf = cp.array(yf, dtype=DTYPES[1])
+        phif = cp.array(phif, dtype=DTYPES[0])
+
+    if "numpy" in label:
+        yf = np.array(yf, dtype=DTYPES[1])
+        phif = np.array(phif, dtype=DTYPES[0])
+
+    return yf, Nf, Nt, phif, DTYPES[0], DTYPES[1]
 
 
 def _collect_runtime(func: Callable, func_args: Tuple, nrep: int = 5) -> Tuple[float, float]:
@@ -128,20 +138,19 @@ def _collect_jax_runtimes(*args, **kwargs):
     from pywavelet.transforms.jax.forward.from_freq import transform_wavelet_freq_helper as jax_transform
     import jax
     JAX_DEVICE = jax.default_backend()
-    JAX_PRECISION = "x64" if jax.config.jax_enable_x64 else "x32"
 
-    jax_label = f"jax_{JAX_DEVICE}_{JAX_PRECISION}"
+    jax_label = f"jax_{JAX_DEVICE}_{PRECISION}"
     _collect_runtimes(jax_transform, jax_label, *args, **kwargs)
 
 
 def _collect_cupy_runtimes(*args, **kwargs):
     from pywavelet.transforms.cupy.forward.from_freq import transform_wavelet_freq_helper as cp_transform
-    _collect_runtimes(cp_transform, "cupy", *args, **kwargs)
+    _collect_runtimes(cp_transform, f"cupy_{PRECISION}", *args, **kwargs)
 
 
 def _collect_numpy_runtimes(*args, **kwargs):
     from pywavelet.transforms.numpy.forward.from_freq import transform_wavelet_freq_helper as np_transform
-    _collect_runtimes(np_transform, "numpy", *args, **kwargs)
+    _collect_runtimes(np_transform, f"numpy_{PRECISION}", *args, **kwargs)
 
 
 def collect_runtimes_for_backend(backend: str, max_log2f: int, nrep: int = 5, outdir: str = '.'):

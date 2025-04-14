@@ -5,7 +5,6 @@ from rich.table import Table, Text
 from rich.console import Console
 from typing import Tuple
 
-
 from .logger import logger
 
 JAX = "jax"
@@ -55,9 +54,20 @@ def get_available_backends_table():
     return Text.from_ansi(capture.get())
 
 
+def log_backend(level='info'):
+    """Print the current backend and precision."""
+    backend = get_backend_from_env()[-1]
+    precision = get_precision_from_env()
+    str = f"Current backend: {backend}[{precision}]"
+    if level == 'info':
+        logger.info(str)
+    elif level == 'debug':
+        logger.debug(str)
+
 def get_backend_from_env():
     """Select and return the appropriate backend module."""
     backend = os.getenv("PYWAVELET_BACKEND", NUMPY).lower()
+    precision = os.getenv("PYWAVELET_PRECISION", "float32").lower()
 
     if backend == JAX and jax_is_available():
 
@@ -65,27 +75,22 @@ def get_backend_from_env():
         from jax.numpy.fft import fft, ifft, irfft, rfft, rfftfreq
         from jax.scipy.special import betainc
 
-        logger.info("Using JAX backend")
-
     elif backend == CUPY and cuda_is_available():
 
         import cupy as xp
         from cupy.fft import fft, ifft, irfft, rfft, rfftfreq
         from cupyx.scipy.special import betainc
 
-        logger.info("Using CuPy backend")
 
     elif backend == NUMPY:
         import numpy as xp
         from numpy.fft import fft, ifft, irfft, rfft, rfftfreq
         from scipy.special import betainc
 
-        logger.info("Using NumPy backend")
-
 
     else:
         logger.error(
-            f"Backend {backend} is not available. "
+            f"Backend {backend}[{precision}] is not available. "
         )
         print(get_available_backends_table())
         logger.warning(
@@ -94,11 +99,11 @@ def get_backend_from_env():
         os.environ["PYWAVELET_BACKEND"] = NUMPY
         return get_backend_from_env()
 
+    log_backend('debug')
     return xp, fft, ifft, irfft, rfft, rfftfreq, betainc, backend
 
 
-
-def get_precision_from_env()->str:
+def get_precision_from_env() -> str:
     """Get the precision from the environment variable."""
     precision = os.getenv("PYWAVELET_PRECISION", "float32").lower()
     if precision not in VALID_PRECISIONS:
@@ -106,7 +111,8 @@ def get_precision_from_env()->str:
         precision = "float32"
     return precision
 
-def set_precision(precision: str)->None:
+
+def set_precision(precision: str) -> None:
     """Set the precision for the backend."""
     precision = precision.lower()
     if precision not in VALID_PRECISIONS:
@@ -117,7 +123,8 @@ def set_precision(precision: str)->None:
         logger.info(f"Setting precision to {precision}.")
         return
 
-def get_dtype_from_env()->Tuple[np.dtype, np.dtype]:
+
+def get_dtype_from_env() -> Tuple[np.dtype, np.dtype]:
     """Get the data type from the environment variable."""
     precision = get_precision_from_env()
     backend = get_backend_from_env()[-1]

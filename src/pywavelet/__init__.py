@@ -25,3 +25,15 @@ def set_backend(backend: str, precision: str = "float32") -> None:
     importlib.reload(_backend)
     importlib.reload(types)
     importlib.reload(transforms)
+    if backend == "cupy":
+        importlib.reload(transforms.cupy)
+        importlib.reload(transforms.cupy.forward)
+        importlib.reload(transforms.cupy.inverse)
+    elif backend == "jax":
+        importlib.reload(transforms.jax)
+        importlib.reload(transforms.jax.forward)
+        importlib.reload(transforms.jax.inverse)
+    else:
+        importlib.reload(transforms.numpy)
+        importlib.reload(transforms.numpy.forward)
+        importlib.reload(transforms.numpy.inverse)

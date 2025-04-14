@@ -2,7 +2,14 @@ import click
 import os
 import logging
 
-VALID_BACKENDS = ["numpy", "cupy", "jax", "jax64"]
+VALID_BACKENDS = [
+    "numpy32",
+    "cupy32",
+    "jax32",
+    "jax64",
+    "numpy64",
+    "cupy64",
+]
 
 
 @click.command("pywavelet_timer")
@@ -58,20 +65,25 @@ def cli_collect_runtime(
     if backend not in VALID_BACKENDS:
         raise ValueError(f"Invalid backend '{backend}'. Valid options are {VALID_BACKENDS}.")
 
+    precision = "float64" if "64" in backend else "float32"
+
+
     if '64' in backend:
         import jax
         jax.config.update("jax_enable_x64", True)
-        backend = backend.replace('64', '')
+    backend = backend[:-2]
+
 
     os.environ["PYWAVELET_BACKEND"] = backend
+    os.environ["PYWAVELET_PRECISION"] = precision
 
     # Set up logging
     from pywavelet.logger import logger
     logger.setLevel(logging.ERROR)
 
 
-    from .collect_runtimes import collect_runtimes_for_backend
-    from .plot import plot_runtimes
+    from pywavelet.utils.timing_cli.collect_runtimes import collect_runtimes_for_backend
+    from pywavelet.utils.timing_cli.plot import plot_runtimes
 
     # Create the output directory if it doesn't exist
     os.makedirs(outdir, exist_ok=True)
