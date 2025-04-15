@@ -381,7 +381,13 @@ document.write(`
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#transform-functions">Transform Functions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#transform-functions">Transform Functions</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywavelet.transforms.from_time_to_wavelet"><code class="docutils literal notranslate"><span class="pre">from_time_to_wavelet()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywavelet.transforms.from_freq_to_wavelet"><code class="docutils literal notranslate"><span class="pre">from_freq_to_wavelet()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywavelet.transforms.from_wavelet_to_freq"><code class="docutils literal notranslate"><span class="pre">from_wavelet_to_freq()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywavelet.transforms.from_wavelet_to_time"><code class="docutils literal notranslate"><span class="pre">from_wavelet_to_time()</span></code></a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#types">Types</a></li>
 </ul>
             </nav>
@@ -400,6 +406,147 @@ document.write(`
 time/frequency domains to the WDM-wavelet domain.</p>
 <section id="transform-functions">
 <h2>Transform Functions<a class="headerlink" href="#transform-functions" title="Link to this heading">#</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pywavelet.transforms.from_time_to_wavelet">
+<span class="sig-prename descclassname"><span class="pre">pywavelet.transforms.</span></span><span class="sig-name descname"><span class="pre">from_time_to_wavelet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeseries</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">TimeSeries</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Nf</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Nt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">4.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mult</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">32</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Wavelet</span></span></span><a class="headerlink" href="#pywavelet.transforms.from_time_to_wavelet" title="Link to this definition">#</a></dt>
+<dd><p>Transform time-domain data to wavelet-domain data.</p>
+<p>This function performs a forward wavelet transform, converting a
+time-domain signal into a wavelet-domain representation.</p>
+<section id="parameters">
+<h3>Parameters<a class="headerlink" href="#parameters" title="Link to this heading">#</a></h3>
+<dl class="simple">
+<dt>timeseries<span class="classifier">TimeSeries</span></dt><dd><p>Input time-domain data, represented as a <cite>TimeSeries</cite> object.</p>
+</dd>
+<dt>Nf<span class="classifier">int, optional</span></dt><dd><p>Number of frequency bins for the wavelet transform. Default is None.</p>
+</dd>
+<dt>Nt<span class="classifier">int, optional</span></dt><dd><p>Number of time bins for the wavelet transform. Default is None.</p>
+</dd>
+<dt>nx<span class="classifier">float, optional</span></dt><dd><p>Number of standard deviations for the <cite>phi_vec</cite>, controlling the
+width of the wavelets. Default is 4.0.</p>
+</dd>
+<dt>mult<span class="classifier">int, optional</span></dt><dd><p>Number of time bins to use for the wavelet transform. Ensure <cite>mult</cite> is
+not larger than half the number of time bins (<cite>Nt</cite>). Default is 32.</p>
+</dd>
+</dl>
+</section>
+<section id="returns">
+<h3>Returns<a class="headerlink" href="#returns" title="Link to this heading">#</a></h3>
+<dl class="simple">
+<dt>Wavelet</dt><dd><p>A <cite>Wavelet</cite> object representing the transformed wavelet-domain data.</p>
+</dd>
+</dl>
+</section>
+<section id="warnings">
+<h3>Warnings<a class="headerlink" href="#warnings" title="Link to this heading">#</a></h3>
+<p>There can be significant leakage if <cite>mult</cite> is too small. The transform is
+only approximately exact if <cite>mult = Nt / 2</cite>.</p>
+</section>
+<section id="notes">
+<h3>Notes<a class="headerlink" href="#notes" title="Link to this heading">#</a></h3>
+<p>The function warns when the <cite>mult</cite> value is too large, potentially leading
+to inaccurate results.</p>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pywavelet.transforms.from_freq_to_wavelet">
+<span class="sig-prename descclassname"><span class="pre">pywavelet.transforms.</span></span><span class="sig-name descname"><span class="pre">from_freq_to_wavelet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">freqseries</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">FrequencySeries</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Nf</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Nt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">4.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Wavelet</span></span></span><a class="headerlink" href="#pywavelet.transforms.from_freq_to_wavelet" title="Link to this definition">#</a></dt>
+<dd><p>Transform frequency-domain data to wavelet-domain data.</p>
+<p>This function performs a forward wavelet transform, converting a
+frequency-domain signal into a wavelet-domain representation.</p>
+<section id="id1">
+<h3>Parameters<a class="headerlink" href="#id1" title="Link to this heading">#</a></h3>
+<dl class="simple">
+<dt>freqseries<span class="classifier">FrequencySeries</span></dt><dd><p>Input frequency-domain data, represented as a <cite>FrequencySeries</cite> object.</p>
+</dd>
+<dt>Nf<span class="classifier">int, optional</span></dt><dd><p>Number of frequency bins for the wavelet transform. Default is None.</p>
+</dd>
+<dt>Nt<span class="classifier">int, optional</span></dt><dd><p>Number of time bins for the wavelet transform. Default is None.</p>
+</dd>
+<dt>nx<span class="classifier">float, optional</span></dt><dd><p>Number of standard deviations for the <cite>phi_vec</cite>, controlling the
+width of the wavelets. Default is 4.0.</p>
+</dd>
+</dl>
+</section>
+<section id="id2">
+<h3>Returns<a class="headerlink" href="#id2" title="Link to this heading">#</a></h3>
+<dl class="simple">
+<dt>Wavelet</dt><dd><p>A <cite>Wavelet</cite> object representing the transformed wavelet-domain data.</p>
+</dd>
+</dl>
+</section>
+<section id="id3">
+<h3>Notes<a class="headerlink" href="#id3" title="Link to this heading">#</a></h3>
+<p>The function normalizes the wavelet-domain data to ensure consistency
+during the transformation process.</p>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pywavelet.transforms.from_wavelet_to_freq">
+<span class="sig-prename descclassname"><span class="pre">pywavelet.transforms.</span></span><span class="sig-name descname"><span class="pre">from_wavelet_to_freq</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wave_in</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Wavelet</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">4.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">FrequencySeries</span></span></span><a class="headerlink" href="#pywavelet.transforms.from_wavelet_to_freq" title="Link to this definition">#</a></dt>
+<dd><p>Perform an inverse wavelet transform to the frequency domain.</p>
+<p>This function converts a wavelet-domain signal into a frequency-domain
+signal using the inverse wavelet transform algorithm.</p>
+<section id="id4">
+<h3>Parameters<a class="headerlink" href="#id4" title="Link to this heading">#</a></h3>
+<dl class="simple">
+<dt>wave_in<span class="classifier">Wavelet</span></dt><dd><p>Input wavelet, represented by a <cite>Wavelet</cite> object.</p>
+</dd>
+<dt>dt<span class="classifier">float</span></dt><dd><p>Time step of the wavelet data.</p>
+</dd>
+<dt>nx<span class="classifier">float, optional</span></dt><dd><p>Scaling parameter for the phi vector used in the transformation. Default is 4.0.</p>
+</dd>
+</dl>
+</section>
+<section id="id5">
+<h3>Returns<a class="headerlink" href="#id5" title="Link to this heading">#</a></h3>
+<dl class="simple">
+<dt>FrequencySeries</dt><dd><p>A <cite>FrequencySeries</cite> object containing the signal transformed into the frequency domain.</p>
+</dd>
+</dl>
+</section>
+<section id="id6">
+<h3>Notes<a class="headerlink" href="#id6" title="Link to this heading">#</a></h3>
+<p>The transformation involves normalizing the output by the square root of 2
+to ensure the proper backwards transformation.</p>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pywavelet.transforms.from_wavelet_to_time">
+<span class="sig-prename descclassname"><span class="pre">pywavelet.transforms.</span></span><span class="sig-name descname"><span class="pre">from_wavelet_to_time</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wave_in</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Wavelet</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">4.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mult</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">32</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">TimeSeries</span></span></span><a class="headerlink" href="#pywavelet.transforms.from_wavelet_to_time" title="Link to this definition">#</a></dt>
+<dd><p>Perform an inverse wavelet transform to the time domain.</p>
+<p>This function converts a wavelet-domain signal to a time-domain signal using
+the inverse wavelet transform algorithm.</p>
+<section id="id7">
+<h3>Parameters<a class="headerlink" href="#id7" title="Link to this heading">#</a></h3>
+<dl class="simple">
+<dt>wave_in<span class="classifier">Wavelet</span></dt><dd><p>Input wavelet, represented by a <cite>Wavelet</cite> object.</p>
+</dd>
+<dt>dt<span class="classifier">float</span></dt><dd><p>Time step of the wavelet data.</p>
+</dd>
+<dt>nx<span class="classifier">float, optional</span></dt><dd><p>Scaling parameter for the phi vector used in the transformation. Default is 4.0.</p>
+</dd>
+<dt>mult<span class="classifier">int, optional</span></dt><dd><p>Multiplier parameter for the phi vector. Ensures that the <cite>mult</cite> value
+is not larger than half the number of time bins (<cite>wave_in.Nt</cite>). Default is 32.</p>
+</dd>
+</dl>
+</section>
+<section id="id8">
+<h3>Returns<a class="headerlink" href="#id8" title="Link to this heading">#</a></h3>
+<dl class="simple">
+<dt>TimeSeries</dt><dd><p>A <cite>TimeSeries</cite> object containing the signal transformed into the time domain.</p>
+</dd>
+</dl>
+</section>
+<section id="id9">
+<h3>Notes<a class="headerlink" href="#id9" title="Link to this heading">#</a></h3>
+<p>The transformation involves normalizing the output by the square root of 2
+to ensure the proper backwards transformation.</p>
+</section>
+</dd></dl>
+
 </section>
 <section id="types">
 <h2>Types<a class="headerlink" href="#types" title="Link to this heading">#</a></h2>
@@ -470,7 +617,13 @@ time/frequency domains to the WDM-wavelet domain.</p>
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#transform-functions">Transform Functions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#transform-functions">Transform Functions</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywavelet.transforms.from_time_to_wavelet"><code class="docutils literal notranslate"><span class="pre">from_time_to_wavelet()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywavelet.transforms.from_freq_to_wavelet"><code class="docutils literal notranslate"><span class="pre">from_freq_to_wavelet()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywavelet.transforms.from_wavelet_to_freq"><code class="docutils literal notranslate"><span class="pre">from_wavelet_to_freq()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pywavelet.transforms.from_wavelet_to_time"><code class="docutils literal notranslate"><span class="pre">from_wavelet_to_time()</span></code></a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#types">Types</a></li>
 </ul>
   </nav></div>
