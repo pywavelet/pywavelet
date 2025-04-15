@@ -1,0 +1,6 @@
+pywavelet_timer -n 10 -o 'out_runtimes' -r 5 -b 'numpy32'
+pywavelet_timer -n 10 -o 'out_runtimes' -r 5 -b 'numpy64'
+pywavelet_timer -n 12 -o 'out_runtimes' -r 5 -b 'jax32'
+pywavelet_timer -n 12 -o 'out_runtimes' -r 5 -b 'jax64'
+pywavelet_timer -n 12 -o 'out_runtimes' -r 5 -b 'cupy32'
+pywavelet_timer -n 12 -o 'out_runtimes' -r 5 -b 'cupy64'
