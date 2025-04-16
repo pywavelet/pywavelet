@@ -8,7 +8,7 @@ from utils import (
     cuda_available,
     plot_freqdomain_comparisions,
     plot_timedomain_comparisons,
-    plot_wavelet_comparison,
+    plot_wavelet_cached_comparison,
     to_cupy,
     to_jax,
     to_numpy,
@@ -152,7 +152,7 @@ def _assert_wavelet_matches_cached_wavelet(cur: "Wavelet", label, outdir):
     net_err = np.sum(np.abs(err.data))
 
     label = f"{label}_{current_backend}"
-    plot_wavelet_comparison(cur, cached, err, label, outdir)
+    plot_wavelet_cached_comparison(cur, cached, err, label, outdir)
 
     assert net_err < 0.9, f"Sum(np_cache - new_{current_backend}_WDM) is too large: {net_err:.2f}"
     assert (

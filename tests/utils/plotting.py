@@ -9,7 +9,7 @@ from numpy.ma.core import absolute
 from pywavelet.types import FrequencySeries, TimeSeries, Wavelet
 
 __all__ = [
-    "plot_wavelet_comparison",
+    "plot_wavelet_cached_comparison",
     "plot_timedomain_comparisons",
     "plot_freqdomain_comparisions",
     "BRANCH",
@@ -86,35 +86,52 @@ def plot_residuals(
 
 
 def plot_wavelet_comparison(
-    cur: Wavelet, cached: Wavelet, err: Wavelet, label: str, outdir: str
+        w1: Wavelet,
+        w2: Wavelet,
+        labels=None,
+        axes: plt.Axes=None,
+        fname=None,
 ):
-    from pywavelet.backend import current_backend
+    if labels is None:
+        labels = ["W1", "W2"]
 
+    err = w1 - w2
     net_err = np.sum(np.abs(err.data))
-    fig, axes = plt.subplots(1, 3, figsize=(10, 4), sharey=True, sharex=True)
-    axes[0].set_title(f"Branch: {BRANCH} [{current_backend}]")
-    axes[1].set_title("Cached Numpy (v0.0.1)")
-    axes[2].set_title("Diff")
-    errstr = f"Σ|old-new|: {net_err:.2e}"
+    errstr = f"Σ|{labels[0]}-new|: {net_err:.2e}"
+
+    if axes is None:
+        fig, axes = plt.subplots(1, 3, figsize=(10, 4), sharey=True, sharex=True)
+
     txtbox_kwargs = dict(alpha=0.5, facecolor="white")
-    norm = _get_log_norm(cur.data, cached.data, default_vmin=1e-10)
+    norm = _get_log_norm(w1.data, w2.data, default_vmin=1e-10)
     kwgs = dict(
         norm=norm, zscale="log", absolute=True, txtbox_kwargs=txtbox_kwargs
     )
-    cur.plot(ax=axes[0], show_colorbar=False, **kwgs)
-    cached.plot(ax=axes[1], show_colorbar=False, **kwgs)
+    w1.plot(ax=axes[0], show_colorbar=False, **kwgs)
+    w2.plot(ax=axes[1], show_colorbar=False, **kwgs)
     err.plot(
         ax=axes[2],
         show_colorbar=True,
-        cbar_label="old-new",
+        cbar_label=f"{labels[0]}-{labels[1]}",
         label=errstr,
         **kwgs,
     )
-    axes[0].set_ylabel("Frequency [Hz]")
-    axes[1].set_ylabel("")
-    axes[2].set_ylabel("")
-    for ax in axes:
+
+    for i, ax in enumerate(axes):
+        ax.set_ylabel("Frequency [Hz]" if i == 0 else "")
         ax.set_xlabel("Time [s]")
+    if fname:
+        plt.savefig(fname)
+    return axes
+
+def plot_wavelet_cached_comparison(
+    cur: Wavelet, cached: Wavelet, err: Wavelet, label: str, outdir: str
+):
+    from pywavelet.backend import current_backend
+    axes = plot_wavelet_comparison(cur, cached, labels=["Current", "Cached"])
+    axes[0].set_title(f"Branch: {BRANCH} [{current_backend}]")
+    axes[1].set_title("Cached Numpy (v0.0.1)")
+    axes[2].set_title("Diff")
     plt.suptitle(label)
     plt.tight_layout()
     plt.savefig(f"{outdir}/{label}_comparison.png")
@@ -169,10 +186,12 @@ def plot_freqdomain_comparisions(
     hf: FrequencySeries,
     h_reconstructed: FrequencySeries,
     wavelet: Wavelet,
-    fname: str,
+    fname: str=None,
+    axes=None,
 ):
     err = np.abs(hf.data - h_reconstructed.data)
-    fig, axes = plt.subplots(1, 3, figsize=(15, 5))
+    if axes is None:
+        fig, axes = plt.subplots(1, 3, figsize=(15, 5))
     hf.plot_periodogram(ax=axes[0], label=f"Original (n={hf.ND})")
     h_reconstructed.plot_periodogram(
         ax=axes[0],
@@ -216,7 +235,10 @@ def plot_freqdomain_comparisions(
     axes[0].set_title("Periodogram")
     axes[1].set_title("Wavelet")
     plt.tight_layout()
-    plt.savefig(fname)
+    if fname:
+        plt.savefig(fname)
+    else:
+        return axes
 
 
 def plot_fft(hf, hf_1, fname):
@@ -233,3 +255,75 @@ def plot_fft(hf, hf_1, fname):
     plt.ylabel("Amplitude")
     plt.xlabel("Frequency [Hz]")
     plt.savefig(fname)
+
+
+def plot_roundtrip(
+        orig_freq: FrequencySeries,
+        orig_wdm: Wavelet,
+        reconstructed_freq: FrequencySeries,
+        reconstructed_wdm: Wavelet,
+        axes=None,
+        labels=None,
+):
+    """ Plots the
+        Axes1: original frequency series + reconstructed frequency series
+        Axes2: residual of the frequency series
+        Axes3: original wavelet
+        Axes4: reconstructed wavelet
+        Axes5: diff of the wavelet
+    """
+    if axes is None:
+        fig, axes = plt.subplots(1, 5, figsize=(10, 8))
+
+    if labels is None:
+        labels = ["Original", "Reconstructed"]
+
+    err_freq = np.abs(np.abs(orig_freq.data) ** 2 - np.abs(reconstructed_freq.data) ** 2)
+    err_wdm  = orig_wdm - reconstructed_wdm
+    net_err_freq = np.sum(np.abs(err_freq))
+    net_err_wdm = np.sum(np.abs(err_wdm.data))
+
+    orig_freq.plot_periodogram(
+        ax=axes[0],
+        label=labels[0],
+        marker="o",
+        color='black'
+    )
+    reconstructed_freq.plot_periodogram(
+        ax=axes[0],
+        label=f"{labels[1]} (er={net_err_freq:.2f})",
+        linestyle="--",
+        marker='o',
+        color="tab:blue",
+        alpha=0.5,
+    )
+    # extend the xlim a bit to the right
+    axes[0].set_xlim(
+        orig_freq.freq[0] - 5 * orig_freq.df,
+        orig_freq.freq[-1] + 5 * orig_freq.df,
+    )
+    axes[0].legend(loc='upper left', frameon=False)
+    axes[0].set_title(f"Frequency Series")
+    ax_err = axes[0].twinx()
+    ax_err.plot(
+        orig_freq.freq,
+        err_freq,
+        color="tab:red",
+        label=f"Err {net_err_freq:.2f}",
+        lw=2,
+        zorder=-1,
+    )
+    ax_err.set_yscale("log")
+    ax_err.set_ylabel("Residuals")
+    # color ticks and axes red
+    ax_err.tick_params(axis="y", colors="red")
+    ax_err.yaxis.label.set_color("red")
+    ax_err.spines["right"].set_color("red")
+
+    orig_wdm.plot(ax=axes[1], label=labels[0], absolute=True, cmap='Blues')
+    reconstructed_wdm.plot(ax=axes[2], label=labels[1], absolute=True, cmap='Blues')
+    err_wdm.plot(ax=axes[3], label=f"Diff, er={net_err_wdm:.2f}", absolute=True, cmap='Blues')
+
+
+
+
