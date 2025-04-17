@@ -3,6 +3,7 @@ from cProfile import label
 
 import matplotlib.pyplot as plt
 import numpy as np
+from astropy.constants.codata2018 import alpha
 from matplotlib.colors import LogNorm
 from numpy.ma.core import absolute
 
@@ -278,10 +279,32 @@ def plot_roundtrip(
     if labels is None:
         labels = ["Original", "Reconstructed"]
 
-    err_freq = np.abs(np.abs(orig_freq.data) ** 2 - np.abs(reconstructed_freq.data) ** 2)
+
+    # relative error in the frequency domain
+
+    err_freq = np.abs(np.abs(orig_freq.data) ** 2 - np.abs(reconstructed_freq.data) ** 2) / np.abs(orig_freq.data) ** 2
+
+
     err_wdm  = orig_wdm - reconstructed_wdm
     net_err_freq = np.sum(np.abs(err_freq))
     net_err_wdm = np.sum(np.abs(err_wdm.data))
+
+    ax_err = axes[0].twinx()
+    ax_err.plot(
+        orig_freq.freq,
+        err_freq,
+        color="tab:red",
+        label=f"Err {net_err_freq:.2f}",
+        lw=2,
+        zorder=-1,
+        alpha=0.5,
+    )
+    ax_err.set_yscale("log")
+    ax_err.set_ylabel("Rel Error")
+    # color ticks and axes red
+    ax_err.tick_params(axis="y", colors="red")
+    ax_err.yaxis.label.set_color("red")
+    ax_err.spines["right"].set_color("red")
 
     orig_freq.plot_periodogram(
         ax=axes[0],
@@ -304,22 +327,6 @@ def plot_roundtrip(
     )
     axes[0].legend(loc='upper left', frameon=False)
     axes[0].set_title(f"Frequency Series")
-    ax_err = axes[0].twinx()
-    ax_err.plot(
-        orig_freq.freq,
-        err_freq,
-        color="tab:red",
-        label=f"Err {net_err_freq:.2f}",
-        lw=2,
-        zorder=-1,
-    )
-    ax_err.set_yscale("log")
-    ax_err.set_ylabel("Residuals")
-    # color ticks and axes red
-    ax_err.tick_params(axis="y", colors="red")
-    ax_err.yaxis.label.set_color("red")
-    ax_err.spines["right"].set_color("red")
-
     orig_wdm.plot(ax=axes[1], label=labels[0], absolute=True, cmap='Blues')
     reconstructed_wdm.plot(ax=axes[2], label=labels[1], absolute=True, cmap='Blues')
     err_wdm.plot(ax=axes[3], label=f"Diff, er={net_err_wdm:.2f}", absolute=True, cmap='Blues')
