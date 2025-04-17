@@ -12,7 +12,6 @@ from pywavelet.types import FrequencySeries, TimeSeries
 from pywavelet.utils import compute_snr, evolutionary_psd_from_stationary_psd
 
 
-
 @pytest.mark.parametrize("backend", ["jax", "cupy", "numpy"])
 def test_backend_loader(backend):
 
@@ -25,18 +24,18 @@ def test_backend_loader(backend):
 
     set_backend("numpy")
 
+
 def test_backend_fails_gracefully_if_no_cupy():
     if cuda_available:
         pytest.skip("CUDA is available")
 
-    set_backend('cupy')
+    set_backend("cupy")
     from pywavelet.backend import current_backend
 
-    assert current_backend == 'numpy'
+    assert current_backend == "numpy"
 
 
 def test_backed_logger():
     from pywavelet.backend import get_available_backends_table
+
     print(get_available_backends_table())
-
-

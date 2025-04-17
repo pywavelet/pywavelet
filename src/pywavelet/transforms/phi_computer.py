@@ -6,13 +6,16 @@ the wavelet domain.
 
 Everything in this module is retured as a npfloat64 array.
 """
-import numpy as np
-from jaxtyping import Float64
-from scipy.special import betainc
-from numpy.fft import ifft
+
 from functools import lru_cache
 
+import numpy as np
+from jaxtyping import Float64
+from numpy.fft import ifft
+from scipy.special import betainc
+
 __all__ = ["phitilde_vec_norm", "phi_vec", "omega"]
+
 
 @lru_cache(maxsize=None)
 def omega(Nf: int, Nt: int) -> Float64[np.ndarray, "{Nt}//2+1"]:
@@ -20,15 +23,21 @@ def omega(Nf: int, Nt: int) -> Float64[np.ndarray, "{Nt}//2+1"]:
     df = 2 * np.pi / (Nf * Nt)
     return df * np.arange(0, Nt // 2 + 1, dtype=np.float64)
 
+
 @lru_cache(maxsize=None)
-def phitilde_vec_norm(Nf: int, Nt: int, d: float) -> Float64[np.ndarray, "{Nt}//2+1"]:
+def phitilde_vec_norm(
+    Nf: int, Nt: int, d: float
+) -> Float64[np.ndarray, "{Nt}//2+1"]:
     """Normalize phitilde for inverse frequency domain transform."""
     omegas = omega(Nf, Nt)
     _phi_t = _phitilde_vec(omegas, Nf, d) * np.sqrt(np.pi)
     return np.array(_phi_t)
 
+
 @lru_cache(maxsize=None)
-def phi_vec(Nf: int, d: float = 4.0, q: int = 16) -> Float64[np.ndarray, "2*{q}*{Nf}"]:
+def phi_vec(
+    Nf: int, d: float = 4.0, q: int = 16
+) -> Float64[np.ndarray, "2*{q}*{Nf}"]:
     """get time domain phi as fourier transform of _phitilde_vec
     q: number of Nf bins over which the window extends?
 
@@ -45,9 +54,9 @@ def phi_vec(Nf: int, d: float = 4.0, q: int = 16) -> Float64[np.ndarray, "2*{q}*
 
     DX = DX.copy()
     # postive frequencies
-    DX[1: half_K + 1] = _phitilde_vec(dom * np.arange(1, half_K + 1), Nf, d)
+    DX[1 : half_K + 1] = _phitilde_vec(dom * np.arange(1, half_K + 1), Nf, d)
     # negative frequencies
-    DX[half_K + 1:] = _phitilde_vec(
+    DX[half_K + 1 :] = _phitilde_vec(
         -dom * np.arange(half_K - 1, 0, -1), Nf, d
     )
     DX = K * ifft(DX, K)
@@ -63,9 +72,7 @@ def phi_vec(Nf: int, d: float = 4.0, q: int = 16) -> Float64[np.ndarray, "2*{q}*
 
 
 def _phitilde_vec(
-        omega: Float64[np.ndarray, "dim"],
-        Nf: int,
-        d: float = 4.0
+    omega: Float64[np.ndarray, "dim"], Nf: int, d: float = 4.0
 ) -> Float64[np.ndarray, "dim"]:
     """Compute phi_tilde(omega_i) array, nx is filter steepness, defaults to 4.
 
@@ -110,10 +117,7 @@ def _phitilde_vec(
 
 
 def _nu_d(
-        omega: Float64[np.ndarray, "dim"],
-        A: float,
-        B: float,
-        d: float = 4.0
+    omega: Float64[np.ndarray, "dim"], A: float, B: float, d: float = 4.0
 ) -> Float64[np.ndarray, "dim"]:
     """Compute the normalized incomplete beta function.
 

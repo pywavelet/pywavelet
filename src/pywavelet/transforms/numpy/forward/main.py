@@ -2,13 +2,13 @@ from typing import Union
 
 import numpy as np
 
+from .... import backend
 from ....logger import logger
 from ....types import FrequencySeries, TimeSeries, Wavelet
 from ....types.wavelet_bins import _get_bins, _preprocess_bins
 from ...phi_computer import phi_vec, phitilde_vec_norm
 from .from_freq import transform_wavelet_freq_helper
 from .from_time import transform_wavelet_time_helper
-from .... import backend
 
 __all__ = ["from_time_to_wavelet", "from_freq_to_wavelet"]
 
@@ -115,6 +115,13 @@ def from_freq_to_wavelet(
     t_bins, f_bins = _get_bins(freqseries, Nf, Nt)
     phif = np.array(phitilde_vec_norm(Nf, Nt, d=nx), dtype=backend.float_dtype)
     data = np.array(freqseries.data, dtype=backend.complex_dtype)
-    wave = transform_wavelet_freq_helper(data, Nf, Nt, phif, float_dtype=backend.float_dtype, complex_dtype=backend.complex_dtype)
+    wave = transform_wavelet_freq_helper(
+        data,
+        Nf,
+        Nt,
+        phif,
+        float_dtype=backend.float_dtype,
+        complex_dtype=backend.complex_dtype,
+    )
     factor = (backend.float_dtype)((2 / Nf) * np.sqrt(2))
     return Wavelet(factor * wave.T, time=t_bins, freq=f_bins)

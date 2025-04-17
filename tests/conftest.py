@@ -11,7 +11,7 @@ from utils import (
 
 import pywavelet
 from pywavelet.logger import logger
-from pywavelet.types import Wavelet, FrequencySeries, TimeSeries
+from pywavelet.types import FrequencySeries, TimeSeries, Wavelet
 from pywavelet.types.wavelet_bins import compute_bins
 
 jax.config.update("jax_enable_x64", True)
@@ -38,6 +38,7 @@ ts = np.arange(0, ND) * dt
 
 print(f"Testing {pywavelet.__file__}.")
 
+
 def _gen_testdir():
     dirname = f"{HERE}/out_plots_{BRANCH}"
     os.makedirs(dirname, exist_ok=True)
@@ -45,32 +46,32 @@ def _gen_testdir():
 
 
 @pytest.fixture()
-def plot_dir()->str:
+def plot_dir() -> str:
     return _gen_testdir()
 
 
 @pytest.fixture()
-def outdir()->str:
+def outdir() -> str:
     return _gen_testdir()
 
 
 @pytest.fixture()
-def chirp_time()->TimeSeries:
+def chirp_time() -> TimeSeries:
     return generate_chirp_time_domain_signal(ts, frange)
 
 
 @pytest.fixture()
-def chirp_freq()->FrequencySeries:
+def chirp_freq() -> FrequencySeries:
     return generate_chirp_time_domain_signal(ts, frange).to_frequencyseries()
 
 
 @pytest.fixture()
-def sine_time()->TimeSeries:
+def sine_time() -> TimeSeries:
     return generate_sine_time_domain_signal(ts, f_true=f0)
 
 
 @pytest.fixture()
-def sine_freq()->FrequencySeries:
+def sine_freq() -> FrequencySeries:
     return generate_sine_time_domain_signal(ts, f_true=f0).to_frequencyseries()
 
 

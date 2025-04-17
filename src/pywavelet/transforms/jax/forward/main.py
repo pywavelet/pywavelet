@@ -2,13 +2,13 @@ from typing import Union
 
 import jax.numpy as jnp
 
+from .... import backend
 from ....logger import logger
 from ....types import FrequencySeries, TimeSeries, Wavelet
 from ....types.wavelet_bins import _get_bins, _preprocess_bins
 from ...phi_computer import phi_vec, phitilde_vec_norm
 from .from_freq import transform_wavelet_freq_helper
 from .from_time import transform_wavelet_time_helper
-from .... import backend
 
 
 def from_time_to_wavelet(
@@ -98,8 +98,12 @@ def from_freq_to_wavelet(
     t_bins, f_bins = _get_bins(freqseries, Nf, Nt)
     phif = jnp.array(phitilde_vec_norm(Nf, Nt, d=nx))
     wave = transform_wavelet_freq_helper(
-        freqseries.data, Nf=Nf, Nt=Nt, phif=phif,
-        float_dtype=backend.float_dtype, complex_dtype=backend.complex_dtype
+        freqseries.data,
+        Nf=Nf,
+        Nt=Nt,
+        phif=phif,
+        float_dtype=backend.float_dtype,
+        complex_dtype=backend.complex_dtype,
     )
     factor = (2 / Nf) * jnp.sqrt(2)
     return Wavelet(factor * wave, time=t_bins, freq=f_bins)

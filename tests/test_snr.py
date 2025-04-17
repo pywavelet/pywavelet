@@ -1,23 +1,16 @@
-import matplotlib.pyplot as plt
-import numpy as np
-from conftest import monochromatic_wnm
-
-from pywavelet.transforms import from_freq_to_wavelet, from_time_to_wavelet
-from pywavelet.types import FrequencySeries, TimeSeries
-from pywavelet.types.wavelet_bins import compute_bins
-from pywavelet.utils import compute_snr, evolutionary_psd_from_stationary_psd
-import pytest
 import importlib
 import os
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pytest
+from conftest import monochromatic_wnm
 from utils import cuda_available
 
 from pywavelet import set_backend
-from pywavelet.transforms import from_freq_to_wavelet
+from pywavelet.transforms import from_freq_to_wavelet, from_time_to_wavelet
 from pywavelet.types import FrequencySeries, TimeSeries
+from pywavelet.types.wavelet_bins import compute_bins
 from pywavelet.utils import compute_snr, evolutionary_psd_from_stationary_psd
 
 
@@ -50,7 +43,7 @@ def test_toy_model_snr(plot_dir):
     # Compute the SNRs
     SNR2_f = 2 * np.sum(abs(y_fft) ** 2 / PSD) * df
     SNR2_t = 2 * dt * np.sum(abs(y) ** 2 / PSD)
-    SNR2_t_analytical = (A ** 2) * T / PSD[0]
+    SNR2_t_analytical = (A**2) * T / PSD[0]
 
     assert np.isclose(
         SNR2_t, SNR2_t_analytical, atol=0.5
@@ -77,7 +70,7 @@ def test_toy_model_snr(plot_dir):
         dt=dt,
     )
     time2wavelet_snr2 = (
-            compute_snr(signal_wavelet, signal_wavelet, psd_wavelet_time) ** 2
+        compute_snr(signal_wavelet, signal_wavelet, psd_wavelet_time) ** 2
     )
 
     # freq --> wavelet
@@ -99,13 +92,13 @@ def test_toy_model_snr(plot_dir):
         dt=dt,
     )
     freq2wavelet_snr2 = (
-            compute_snr(signal_wavelet_f, signal_wavelet_f, psd_wavelet_freq) ** 2
+        compute_snr(signal_wavelet_f, signal_wavelet_f, psd_wavelet_freq) ** 2
     )
 
     # analytical wavelet
     analytical_wnm = monochromatic_wnm(f0, dt, A, Nt, Nf)
     analytical_wavelet_snr2 = (
-            compute_snr(analytical_wnm, analytical_wnm, psd_wavelet_time) ** 2
+        compute_snr(analytical_wnm, analytical_wnm, psd_wavelet_time) ** 2
     )
 
     assert np.isclose(
@@ -184,7 +177,9 @@ def test_toy_model_snr2(backend, plot_dir):
     )
     wdm_snr = compute_snr(signal_wavelet, signal_wavelet, psd_wavelet)
     assert np.isclose(snr, wdm_snr, atol=0.5), f"{snr}!={wdm_snr}"
-    np.testing.assert_allclose(true_wdm_amp, signal_wavelet.data.max(), atol=1e-2)
+    np.testing.assert_allclose(
+        true_wdm_amp, signal_wavelet.data.max(), atol=1e-2
+    )
 
     ########################################
     # Part3: Wavelet domain (other backend)
@@ -207,8 +202,6 @@ def test_toy_model_snr2(backend, plot_dir):
         assert isinstance(signal_wavelet_new.data, np.ndarray)
         logger.info("JAX TEST COMPLETE")
 
-
-
     elif backend == "cupy":
         logger.info("TESTING CUPY")
         import cupy as xp
@@ -226,7 +219,9 @@ def test_toy_model_snr2(backend, plot_dir):
         assert isinstance(signal_wavelet_new.data, np.ndarray)
         logger.info("CUPY TEST COMPLETE")
 
-    np.testing.assert_allclose(true_wdm_amp, signal_wavelet_new.data.max(), atol=1e-2)
+    np.testing.assert_allclose(
+        true_wdm_amp, signal_wavelet_new.data.max(), atol=1e-2
+    )
     wdm_snr_jax = compute_snr(
         signal_wavelet_new, signal_wavelet_new, psd_wavelet
     )
@@ -239,9 +234,9 @@ def test_toy_model_snr2(backend, plot_dir):
     ########################################
 
     fig, ax = plt.subplots(1, 3, figsize=(15, 6))
-    signal_wavelet.plot(ax=ax[0], absolute=True, cmap='Grays')
-    signal_wavelet_new.plot(ax=ax[1], absolute=True, cmap='Grays')
-    wdm_diff.plot(ax=ax[2], absolute=True, cmap='Grays')
+    signal_wavelet.plot(ax=ax[0], absolute=True, cmap="Grays")
+    signal_wavelet_new.plot(ax=ax[1], absolute=True, cmap="Grays")
+    wdm_diff.plot(ax=ax[2], absolute=True, cmap="Grays")
     ax[0].set_title(f"Numpy SNR={wdm_snr:.2f}")
     ax[1].set_title(f"{backend} SNR={wdm_snr_jax:.2f}")
     ax[2].set_title("Difference")

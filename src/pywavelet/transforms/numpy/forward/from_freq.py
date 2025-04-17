@@ -69,7 +69,10 @@ def __core(
     for f_bin in range(0, Nf + 1):
         __fill_wave_1(f_bin, Nt, Nf, DX, data, phif)
         # Use rocket-fft's ifft (which is JIT-able) instead of np.fft.ifft.
-        DX_trans = np.fft.ifft(DX, Nt,)
+        DX_trans = np.fft.ifft(
+            DX,
+            Nt,
+        )
         __fill_wave_2(f_bin, DX_trans, wave, Nt, Nf)
 
 

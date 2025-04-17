@@ -1,7 +1,8 @@
-import numpy as np
-from pywavelet.types import FrequencySeries, TimeSeries
 import matplotlib.pyplot as plt
+import numpy as np
+
 from pywavelet.transforms.numpy import from_freq_to_wavelet
+from pywavelet.types import FrequencySeries, TimeSeries
 
 f0 = 20.0
 dt = 0.0125
