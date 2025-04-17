@@ -1,9 +1,10 @@
 import importlib
 import os
-import numpy as np
-from rich.table import Table, Text
-from rich.console import Console
 from typing import Tuple
+
+import numpy as np
+from rich.console import Console
+from rich.table import Table, Text
 
 from .logger import logger
 
@@ -54,15 +55,16 @@ def get_available_backends_table():
     return Text.from_ansi(capture.get())
 
 
-def log_backend(level='info'):
+def log_backend(level="info"):
     """Print the current backend and precision."""
     backend = os.getenv("PYWAVELET_BACKEND", NUMPY).lower()
     precision = os.getenv("PYWAVELET_PRECISION", "float32").lower()
     str = f"Current backend: {backend}[{precision}]"
-    if level == 'info':
+    if level == "info":
         logger.info(str)
-    elif level == 'debug':
+    elif level == "debug":
         logger.debug(str)
+
 
 def get_backend_from_env():
     """Select and return the appropriate backend module."""
@@ -81,25 +83,19 @@ def get_backend_from_env():
         from cupy.fft import fft, ifft, irfft, rfft, rfftfreq
         from cupyx.scipy.special import betainc
 
-
     elif backend == NUMPY:
         import numpy as xp
         from numpy.fft import fft, ifft, irfft, rfft, rfftfreq
         from scipy.special import betainc
 
-
     else:
-        logger.error(
-            f"Backend {backend}[{precision}] is not available. "
-        )
+        logger.error(f"Backend {backend}[{precision}] is not available. ")
         print(get_available_backends_table())
-        logger.warning(
-            f"Setting backend to NumPy. "
-        )
+        logger.warning(f"Setting backend to NumPy. ")
         os.environ["PYWAVELET_BACKEND"] = NUMPY
         return get_backend_from_env()
 
-    log_backend('debug')
+    log_backend("debug")
     return xp, fft, ifft, irfft, rfft, rfftfreq, betainc, backend
 
 
@@ -107,7 +103,9 @@ def get_precision_from_env() -> str:
     """Get the precision from the environment variable."""
     precision = os.getenv("PYWAVELET_PRECISION", "float32").lower()
     if precision not in VALID_PRECISIONS:
-        logger.error(f"Precision {precision} is not supported, defaulting to float32.")
+        logger.error(
+            f"Precision {precision} is not supported, defaulting to float32."
+        )
         precision = "float32"
     return precision
 
@@ -132,21 +130,26 @@ def get_dtype_from_env() -> Tuple[np.dtype, np.dtype]:
 
         if precision == "float32":
             import jax
+
             jax.config.update("jax_enable_x64", False)
 
             import jax.numpy as jnp
+
             float_dtype = jnp.float32
             complex_dtype = jnp.complex64
         elif precision == "float64":
             import jax
+
             jax.config.update("jax_enable_x64", True)
 
             import jax.numpy as jnp
+
             float_dtype = jnp.float64
             complex_dtype = jnp.complex128
 
     elif backend == CUPY:
         import cupy as cp
+
         if precision == "float32":
             float_dtype = cp.float32
             complex_dtype = cp.complex64

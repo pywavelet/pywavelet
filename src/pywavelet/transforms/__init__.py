@@ -1,7 +1,5 @@
-from ..logger import logger
-
 from ..backend import current_backend
-
+from ..logger import logger
 
 logger.debug(f"Using {current_backend} backend")
 

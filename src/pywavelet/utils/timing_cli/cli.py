@@ -1,6 +1,7 @@
-import click
-import os
 import logging
+import os
+
+import click
 
 VALID_BACKENDS = [
     "numpy32",
@@ -42,10 +43,10 @@ VALID_BACKENDS = [
     help="The backend to use for the computation.",
 )
 def cli_collect_runtime(
-        log2n: int,
-        nrep: int = 5,
-        outdir: str = ".",
-        backend: str = "numpy",
+    log2n: int,
+    nrep: int = 5,
+    outdir: str = ".",
+    backend: str = "numpy",
 ):
     """Collect runtimes for the specified mode and save to CSV files.
 
@@ -63,26 +64,29 @@ def cli_collect_runtime(
 
     """
     if backend not in VALID_BACKENDS:
-        raise ValueError(f"Invalid backend '{backend}'. Valid options are {VALID_BACKENDS}.")
+        raise ValueError(
+            f"Invalid backend '{backend}'. Valid options are {VALID_BACKENDS}."
+        )
 
     precision = "float64" if "64" in backend else "float32"
 
-
-    if '64' in backend:
+    if "64" in backend:
         import jax
+
         jax.config.update("jax_enable_x64", True)
     backend = backend[:-2]
-
 
     os.environ["PYWAVELET_BACKEND"] = backend
     os.environ["PYWAVELET_PRECISION"] = precision
 
     # Set up logging
     from pywavelet.logger import logger
+
     logger.setLevel(logging.ERROR)
 
-
-    from pywavelet.utils.timing_cli.collect_runtimes import collect_runtimes_for_backend
+    from pywavelet.utils.timing_cli.collect_runtimes import (
+        collect_runtimes_for_backend,
+    )
     from pywavelet.utils.timing_cli.plot import plot_runtimes
 
     # Create the output directory if it doesn't exist

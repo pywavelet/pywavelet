@@ -2,16 +2,16 @@ from functools import partial
 
 import jax
 import jax.numpy as jnp
-from jax import jit
-
 import numpy as np
+from jax import jit
 from numba import njit
 from scipy.special import betainc
 
 jax.config.update("jax_enable_x64", True)
 
+
 def inverse_wavelet_freq_helper_np(
-        wave_in: np.ndarray, phif: np.ndarray, Nf: int, Nt: int
+    wave_in: np.ndarray, phif: np.ndarray, Nf: int, Nt: int
 ) -> np.ndarray:
     """jit compatible loop for inverse_wavelet_freq"""
     wave_in = wave_in.T
@@ -25,12 +25,12 @@ def inverse_wavelet_freq_helper_np(
 
 
 def __core(
-        Nf: int,
-        Nt: int,
-        prefactor2s: np.ndarray,
-        wave_in: np.ndarray,
-        phif: np.ndarray,
-        res: np.ndarray,
+    Nf: int,
+    Nt: int,
+    prefactor2s: np.ndarray,
+    wave_in: np.ndarray,
+    phif: np.ndarray,
+    res: np.ndarray,
 ) -> None:
     for m in range(0, Nf + 1):
         __pack_wave_inverse(m, Nt, Nf, prefactor2s, wave_in)
@@ -40,7 +40,7 @@ def __core(
 
 @njit()
 def __pack_wave_inverse(
-        m: int, Nt: int, Nf: int, prefactor2s: np.ndarray, wave_in: np.ndarray
+    m: int, Nt: int, Nf: int, prefactor2s: np.ndarray, wave_in: np.ndarray
 ) -> None:
     """helper for fast frequency domain inverse transform to prepare for fourier transform"""
     if m == 0:
@@ -62,12 +62,12 @@ def __pack_wave_inverse(
 
 @njit()
 def __unpack_wave_inverse(
-        m: int,
-        Nt: int,
-        Nf: int,
-        phif: np.ndarray,
-        fft_prefactor2s: np.ndarray,
-        res: np.ndarray,
+    m: int,
+    Nt: int,
+    Nf: int,
+    phif: np.ndarray,
+    fft_prefactor2s: np.ndarray,
+    res: np.ndarray,
 ) -> None:
     """helper for unpacking results of frequency domain inverse transform"""
 
@@ -113,8 +113,12 @@ def inverse_wavelet_freq_helper_jax(
     n_range = jnp.arange(Nt)
 
     # Handle m=0 and m=Nf cases
-    prefactor2s = prefactor2s.at[0].set(2 ** (-1 / 2) * wave_in[(2 * n_range) % Nt, 0])
-    prefactor2s = prefactor2s.at[Nf].set(2 ** (-1 / 2) * wave_in[(2 * n_range) % Nt + 1, 0])
+    prefactor2s = prefactor2s.at[0].set(
+        2 ** (-1 / 2) * wave_in[(2 * n_range) % Nt, 0]
+    )
+    prefactor2s = prefactor2s.at[Nf].set(
+        2 ** (-1 / 2) * wave_in[(2 * n_range) % Nt + 1, 0]
+    )
 
     # Handle middle m cases
     m_mid = m_range[1:Nf]
@@ -143,14 +147,20 @@ def inverse_wavelet_freq_helper_jax(
     # Unpack for middle m values
     m_mid = m_range[1:Nf]
     i_ind_range_mid = jnp.arange(Nt // 2)
-    m_grid_mid, i_ind_grid_mid = jnp.meshgrid(m_mid, i_ind_range_mid, indexing="ij")
+    m_grid_mid, i_ind_grid_mid = jnp.meshgrid(
+        m_mid, i_ind_range_mid, indexing="ij"
+    )
     i1 = (Nt // 2) * m_grid_mid - i_ind_grid_mid
     i2 = (Nt // 2) * m_grid_mid + i_ind_grid_mid
     ind31 = i1 % Nt
     ind32 = i2 % Nt
 
-    res = res.at[i1].add(fft_prefactor2s[m_grid_mid, ind31] * phif[i_ind_grid_mid])
-    res = res.at[i2].add(fft_prefactor2s[m_grid_mid, ind32] * phif[i_ind_grid_mid])
+    res = res.at[i1].add(
+        fft_prefactor2s[m_grid_mid, ind31] * phif[i_ind_grid_mid]
+    )
+    res = res.at[i2].add(
+        fft_prefactor2s[m_grid_mid, ind32] * phif[i_ind_grid_mid]
+    )
 
     # Correct the center points for middle m's
     center_indices = (Nt // 2) * m_mid
@@ -185,50 +195,109 @@ def phitilde_vec_norm(Nf: int, Nt: int, d: float) -> np.ndarray:
 A = 2.0
 dt = 1 / 32
 f0 = 8.0
-Nt, Nf = 2 ** 3, 2 ** 3
+Nt, Nf = 2**3, 2**3
 ND = Nt * Nf
 
 wnm = np.zeros((Nt, Nf))
 m0 = int(f0 * ND * dt)
 f0_bin_idx = int(2 * m0 / Nt)
 odd_t_indices = np.arange(Nt) % 2 != 0
-wnm[odd_t_indices, f0_bin_idx] =   A * np.sqrt(2 * Nf)
+wnm[odd_t_indices, f0_bin_idx] = A * np.sqrt(2 * Nf)
 T = Nt * Nf * dt
 delta_T = T / Nt
 delta_F = 1 / (2 * delta_T)
 tbins = np.arange(0, Nt) * delta_T
 fbins = np.arange(0, Nf) * delta_F
 
-numerical_wnm = np.array([[-2.17231658e-16, -2.17231658e-16,  1.82849722e-15,
-         1.82849722e-15, -1.59693281e-15, -1.59693281e-15,
-        -1.14095073e-15, -1.14095073e-15],
-       [ 5.21849164e-15, -1.92598987e-15,  1.69405022e-15,
-        -6.11340860e-18,  4.95368161e-16,  6.95072219e-16,
-         1.56088961e-14, -3.23455137e-15],
-       [ 6.27820524e-15, -7.39243293e-16, -1.75734889e-15,
-        -1.08780986e-14,  3.19246930e-15, -1.41771970e-14,
-         1.35153646e-15, -1.52447448e-14],
-       [-1.35115223e-14,  1.52017787e-15,  4.31116053e-15,
-        -3.99699681e-16, -8.63776618e-16,  5.22364583e-16,
-        -1.34704878e-14, -1.09012981e-15],
-       [-1.92753121e-14,  7.99999952e+00, -6.09730187e-15,
-         7.99999952e+00, -1.89903889e-14,  7.99999952e+00,
-        -2.70376169e-14,  7.99999952e+00],
-       [ 1.35115223e-14,  1.52017787e-15, -4.31116053e-15,
-        -3.99699681e-16,  8.63776618e-16,  5.22364583e-16,
-         1.34704878e-14, -1.09012981e-15],
-       [ 6.27820524e-15,  7.39243293e-16, -1.75734889e-15,
-         1.08780986e-14,  3.19246930e-15,  1.41771970e-14,
-         1.35153646e-15,  1.52447448e-14],
-       [-5.21849164e-15, -1.92598987e-15, -1.69405022e-15,
-        -6.11340860e-18, -4.95368161e-16,  6.95072219e-16,
-        -1.56088961e-14, -3.23455137e-15]])
+numerical_wnm = np.array(
+    [
+        [
+            -2.17231658e-16,
+            -2.17231658e-16,
+            1.82849722e-15,
+            1.82849722e-15,
+            -1.59693281e-15,
+            -1.59693281e-15,
+            -1.14095073e-15,
+            -1.14095073e-15,
+        ],
+        [
+            5.21849164e-15,
+            -1.92598987e-15,
+            1.69405022e-15,
+            -6.11340860e-18,
+            4.95368161e-16,
+            6.95072219e-16,
+            1.56088961e-14,
+            -3.23455137e-15,
+        ],
+        [
+            6.27820524e-15,
+            -7.39243293e-16,
+            -1.75734889e-15,
+            -1.08780986e-14,
+            3.19246930e-15,
+            -1.41771970e-14,
+            1.35153646e-15,
+            -1.52447448e-14,
+        ],
+        [
+            -1.35115223e-14,
+            1.52017787e-15,
+            4.31116053e-15,
+            -3.99699681e-16,
+            -8.63776618e-16,
+            5.22364583e-16,
+            -1.34704878e-14,
+            -1.09012981e-15,
+        ],
+        [
+            -1.92753121e-14,
+            7.99999952e00,
+            -6.09730187e-15,
+            7.99999952e00,
+            -1.89903889e-14,
+            7.99999952e00,
+            -2.70376169e-14,
+            7.99999952e00,
+        ],
+        [
+            1.35115223e-14,
+            1.52017787e-15,
+            -4.31116053e-15,
+            -3.99699681e-16,
+            8.63776618e-16,
+            5.22364583e-16,
+            1.34704878e-14,
+            -1.09012981e-15,
+        ],
+        [
+            6.27820524e-15,
+            7.39243293e-16,
+            -1.75734889e-15,
+            1.08780986e-14,
+            3.19246930e-15,
+            1.41771970e-14,
+            1.35153646e-15,
+            1.52447448e-14,
+        ],
+        [
+            -5.21849164e-15,
+            -1.92598987e-15,
+            -1.69405022e-15,
+            -6.11340860e-18,
+            -4.95368161e-16,
+            6.95072219e-16,
+            -1.56088961e-14,
+            -3.23455137e-15,
+        ],
+    ]
+)
 
 t = np.arange(0, ND) * dt
-time_data =   A * np.sin(2 * np.pi * f0 * t)
+time_data = A * np.sin(2 * np.pi * f0 * t)
 freq_data = np.fft.rfft(time_data)
 freqs = np.fft.rfftfreq(ND, d=dt)
-
 
 
 phif = phitilde_vec_norm(Nf, Nt, 4.0)
@@ -237,20 +306,38 @@ phif = phitilde_vec_norm(Nf, Nt, 4.0)
 freq_np = inverse_wavelet_freq_helper_np(
     numerical_wnm, phif, Nf, Nt
 ) / np.sqrt(2)
-freq_jax = inverse_wavelet_freq_helper_jax(
-    numerical_wnm, phif, Nf, Nt
-)
+freq_jax = inverse_wavelet_freq_helper_jax(numerical_wnm, phif, Nf, Nt)
 freq_jax = freq_jax / np.sqrt(2)
 
 import matplotlib.pyplot as plt
-fig, ax = plt.subplots(1, 2, figsize=(10, 5))
-ax[0].pcolor(
-    tbins, fbins, wnm.T, shading="auto", cmap="viridis"
-)
 
-ax[1].loglog(freqs, np.abs(freq_data)**2, label="Original Signal", alpha=0.5, color="black", lw=1)
-ax[1].plot(freqs, np.abs(freq_np)**2, label="NumPy Inverse", alpha=0.5, lw=2, marker='o')
-ax[1].plot(freqs, np.abs(freq_jax)**2, label="JAX Inverse", alpha=0.5, lw=2, marker='s')
+fig, ax = plt.subplots(1, 2, figsize=(10, 5))
+ax[0].pcolor(tbins, fbins, wnm.T, shading="auto", cmap="viridis")
+
+ax[1].loglog(
+    freqs,
+    np.abs(freq_data) ** 2,
+    label="Original Signal",
+    alpha=0.5,
+    color="black",
+    lw=1,
+)
+ax[1].plot(
+    freqs,
+    np.abs(freq_np) ** 2,
+    label="NumPy Inverse",
+    alpha=0.5,
+    lw=2,
+    marker="o",
+)
+ax[1].plot(
+    freqs,
+    np.abs(freq_jax) ** 2,
+    label="JAX Inverse",
+    alpha=0.5,
+    lw=2,
+    marker="s",
+)
 ax[1].legend()
 plt.ylabel("Amplitude")
 plt.title("Inverse Wavelet Transform Comparison")

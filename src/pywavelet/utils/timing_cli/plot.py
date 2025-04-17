@@ -1,10 +1,11 @@
 import glob
 import json
 import os
+from typing import Tuple
+
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-from typing import Tuple
 
 __all__ = ["plot_runtimes"]
 
@@ -19,12 +20,12 @@ def _cache_all_runtimes(outdir: str):
     cache_fn = os.path.join(outdir, "runtimes.json")
     # load any existing data
     if os.path.exists(cache_fn):
-        with open(cache_fn, 'r') as f:
+        with open(cache_fn, "r") as f:
             existing_data = json.load(f)
             data.update(existing_data)
 
     # save to json
-    with open(cache_fn, 'w') as f:
+    with open(cache_fn, "w") as f:
         json.dump(data, f, indent=4)
 
     return cache_fn
@@ -35,7 +36,7 @@ def plot_runtimes(outdir: str):
 
     fig, ax = plt.subplots(figsize=(4, 3.5))
 
-    with open(cache_fn, 'r') as f:
+    with open(cache_fn, "r") as f:
         data = json.load(f)
         for label, runtimes in data.items():
             runtimes = pd.DataFrame(runtimes)
@@ -46,7 +47,9 @@ def plot_runtimes(outdir: str):
     fig.savefig(os.path.join(outdir, "runtimes.png"), bbox_inches="tight")
 
 
-def _plot(runtimes: pd.DataFrame, ax=None, **kwgs) -> Tuple[plt.Figure, plt.Axes]:
+def _plot(
+    runtimes: pd.DataFrame, ax=None, **kwgs
+) -> Tuple[plt.Figure, plt.Axes]:
     if ax is None:
         fig, ax = plt.subplots(figsize=(4, 3.5))
     fig = ax.figure
@@ -57,8 +60,14 @@ def _plot(runtimes: pd.DataFrame, ax=None, **kwgs) -> Tuple[plt.Figure, plt.Axes
     nds = runtimes["ND"].values
     times, stds = runtimes["median"], runtimes["std"]
     ax.plot(nds, times, **kwgs)
-    kwgs['label'] = None
-    ax.fill_between(nds, np.array(times) - np.array(stds), np.array(times) + np.array(stds), alpha=0.3, **kwgs)
+    kwgs["label"] = None
+    ax.fill_between(
+        nds,
+        np.array(times) - np.array(stds),
+        np.array(times) + np.array(stds),
+        alpha=0.3,
+        **kwgs,
+    )
 
     ax.set_yscale("log")
     ax.set_xscale("log")
