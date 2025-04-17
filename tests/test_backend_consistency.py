@@ -123,12 +123,12 @@ def test_jax_and_numpy(plot_dir):
 
     # using numpy
     h_wavelet = from_freq_to_wavelet(signal.frequencyseries, Nf=Nf, Nt=Nt)
-    h_reconstructed = from_wavelet_to_freq(h_wavelet, dt=dt)
+    h_reconstructed = from_wavelet_to_freq(signal.wavelet, dt=dt)
     np_data = RoundtripData(wavelet=h_wavelet, reconstructed=h_reconstructed)
 
     # using JAX
     jax_h_wavelet = jax_from_freq_to_wavelet(signal.frequencyseries, Nf=Nf, Nt=Nt)
-    jax_h_reconstructed = jax_from_wavelet_to_freq(jax_h_wavelet, dt=dt)
+    jax_h_reconstructed = jax_from_wavelet_to_freq(signal.wavelet, dt=dt)
     jax_data = RoundtripData(wavelet=jax_h_wavelet, reconstructed=jax_h_reconstructed)
 
     # Plotting
@@ -138,3 +138,7 @@ def test_jax_and_numpy(plot_dir):
         jax_data,
         plot_fn=f"{plot_dir}/jax_vs_numpy_roundtrip.png",
     )
+
+    print(jax_h_reconstructed.data)
+    print(np_data.reconstructed.data)
+    print(signal.frequencyseries.data)

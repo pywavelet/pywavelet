@@ -3,15 +3,14 @@ from functools import partial
 import jax
 import jax.numpy as jnp
 from jax import jit
-from jax.numpy.fft import fft
 
 import numpy as np
 from numba import njit
-from numpy import fft
 from scipy.special import betainc
 
+jax.config.update("jax_enable_x64", True)
 
-def inverse_wavelet_freq_helper_fast(
+def inverse_wavelet_freq_helper_np(
         wave_in: np.ndarray, phif: np.ndarray, Nf: int, Nt: int
 ) -> np.ndarray:
     """jit compatible loop for inverse_wavelet_freq"""
@@ -102,83 +101,62 @@ def __unpack_wave_inverse(
 
 
 @partial(jit, static_argnames=("Nf", "Nt"))
-def inverse_wavelet_freq_helper(
-        wave_in: jnp.ndarray, phif: jnp.ndarray, Nf: int, Nt: int
+def inverse_wavelet_freq_helper_jax(
+    wave_in: jnp.ndarray, phif: jnp.ndarray, Nf: int, Nt: int
 ) -> jnp.ndarray:
     """JAX vectorized function for inverse_wavelet_freq with corrected shapes and ranges."""
-    # Transpose to match the NumPy version.
     wave_in = wave_in.T
     ND = Nf * Nt
 
-    # Allocate prefactor2s for each m (shape: (Nf+1, Nt)).
     m_range = jnp.arange(Nf + 1)
     prefactor2s = jnp.zeros((Nf + 1, Nt), dtype=jnp.complex128)
     n_range = jnp.arange(Nt)
 
-    # m == 0 case
-    prefactor2s = prefactor2s.at[0].set(
-        2 ** (-1 / 2) * wave_in[(2 * n_range) % Nt, 0]
-    )
+    # Handle m=0 and m=Nf cases
+    prefactor2s = prefactor2s.at[0].set(2 ** (-1 / 2) * wave_in[(2 * n_range) % Nt, 0])
+    prefactor2s = prefactor2s.at[Nf].set(2 ** (-1 / 2) * wave_in[(2 * n_range) % Nt + 1, 0])
 
-    # m == Nf case
-    prefactor2s = prefactor2s.at[Nf].set(
-        2 ** (-1 / 2) * wave_in[(2 * n_range) % Nt + 1, 0]
-    )
-
-    # Other m cases: use meshgrid for vectorization.
+    # Handle middle m cases
     m_mid = m_range[1:Nf]
-    # Create grids: n_grid (columns) and m_grid (rows)
-    n_grid, m_grid = jnp.meshgrid(n_range, m_mid)
-    # Index the transposed wave_in using (n, m) as in the NumPy version.
+    n_grid, m_grid = jnp.meshgrid(n_range, m_mid, indexing="ij")
     val = wave_in[n_grid, m_grid]
-    # Apply the alternating multiplier based on (n+m) parity.
     mult2 = jnp.where((n_grid + m_grid) % 2, -1j, 1)
-    prefactor2s = prefactor2s.at[1:Nf].set(mult2 * val)
+    prefactor2s = prefactor2s.at[1:Nf].set((mult2 * val).T)
 
-    # Apply FFT along axis 1 for all m.
-    fft_prefactor2s = fft(prefactor2s, axis=1)
+    fft_prefactor2s = jnp.fft.fft(prefactor2s, axis=1)
 
-    # Allocate the result array with corrected shape.
     res = jnp.zeros(ND // 2 + 1, dtype=jnp.complex128)
 
-    # Unpacking for m == 0 and m == Nf cases:
+    # Unpack for m=0 and m=Nf
     i_ind_range = jnp.arange(Nt // 2)
-    i_0 = jnp.abs(i_ind_range)  # for m == 0: i = i_ind_range
-    i_Nf = jnp.abs(Nf * (Nt // 2) - i_ind_range)
+    i_0 = i_ind_range
     ind3_0 = (2 * i_0) % Nt
-    ind3_Nf = (2 * i_Nf) % Nt
-
     res = res.at[i_0].add(fft_prefactor2s[0, ind3_0] * phif[i_ind_range])
+
+    i_Nf = jnp.abs(Nf * (Nt // 2) - i_ind_range)
+    ind3_Nf = (2 * i_Nf) % Nt
     res = res.at[i_Nf].add(fft_prefactor2s[Nf, ind3_Nf] * phif[i_ind_range])
-    # Special case for m == Nf (ensure the Nyquist frequency is updated correctly)
+
     special_index = jnp.abs(Nf * (Nt // 2) - (Nt // 2))
     res = res.at[special_index].add(fft_prefactor2s[Nf, 0] * phif[Nt // 2])
 
-    # Unpacking for m in (1, ..., Nf-1)
+    # Unpack for middle m values
     m_mid = m_range[1:Nf]
-    # Use range [0, Nt//2) to match the loop in NumPy version.
     i_ind_range_mid = jnp.arange(Nt // 2)
-    # Create meshgrid for vectorized computation.
-    m_grid_mid, i_ind_grid_mid = jnp.meshgrid(
-        m_mid, i_ind_range_mid, indexing="ij"
-    )
-
-    # Compute indices i1 and i2 following the NumPy logic.
+    m_grid_mid, i_ind_grid_mid = jnp.meshgrid(m_mid, i_ind_range_mid, indexing="ij")
     i1 = (Nt // 2) * m_grid_mid - i_ind_grid_mid
     i2 = (Nt // 2) * m_grid_mid + i_ind_grid_mid
-    # Compute the wrapped indices for FFT results.
     ind31 = i1 % Nt
     ind32 = i2 % Nt
 
-    # Update result array using vectorized adds.
-    # Note: You might need to adjust this further if your target res shape is non-trivial,
-    # because here we assume that i1 and i2 indices fall within the allocated result shape.
-    res = res.at[i1].add(
-        fft_prefactor2s[m_grid_mid, ind31] * phif[i_ind_grid_mid]
-    )
-    res = res.at[i2].add(
-        fft_prefactor2s[m_grid_mid, ind32] * phif[i_ind_grid_mid]
-    )
+    res = res.at[i1].add(fft_prefactor2s[m_grid_mid, ind31] * phif[i_ind_grid_mid])
+    res = res.at[i2].add(fft_prefactor2s[m_grid_mid, ind32] * phif[i_ind_grid_mid])
+
+    # Correct the center points for middle m's
+    center_indices = (Nt // 2) * m_mid
+    fft_indices = center_indices % Nt
+    values = fft_prefactor2s[m_mid, fft_indices] * phif[0]
+    res = res.at[center_indices].set(values)
 
     return res
 
@@ -188,7 +166,7 @@ def phitilde_vec_norm(Nf: int, Nt: int, d: float) -> np.ndarray:
     df = 2 * np.pi / (Nf * Nt)
     omega = df * np.arange(0, Nt // 2 + 1, dtype=np.float64)
 
-    dF = 1.0 / (2 * Nf)  # NOTE: missing 1/dt?
+    dF = 1.0 / (2 * Nf)
     dOmega = 2 * np.pi * dF  # Near Eq 10 # 2 pi times DF
     inverse_sqrt_dOmega = 1.0 / np.sqrt(dOmega)
 
@@ -204,3 +182,76 @@ def phitilde_vec_norm(Nf: int, Nt: int, d: float) -> np.ndarray:
     return np.array(phi) * np.sqrt(np.pi)
 
 
+A = 2.0
+dt = 1 / 32
+f0 = 8.0
+Nt, Nf = 2 ** 3, 2 ** 3
+ND = Nt * Nf
+
+wnm = np.zeros((Nt, Nf))
+m0 = int(f0 * ND * dt)
+f0_bin_idx = int(2 * m0 / Nt)
+odd_t_indices = np.arange(Nt) % 2 != 0
+wnm[odd_t_indices, f0_bin_idx] =   A * np.sqrt(2 * Nf)
+T = Nt * Nf * dt
+delta_T = T / Nt
+delta_F = 1 / (2 * delta_T)
+tbins = np.arange(0, Nt) * delta_T
+fbins = np.arange(0, Nf) * delta_F
+
+numerical_wnm = np.array([[-2.17231658e-16, -2.17231658e-16,  1.82849722e-15,
+         1.82849722e-15, -1.59693281e-15, -1.59693281e-15,
+        -1.14095073e-15, -1.14095073e-15],
+       [ 5.21849164e-15, -1.92598987e-15,  1.69405022e-15,
+        -6.11340860e-18,  4.95368161e-16,  6.95072219e-16,
+         1.56088961e-14, -3.23455137e-15],
+       [ 6.27820524e-15, -7.39243293e-16, -1.75734889e-15,
+        -1.08780986e-14,  3.19246930e-15, -1.41771970e-14,
+         1.35153646e-15, -1.52447448e-14],
+       [-1.35115223e-14,  1.52017787e-15,  4.31116053e-15,
+        -3.99699681e-16, -8.63776618e-16,  5.22364583e-16,
+        -1.34704878e-14, -1.09012981e-15],
+       [-1.92753121e-14,  7.99999952e+00, -6.09730187e-15,
+         7.99999952e+00, -1.89903889e-14,  7.99999952e+00,
+        -2.70376169e-14,  7.99999952e+00],
+       [ 1.35115223e-14,  1.52017787e-15, -4.31116053e-15,
+        -3.99699681e-16,  8.63776618e-16,  5.22364583e-16,
+         1.34704878e-14, -1.09012981e-15],
+       [ 6.27820524e-15,  7.39243293e-16, -1.75734889e-15,
+         1.08780986e-14,  3.19246930e-15,  1.41771970e-14,
+         1.35153646e-15,  1.52447448e-14],
+       [-5.21849164e-15, -1.92598987e-15, -1.69405022e-15,
+        -6.11340860e-18, -4.95368161e-16,  6.95072219e-16,
+        -1.56088961e-14, -3.23455137e-15]])
+
+t = np.arange(0, ND) * dt
+time_data =   A * np.sin(2 * np.pi * f0 * t)
+freq_data = np.fft.rfft(time_data)
+freqs = np.fft.rfftfreq(ND, d=dt)
+
+
+
+phif = phitilde_vec_norm(Nf, Nt, 4.0)
+
+
+freq_np = inverse_wavelet_freq_helper_np(
+    numerical_wnm, phif, Nf, Nt
+) / np.sqrt(2)
+freq_jax = inverse_wavelet_freq_helper_jax(
+    numerical_wnm, phif, Nf, Nt
+)
+freq_jax = freq_jax / np.sqrt(2)
+
+import matplotlib.pyplot as plt
+fig, ax = plt.subplots(1, 2, figsize=(10, 5))
+ax[0].pcolor(
+    tbins, fbins, wnm.T, shading="auto", cmap="viridis"
+)
+
+ax[1].loglog(freqs, np.abs(freq_data)**2, label="Original Signal", alpha=0.5, color="black", lw=1)
+ax[1].plot(freqs, np.abs(freq_np)**2, label="NumPy Inverse", alpha=0.5, lw=2, marker='o')
+ax[1].plot(freqs, np.abs(freq_jax)**2, label="JAX Inverse", alpha=0.5, lw=2, marker='s')
+ax[1].legend()
+plt.ylabel("Amplitude")
+plt.title("Inverse Wavelet Transform Comparison")
+plt.show()
