@@ -3,7 +3,7 @@ from typing import List, Tuple
 import matplotlib.pyplot as plt
 import numpy as np
 
-from .common import fmt_timerange, is_documented_by, xp, float_dtype
+from .common import float_dtype, fmt_timerange, is_documented_by, xp
 from .plotting import plot_wavelet_grid, plot_wavelet_trend
 from .wavelet_bins import compute_bins
 
@@ -70,7 +70,9 @@ class Wavelet:
             A Wavelet object with zero-filled data array.
         """
         Nf, Nt = len(freq), len(time)
-        return cls(data=xp.zeros((Nf, Nt), dtype=float_dtype), time=time, freq=freq)
+        return cls(
+            data=xp.zeros((Nf, Nt), dtype=float_dtype), time=time, freq=freq
+        )
 
     @classmethod
     def zeros(cls, Nf: int, Nt: int, T: float) -> "Wavelet":

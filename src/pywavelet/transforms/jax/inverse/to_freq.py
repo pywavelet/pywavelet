@@ -19,8 +19,12 @@ def inverse_wavelet_freq_helper(
     n_range = jnp.arange(Nt)
 
     # Handle m=0 and m=Nf cases
-    prefactor2s = prefactor2s.at[0].set(2 ** (-1 / 2) * wave_in[(2 * n_range) % Nt, 0])
-    prefactor2s = prefactor2s.at[Nf].set(2 ** (-1 / 2) * wave_in[(2 * n_range) % Nt + 1, 0])
+    prefactor2s = prefactor2s.at[0].set(
+        2 ** (-1 / 2) * wave_in[(2 * n_range) % Nt, 0]
+    )
+    prefactor2s = prefactor2s.at[Nf].set(
+        2 ** (-1 / 2) * wave_in[(2 * n_range) % Nt + 1, 0]
+    )
 
     # Handle middle m cases
     m_mid = m_range[1:Nf]
@@ -49,14 +53,20 @@ def inverse_wavelet_freq_helper(
     # Unpack for middle m values
     m_mid = m_range[1:Nf]
     i_ind_range_mid = jnp.arange(Nt // 2)
-    m_grid_mid, i_ind_grid_mid = jnp.meshgrid(m_mid, i_ind_range_mid, indexing="ij")
+    m_grid_mid, i_ind_grid_mid = jnp.meshgrid(
+        m_mid, i_ind_range_mid, indexing="ij"
+    )
     i1 = (Nt // 2) * m_grid_mid - i_ind_grid_mid
     i2 = (Nt // 2) * m_grid_mid + i_ind_grid_mid
     ind31 = i1 % Nt
     ind32 = i2 % Nt
 
-    res = res.at[i1].add(fft_prefactor2s[m_grid_mid, ind31] * phif[i_ind_grid_mid])
-    res = res.at[i2].add(fft_prefactor2s[m_grid_mid, ind32] * phif[i_ind_grid_mid])
+    res = res.at[i1].add(
+        fft_prefactor2s[m_grid_mid, ind31] * phif[i_ind_grid_mid]
+    )
+    res = res.at[i2].add(
+        fft_prefactor2s[m_grid_mid, ind32] * phif[i_ind_grid_mid]
+    )
 
     # Correct the center points for middle m's
     center_indices = (Nt // 2) * m_mid

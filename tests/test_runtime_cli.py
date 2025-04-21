@@ -1,7 +1,9 @@
-
 import os
+
 from click.testing import CliRunner
+
 from pywavelet.utils.timing_cli.cli import cli_collect_runtime
+
 
 def test_pywavelet_timer(outdir):
     out = f"{outdir}/test_pywavelet_timer"
@@ -10,11 +12,15 @@ def test_pywavelet_timer(outdir):
     result = runner.invoke(
         cli_collect_runtime,
         [
-            "--outdir", out,
-            "--log2n", "5",
-            "--nrep", "2",
-            "--backend", "numpy64"
-        ]
+            "--outdir",
+            out,
+            "--log2n",
+            "5",
+            "--nrep",
+            "2",
+            "--backend",
+            "numpy64",
+        ],
     )
     assert result.exit_code == 0, result.output
 

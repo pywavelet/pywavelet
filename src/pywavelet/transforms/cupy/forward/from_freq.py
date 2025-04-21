@@ -1,14 +1,18 @@
+import logging
+
 import cupy as cp
 from cupyx.scipy.fft import ifft
 
-import logging
-
-logger = logging.getLogger('pywavelet')
+logger = logging.getLogger("pywavelet")
 
 
 def transform_wavelet_freq_helper(
-        data: cp.ndarray, Nf: int, Nt: int, phif: cp.ndarray,
-        float_dtype=cp.float64, complex_dtype=cp.complex128
+    data: cp.ndarray,
+    Nf: int,
+    Nt: int,
+    phif: cp.ndarray,
+    float_dtype=cp.float64,
+    complex_dtype=cp.complex128,
 ) -> cp.ndarray:
     """
     Transforms input data from the frequency domain to the wavelet domain using a
@@ -24,7 +28,9 @@ def transform_wavelet_freq_helper(
     - wave (cp.ndarray): 2D array of wavelet-transformed data with shape (Nf, Nt).
     """
 
-    logger.debug(f"[CUPY TRANSFORM] Input types [data:{type(data)}, phif:{type(phif)}, precision:{data.dtype}]")
+    logger.debug(
+        f"[CUPY TRANSFORM] Input types [data:{type(data)}, phif:{type(phif)}, precision:{data.dtype}]"
+    )
 
     # Initialize the wavelet output array with zeros (time-rows, frequency-columns)
     wave = cp.zeros((Nt, Nf), dtype=float_dtype)
@@ -73,8 +79,8 @@ def transform_wavelet_freq_helper(
     # Fill the wavelet output array based on the inverse FFT results
     n_range = cp.arange(Nt)  # Time indices
     cond1 = (
-                    n_range[:, None] + f_bins[None, :]
-            ) % 2 == 1  # Odd/even alternation
+        n_range[:, None] + f_bins[None, :]
+    ) % 2 == 1  # Odd/even alternation
     cond2 = cp.expand_dims(f_bins % 2 == 1, axis=-1)  # Odd frequency bins
 
     # Assign real and imaginary parts based on conditions

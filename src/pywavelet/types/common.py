@@ -1,6 +1,6 @@
 from typing import Callable, Tuple, Union
 
-from ..backend import xp, float_dtype, complex_dtype
+from ..backend import complex_dtype, float_dtype, xp
 from ..logger import logger
 
 

@@ -17,8 +17,8 @@ def set_backend(backend: str, precision: str = "float32") -> None:
     backend : str
         Backend to use. Options are "numpy", "jax", "cupy".
     """
-    from . import types
-    from . import transforms
+    from . import transforms, types
+
     os.environ["PYWAVELET_BACKEND"] = backend
     os.environ["PYWAVELET_PRECISION"] = precision
 

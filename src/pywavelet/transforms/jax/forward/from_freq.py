@@ -12,11 +12,10 @@ CMPLX_DTYPE = jnp.complex128 if X64_PRECISION else jnp.complex64
 
 import logging
 
-logger = logging.getLogger('pywavelet')
+logger = logging.getLogger("pywavelet")
 
 
-
-@partial(jit, static_argnames=("Nf", "Nt", 'float_dtype', 'complex_dtype'))
+@partial(jit, static_argnames=("Nf", "Nt", "float_dtype", "complex_dtype"))
 def transform_wavelet_freq_helper(
         data: jnp.ndarray,
         Nf: int,
