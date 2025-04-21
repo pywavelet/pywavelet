@@ -4,7 +4,6 @@ import jax
 import jax.numpy as jnp
 from jax import jit
 from jax.numpy.fft import ifft
-from .... import backend
 
 X64_PRECISION = jax.config.jax_enable_x64
 
@@ -19,7 +18,12 @@ logger = logging.getLogger('pywavelet')
 
 @partial(jit, static_argnames=("Nf", "Nt", 'float_dtype', 'complex_dtype'))
 def transform_wavelet_freq_helper(
-    data: jnp.ndarray, Nf: int, Nt: int, phif: jnp.ndarray, float_dtype=jnp.float64, complex_dtype=jnp.complex128
+        data: jnp.ndarray,
+        Nf: int,
+        Nt: int,
+        phif: jnp.ndarray,
+        float_dtype=jnp.float64,
+        complex_dtype=jnp.complex128,
 ) -> jnp.ndarray:
     """
     Transforms input data from the frequency domain to the wavelet domain using a
@@ -34,78 +38,59 @@ def transform_wavelet_freq_helper(
     Returns:
     - wave (jnp.ndarray): 2D array of wavelet-transformed data with shape (Nf, Nt).
     """
-
     logger.debug(f"[JAX TRANSFORM] Input types [data:{type(data)},{data.dtype}, phif:{type(phif)},{phif.dtype}]")
+    half = Nt // 2
+    f_bins = jnp.arange(Nf + 1)  # [0,1,...,Nf]
 
-    # Initialize the wavelet output array with zeros (time-rows, frequency-columns)
-    wave = jnp.zeros((Nt, Nf), dtype=float_dtype)
-    f_bins = jnp.arange(Nf)  # Frequency bin indices
+    # --- 1) build the full (Nf+1, Nt) DX array ---
+    # center (j = 0):
+    center = phif[0] * data[f_bins * half]
+    center = jnp.where((f_bins == 0) | (f_bins == Nf),
+                       center / 2.0,
+                       center)
+    DX = jnp.zeros((Nf + 1, Nt), complex_dtype)
+    DX = DX.at[:, half].set(center)
 
-    # Compute base indices for time (i_base) and frequency (jj_base)
-    i_base = Nt // 2
-    jj_base = f_bins * Nt // 2
+    # off-center (j = +/-1...+/-(half−1))
+    offs = jnp.arange(1 - half, half)  # length Nt−1
+    jj = f_bins[:, None] * half + offs[None, :]  # shape (Nf+1, Nt−1)
+    ii = half + offs  # shape (Nt−1,)
+    mask = ((f_bins[:, None] == Nf) & (offs[None, :] > 0)) | \
+           ((f_bins[:, None] == 0) & (offs[None, :] < 0))
+    vals = phif[jnp.abs(offs)] * data[jj]
+    vals = jnp.where(mask, 0.0, vals)
+    DX = DX.at[:, ii].set(vals)
 
-    # Set initial values for the center of the transformation
-    initial_values = jnp.where(
-        (f_bins == 0)
-        | (f_bins == Nf),  # Edge cases: DC (f=0) and Nyquist (f=Nf)
-        phif[0] * data[f_bins * Nt // 2] / 2.0,  # Adjust for symmetry
-        phif[0] * data[f_bins * Nt // 2],
+    # --- 2) ifft along time axis ---
+    DXt = jnp.fft.ifft(DX, n=Nt, axis=1)
+
+    # --- 3) unpack into wave (Nt, Nf) ---
+    wave = jnp.zeros((Nt, Nf), float_dtype)
+    sqrt2 = jnp.sqrt(2.0)
+
+    # 3a) DC into col 0, even rows
+    evens = jnp.arange(0, Nt, 2)
+    wave = wave.at[evens, 0].set(jnp.real(DXt[0, evens]) * sqrt2)
+
+    # 3b) Nyquist into col 0, odd rows
+    odds = jnp.arange(1, Nt, 2)
+    wave = wave.at[odds, 0].set(jnp.real(DXt[Nf, evens]) * sqrt2)
+
+    # 3c) intermediate bins 1...Nf−1
+    mids = jnp.arange(1, Nf)  # [1...Nf-1]
+    Dt_mid = DXt[mids, :]  # shape (Nf-1, Nt)
+    real_m = jnp.real(Dt_mid).T  # (Nt, Nf-1)
+    imag_m = jnp.imag(Dt_mid).T  # (Nt, Nf-1)
+
+    odd_f = (mids % 2) == 1  # shape (Nf-1,)
+    n_idx = jnp.arange(Nt)[:, None]  # (Nt,1)
+    odd_n_f = ((n_idx + mids[None, :]) % 2) == 1  # (Nt, Nf-1)
+
+    mid_vals = jnp.where(
+        odd_n_f,
+        jnp.where(odd_f, -imag_m, imag_m),
+        jnp.where(odd_f, real_m, real_m),
     )
+    wave = wave.at[:, 1:Nf].set(mid_vals)
 
-    # Initialize a 2D array to store intermediate FFT input values
-    DX = jnp.zeros(
-        (Nf, Nt), dtype=complex_dtype
-    )
-    DX = DX.at[:, Nt // 2].set(
-        initial_values
-    )  # Set initial values at the center of the transformation (2 sided FFT)
-
-    # Compute time indices for all offsets around the midpoint
-    j_range = jnp.arange(
-        1 - Nt // 2, Nt // 2
-    )  # Time offsets (centered around zero)
-    j = jnp.abs(j_range)  # Absolute offset indices
-    i = i_base + j_range  # Time indices in output array
-
-    # Compute conditions for edge cases
-    cond1 = (f_bins[:, None] == Nf) & (j_range[None, :] > 0)  # Nyquist
-    cond2 = (f_bins[:, None] == 0) & (j_range[None, :] < 0)  # DC
-    cond3 = j[None, :] == 0  # Center of the transformation (no offset)
-
-    # Compute frequency indices for the input data
-    jj = jj_base[:, None] + j_range[None, :]  # Frequency offsets
-    val = jnp.where(
-        cond1 | cond2, 0.0, phif[j] * data[jj]
-    )  # Wavelet filter application
-    DX = DX.at[:, i].set(
-        jnp.where(cond3, DX[:, i], val)
-    )  # Update DX with computed values
-    # At this point, DX contains the data FFT'd with the wavelet filter
-    # (each row is a frequency bin, each column is a time bin)
-
-    # Perform the inverse FFT along the time dimension
-    DX_trans = ifft(DX, axis=1)
-
-    # Fill the wavelet output array based on the inverse FFT results
-    n_range = jnp.arange(Nt)  # Time indices
-    cond1 = (
-        n_range[:, None] + f_bins[None, :]
-    ) % 2 == 1  # Odd/even alternation
-    cond2 = jnp.expand_dims(f_bins % 2 == 1, axis=-1)  # Odd frequency bins
-
-    # Assign real and imaginary parts based on conditions
-    real_part = jnp.where(cond2, -jnp.imag(DX_trans), jnp.real(DX_trans))
-    imag_part = jnp.where(cond2, jnp.real(DX_trans), jnp.imag(DX_trans))
-    wave = jnp.where(cond1, imag_part.T, real_part.T)
-
-    # Special cases for frequency bins 0 (DC) and Nf (Nyquist)
-    wave = wave.at[::2, 0].set(
-        jnp.real(DX_trans[0, ::2] * jnp.sqrt(2))
-    )  # DC component
-    wave = wave.at[1::2, -1].set(
-        jnp.real(DX_trans[-1, ::2] * jnp.sqrt(2))
-    )  # Nyquist component
-
-    # Return the wavelet-transformed array (transposed for freq-major layout)
-    return wave.T  # (Nt, Nf) -> (Nf, Nt)
+    return wave.T
