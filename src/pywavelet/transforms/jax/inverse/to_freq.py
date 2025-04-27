@@ -6,7 +6,7 @@ from jax import jit
 from jax.numpy.fft import fft
 
 
-# @partial(jit, static_argnames=("Nf", "Nt"))
+@partial(jit, static_argnames=("Nf", "Nt"))
 def inverse_wavelet_freq_helper(
     wave_in: jnp.ndarray, phif: jnp.ndarray, Nf: int, Nt: int
 ) -> jnp.ndarray:

@@ -4,43 +4,32 @@ import tempfile
 
 import nbformat
 import pytest
-from nbconvert import PythonExporter
+from nbclient import NotebookClient
 
 HERE = os.path.dirname(__file__)
 DOCS_DIR = os.path.abspath(os.path.join(HERE, "..", "docs/examples"))
 
-# List of notebooks to test
 notebooks = [
     "basic.ipynb",
 ]
 
-
 @pytest.mark.parametrize("notebook_path", notebooks)
-def test_notebook_execution(notebook_path, outdir):
-    # Create a dir for the notebook tests
-    out = os.path.join(outdir, "notebooks")
-    os.makedirs(out, exist_ok=True)
+def test_notebook_execution(notebook_path, tmp_path):
+    # Create a temp folder for notebook execution
+    out = tmp_path / "notebooks"
+    out.mkdir(parents=True, exist_ok=True)
 
-    # Copy the notebook to the temporary directory
-    temp_notebook_path = os.path.join(out, os.path.basename(notebook_path))
-    shutil.copy(f"{DOCS_DIR}/{notebook_path}", temp_notebook_path)
-
-    # Change the working directory to the notebooks dir
-    os.chdir(os.path.dirname(out))
+    temp_notebook_path = out / os.path.basename(notebook_path)
+    shutil.copy(DOCS_DIR + "/" + notebook_path, temp_notebook_path)
 
     # Load the notebook
     with open(temp_notebook_path) as f:
         nb = nbformat.read(f, as_version=4)
 
-    # Convert the notebook to a Python script
-    exporter = PythonExporter()
-    source, _ = exporter.from_notebook_node(nb)
+    # Create a NotebookClient and execute -- should run in max 20 seconds
+    client = NotebookClient(nb, timeout=20, kernel_name='python3')
 
-    # Define the execution environment
-    exec_env = {}
-
-    # Execute the Python script
     try:
-        exec(source, exec_env)
+        client.execute()
     except Exception as e:
         pytest.fail(f"Execution of notebook {notebook_path} failed: {e}")

@@ -25,14 +25,15 @@ def test_backend_loader(backend):
     set_backend("numpy")
 
 
-def test_backend_fails_gracefully_if_no_cupy():
+def test_backend_fails_if_no_cupy():
     if cuda_available:
         pytest.skip("CUDA is available")
 
-    set_backend("cupy")
-    from pywavelet.backend import current_backend
+    # assert AttributeError is raised when trying to import cupy
+    with pytest.raises(AttributeError):
+        set_backend("cupy")
 
-    assert current_backend == "numpy"
+
 
 
 def test_backed_logger():

@@ -64,11 +64,11 @@ def test_conversion_from_hf_ht(sine_freq):
     ht = sine_freq.to_timeseries()
     w1 = sine_freq.to_wavelet(Nf=Nf, Nt=Nt)
     w2 = ht.to_wavelet(Nf=Nf, Nt=Nt)
-    assert w1 == w2
+    assert w1 == w2, f"w1: {w1}, w2: {w2}"
     hf1 = w1.to_frequencyseries()
     ht2 = w2.to_timeseries()
-    assert sine_freq == hf1
-    assert ht == ht2
+    assert sine_freq == hf1, f"hf1: {hf1}, sine_freq: {sine_freq}"
+    assert ht == ht2, f"ht2: {ht2}, ht: {ht}"
 
 
 def _run_freqdomain_checks(hf, label, outdir, Nf=Nf, dt=dt):

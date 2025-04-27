@@ -6,57 +6,61 @@ def inverse_wavelet_freq_helper(
     wave_in: cp.ndarray, phif: cp.ndarray, Nf: int, Nt: int
 ) -> cp.ndarray:
     """CuPy vectorized function for inverse_wavelet_freq"""
-    wave_in = wave_in.T
-    ND = Nf * Nt
+    wave = wave_in.T
+    ND2 = (Nf * Nt) // 2
+    half = Nt // 2
 
+    # === STEP 1: build prefactor2s[m, n] ===
     m_range = cp.arange(Nf + 1)
-    prefactor2s = cp.zeros((Nf + 1, Nt), dtype=cp.complex128)
+    pref2 = cp.zeros((Nf + 1, Nt), dtype=cp.complex128)
+    n = cp.arange(Nt)
 
-    n_range = cp.arange(Nt)
+    # m=0 and m=Nf, with 1/√2
+    pref2[0, :] = wave[(2 * n) % Nt, 0] * (2 ** (-0.5))
+    pref2[Nf, :] = wave[((2 * n) % Nt) + 1, 0] * (2 ** (-0.5))
 
-    # m == 0 case
-    prefactor2s[0] = 2 ** (-1 / 2) * wave_in[(2 * n_range) % Nt, 0]
+    # middle m=1...Nf-1
+    m_mid = cp.arange(1, Nf)
+    # build meshgrids (m_mid rows, n cols)
+    mm, nn = cp.meshgrid(m_mid, n, indexing='ij')
+    vals = wave[nn, mm]
+    signs = cp.where(((nn + mm) % 2) == 1, -1j, 1)
+    pref2[1:Nf, :] = (signs * vals)
 
-    # m == Nf case
-    prefactor2s[Nf] = 2 ** (-1 / 2) * wave_in[(2 * n_range) % Nt + 1, 0]
+    # === STEP 2: FFT along time axis ===
+    F = fft(pref2, axis=1)  # shape (Nf+1, Nt)
 
-    # Other m cases
-    m_mid = m_range[1:Nf]
-    n_grid, m_grid = cp.meshgrid(n_range, m_mid)
-    val = wave_in[n_grid, m_grid]
-    mult2 = cp.where((n_grid + m_grid) % 2, -1j, 1)
-    prefactor2s[1:Nf] = mult2 * val
+    # === STEP 3: unpack back into half-spectrum res[0...ND2] ===
+    res = cp.zeros(ND2 + 1, dtype=cp.complex128)
+    idx = cp.arange(half)
 
-    # Vectorized FFT
-    fft_prefactor2s = fft(prefactor2s, axis=1)
+    # 3a) contribution from m=0
+    res[idx] += F[0, (2 * idx) % Nt] * phif[idx]
 
-    # Vectorized __unpack_wave_inverse
-    res = cp.zeros(ND, dtype=cp.complex128)
+    # 3b) contribution from m=Nf
+    iNf = cp.abs(Nf * half - idx)
+    res[iNf] += F[Nf, (2 * idx) % Nt] * phif[idx]
 
-    # m == 0 or m == Nf cases
-    i_ind_range = cp.arange(Nt // 2)
-    i_0 = cp.abs(i_ind_range)
-    i_Nf = cp.abs(Nf * Nt // 2 - i_ind_range)
-    ind3_0 = (2 * i_0) % Nt
-    ind3_Nf = (2 * i_Nf) % Nt
+    # special Nyquist‐folding term
+    special = cp.abs(Nf * half - half)
+    res[special] += F[Nf, 0] * phif[half]
 
-    res[i_0] += fft_prefactor2s[0, ind3_0] * phif[i_ind_range]
-    res[i_Nf] += fft_prefactor2s[Nf, ind3_Nf] * phif[i_ind_range]
+    # 3c) middle m cases
+    m_mid = cp.arange(1, Nf)
+    i_mid = cp.arange(half)  # 0...half-1
+    mm, ii = cp.meshgrid(m_mid, i_mid, indexing='ij')
+    i1 = (half * mm - ii) % (ND2 + 1)
+    i2 = (half * mm + ii) % (ND2 + 1)
+    ind1 = (half * mm - ii) % Nt
+    ind2 = (half * mm + ii) % Nt
 
-    # Special case for m == Nf
-    res[Nf * Nt // 2] += fft_prefactor2s[Nf, 0] * phif[Nt // 2]
+    # accumulate
+    res[i1] += F[mm, ind1] * phif[ii]
+    res[i2] += F[mm, ind2] * phif[ii]
 
-    # Other m cases
-    m_mid = m_range[1:Nf]
-    i_ind_range = cp.arange(Nt // 2 + 1)
-    m_grid, i_ind_grid = cp.meshgrid(m_mid, i_ind_range)
-
-    i1 = Nt // 2 * m_grid - i_ind_grid
-    i2 = Nt // 2 * m_grid + i_ind_grid
-    ind31 = (Nt // 2 * m_grid - i_ind_grid) % Nt
-    ind32 = (Nt // 2 * m_grid + i_ind_grid) % Nt
-
-    res[i1] += fft_prefactor2s[m_grid, ind31] * phif[i_ind_grid]
-    res[i2] += fft_prefactor2s[m_grid, ind32] * phif[i_ind_grid]
+    # override the "center" points (j=0) exactly
+    centers = half * m_mid
+    fft_idx = centers % Nt
+    res[centers] = F[m_mid, fft_idx] * phif[0]
 
     return res
