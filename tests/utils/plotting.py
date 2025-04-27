@@ -87,11 +87,11 @@ def plot_residuals(
 
 
 def plot_wavelet_comparison(
-        w1: Wavelet,
-        w2: Wavelet,
-        labels=None,
-        axes: plt.Axes=None,
-        fname=None,
+    w1: Wavelet,
+    w2: Wavelet,
+    labels=None,
+    axes: plt.Axes = None,
+    fname=None,
 ):
     if labels is None:
         labels = ["W1", "W2"]
@@ -101,7 +101,9 @@ def plot_wavelet_comparison(
     errstr = f"Σ|{labels[0]}-new|: {net_err:.2e}"
 
     if axes is None:
-        fig, axes = plt.subplots(1, 3, figsize=(10, 4), sharey=True, sharex=True)
+        fig, axes = plt.subplots(
+            1, 3, figsize=(10, 4), sharey=True, sharex=True
+        )
 
     txtbox_kwargs = dict(alpha=0.5, facecolor="white")
     norm = _get_log_norm(w1.data, w2.data, default_vmin=1e-10)
@@ -125,10 +127,12 @@ def plot_wavelet_comparison(
         plt.savefig(fname)
     return axes
 
+
 def plot_wavelet_cached_comparison(
     cur: Wavelet, cached: Wavelet, err: Wavelet, label: str, outdir: str
 ):
     from pywavelet.backend import current_backend
+
     axes = plot_wavelet_comparison(cur, cached, labels=["Current", "Cached"])
     axes[0].set_title(f"Branch: {BRANCH} [{current_backend}]")
     axes[1].set_title("Cached Numpy (v0.0.1)")
@@ -187,7 +191,7 @@ def plot_freqdomain_comparisions(
     hf: FrequencySeries,
     h_reconstructed: FrequencySeries,
     wavelet: Wavelet,
-    fname: str=None,
+    fname: str = None,
     axes=None,
 ):
     err = np.abs(hf.data - h_reconstructed.data)
@@ -211,6 +215,7 @@ def plot_freqdomain_comparisions(
         alpha=0.2,
         zorder=-1,
     )
+
     # add diff to legend
     axes[0].legend(loc="upper left", frameon=False)
     ax_diff.legend(loc="upper right", frameon=False)
@@ -235,6 +240,11 @@ def plot_freqdomain_comparisions(
     axes[2].set_title("Residuals (freq-domain)")
     axes[0].set_title("Periodogram")
     axes[1].set_title("Wavelet")
+
+    xpad = 5
+    axes[0].set_xscale("linear")
+    axes[0].set_xlim(-xpad, hf.freq[-1] + xpad)
+
     plt.tight_layout()
     if fname:
         plt.savefig(fname)
@@ -259,19 +269,19 @@ def plot_fft(hf, hf_1, fname):
 
 
 def plot_roundtrip(
-        orig_freq: FrequencySeries,
-        orig_wdm: Wavelet,
-        reconstructed_freq: FrequencySeries,
-        reconstructed_wdm: Wavelet,
-        axes=None,
-        labels=None,
+    orig_freq: FrequencySeries,
+    orig_wdm: Wavelet,
+    reconstructed_freq: FrequencySeries,
+    reconstructed_wdm: Wavelet,
+    axes=None,
+    labels=None,
 ):
-    """ Plots the
-        Axes1: original frequency series + reconstructed frequency series
-        Axes2: residual of the frequency series
-        Axes3: original wavelet
-        Axes4: reconstructed wavelet
-        Axes5: diff of the wavelet
+    """Plots the
+    Axes1: original frequency series + reconstructed frequency series
+    Axes2: residual of the frequency series
+    Axes3: original wavelet
+    Axes4: reconstructed wavelet
+    Axes5: diff of the wavelet
     """
     if axes is None:
         fig, axes = plt.subplots(1, 5, figsize=(10, 8))
@@ -279,13 +289,16 @@ def plot_roundtrip(
     if labels is None:
         labels = ["Original", "Reconstructed"]
 
-
     # relative error in the frequency domain
 
-    err_freq = np.abs(np.abs(orig_freq.data) ** 2 - np.abs(reconstructed_freq.data) ** 2) / np.abs(orig_freq.data) ** 2
+    err_freq = (
+        np.abs(
+            np.abs(orig_freq.data) ** 2 - np.abs(reconstructed_freq.data) ** 2
+        )
+        / np.abs(orig_freq.data) ** 2
+    )
 
-
-    err_wdm  = orig_wdm - reconstructed_wdm
+    err_wdm = orig_wdm - reconstructed_wdm
     net_err_freq = np.sum(np.abs(err_freq))
     net_err_wdm = np.sum(np.abs(err_wdm.data))
 
@@ -307,16 +320,13 @@ def plot_roundtrip(
     ax_err.spines["right"].set_color("red")
 
     orig_freq.plot_periodogram(
-        ax=axes[0],
-        label=labels[0],
-        marker="o",
-        color='black'
+        ax=axes[0], label=labels[0], marker="o", color="black"
     )
     reconstructed_freq.plot_periodogram(
         ax=axes[0],
         label=f"{labels[1]} (er={net_err_freq:.2f})",
         linestyle="--",
-        marker='o',
+        marker="o",
         color="tab:blue",
         alpha=0.5,
     )
@@ -325,12 +335,15 @@ def plot_roundtrip(
         orig_freq.freq[0] - 5 * orig_freq.df,
         orig_freq.freq[-1] + 5 * orig_freq.df,
     )
-    axes[0].legend(loc='upper left', frameon=False)
+    axes[0].legend(loc="upper left", frameon=False)
     axes[0].set_title(f"Frequency Series")
-    orig_wdm.plot(ax=axes[1], label=labels[0], absolute=True, cmap='Blues')
-    reconstructed_wdm.plot(ax=axes[2], label=labels[1], absolute=True, cmap='Blues')
-    err_wdm.plot(ax=axes[3], label=f"Diff, er={net_err_wdm:.2f}", absolute=True, cmap='Blues')
-
-
-
-
+    orig_wdm.plot(ax=axes[1], label=labels[0], absolute=True, cmap="Blues")
+    reconstructed_wdm.plot(
+        ax=axes[2], label=labels[1], absolute=True, cmap="Blues"
+    )
+    err_wdm.plot(
+        ax=axes[3],
+        label=f"Diff, er={net_err_wdm:.2f}",
+        absolute=True,
+        cmap="Blues",
+    )

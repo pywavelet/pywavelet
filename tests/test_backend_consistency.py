@@ -1,29 +1,33 @@
-from scipy.signal import chirp
-import numpy as np
-from typing import List
-import matplotlib.pyplot as plt
+from typing import List, Tuple, Union
+
 import jax
 import jax.numpy as jnp
-
-from typing import Tuple, Union
-
-jax.config.update('jax_enable_x64', True)
-
-from matplotlib.pyplot import GridSpec
-from pywavelet.types import TimeSeries, FrequencySeries, Wavelet
-from pywavelet.transforms.numpy import from_freq_to_wavelet, from_wavelet_to_freq
-from pywavelet.transforms.jax import from_freq_to_wavelet as jax_from_freq_to_wavelet
-from pywavelet.transforms.jax import from_wavelet_to_freq as jax_from_wavelet_to_freq
-from dataclasses import dataclass
-
-from pywavelet.types import Wavelet, FrequencySeries, TimeSeries
-from pywavelet.types.wavelet_bins import compute_bins
-from dataclasses import dataclass
-import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.colors import Normalize, LogNorm
+import numpy as np
+from scipy.signal import chirp
+
+jax.config.update("jax_enable_x64", True)
+
+from dataclasses import dataclass
+
+import matplotlib.pyplot as plt
+import numpy as np
+from matplotlib.colors import LogNorm, Normalize
+from matplotlib.pyplot import GridSpec
 from utils.plotting import plot_roundtrip
 
+from pywavelet.transforms.jax import (
+    from_freq_to_wavelet as jax_from_freq_to_wavelet,
+)
+from pywavelet.transforms.jax import (
+    from_wavelet_to_freq as jax_from_wavelet_to_freq,
+)
+from pywavelet.transforms.numpy import (
+    from_freq_to_wavelet,
+    from_wavelet_to_freq,
+)
+from pywavelet.types import FrequencySeries, TimeSeries, Wavelet
+from pywavelet.types.wavelet_bins import compute_bins
 
 
 class MonochromaticSignal:
@@ -57,7 +61,6 @@ class MonochromaticSignal:
         self._wavelet = Wavelet(wnm.T, t_bins, f_bins)
         return self._wavelet
 
-
     @property
     def frequencyseries(self) -> FrequencySeries:
         if hasattr(self, "_frequencyseries"):
@@ -71,23 +74,20 @@ class MonochromaticSignal:
         return self._frequencyseries
 
 
-
 @dataclass
 class RoundtripData:
     wavelet: Wavelet
     reconstructed: FrequencySeries
 
 
-
-
 def plot(
-        true: MonochromaticSignal,
-        np_data: RoundtripData,
-        jax_data: RoundtripData,
-        plot_fn: str,
+    true: MonochromaticSignal,
+    np_data: RoundtripData,
+    jax_data: RoundtripData,
+    plot_fn: str,
 ) -> None:
     # make a gridspec 3 rows 3 columns (last row is full width)
-    fig,axes = plt.subplots(2,4,  figsize=(14, 7))
+    fig, axes = plt.subplots(2, 4, figsize=(14, 7))
 
     plot_roundtrip(
         true.frequencyseries,
@@ -109,27 +109,28 @@ def plot(
     plt.savefig(plot_fn)
 
 
-
-
-
 def test_jax_and_numpy(plot_dir):
     # Sizes
     fs = 32
     dt = 1 / fs
     f0 = 8.0
-    Nt, Nf = 2 ** 3, 2 ** 3
+    Nt, Nf = 2**3, 2**3
 
     signal = MonochromaticSignal(f0=f0, dt=dt, A=2, Nt=Nt, Nf=Nf)
 
     # using numpy
     h_wavelet = from_freq_to_wavelet(signal.frequencyseries, Nf=Nf, Nt=Nt)
-    h_reconstructed = from_wavelet_to_freq(h_wavelet, dt=dt)
+    h_reconstructed = from_wavelet_to_freq(signal.wavelet, dt=dt)
     np_data = RoundtripData(wavelet=h_wavelet, reconstructed=h_reconstructed)
 
     # using JAX
-    jax_h_wavelet = jax_from_freq_to_wavelet(signal.frequencyseries, Nf=Nf, Nt=Nt)
-    jax_h_reconstructed = jax_from_wavelet_to_freq(jax_h_wavelet, dt=dt)
-    jax_data = RoundtripData(wavelet=jax_h_wavelet, reconstructed=jax_h_reconstructed)
+    jax_h_wavelet = jax_from_freq_to_wavelet(
+        signal.frequencyseries, Nf=Nf, Nt=Nt
+    )
+    jax_h_reconstructed = jax_from_wavelet_to_freq(signal.wavelet, dt=dt)
+    jax_data = RoundtripData(
+        wavelet=jax_h_wavelet, reconstructed=jax_h_reconstructed
+    )
 
     # Plotting
     plot(
@@ -138,3 +139,7 @@ def test_jax_and_numpy(plot_dir):
         jax_data,
         plot_fn=f"{plot_dir}/jax_vs_numpy_roundtrip.png",
     )
+
+    print(jax_h_reconstructed.data)
+    print(np_data.reconstructed.data)
+    print(signal.frequencyseries.data)

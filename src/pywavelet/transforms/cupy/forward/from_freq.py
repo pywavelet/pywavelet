@@ -1,14 +1,18 @@
+import logging
+
 import cupy as cp
 from cupyx.scipy.fft import ifft
 
-import logging
-
-logger = logging.getLogger('pywavelet')
+logger = logging.getLogger("pywavelet")
 
 
 def transform_wavelet_freq_helper(
-        data: cp.ndarray, Nf: int, Nt: int, phif: cp.ndarray,
-        float_dtype=cp.float64, complex_dtype=cp.complex128
+    data: cp.ndarray,
+    Nf: int,
+    Nt: int,
+    phif: cp.ndarray,
+    float_dtype=cp.float64,
+    complex_dtype=cp.complex128,
 ) -> cp.ndarray:
     """
     Transforms input data from the frequency domain to the wavelet domain using a
@@ -24,69 +28,62 @@ def transform_wavelet_freq_helper(
     - wave (cp.ndarray): 2D array of wavelet-transformed data with shape (Nf, Nt).
     """
 
-    logger.debug(f"[CUPY TRANSFORM] Input types [data:{type(data)}, phif:{type(phif)}, precision:{data.dtype}]")
-
-    # Initialize the wavelet output array with zeros (time-rows, frequency-columns)
-    wave = cp.zeros((Nt, Nf), dtype=float_dtype)
-    f_bins = cp.arange(Nf)  # Frequency bin indices
-
-    # Compute base indices for time (i_base) and frequency (jj_base)
-    i_base = Nt // 2
-    jj_base = f_bins * Nt // 2
-
-    # Set initial values for the center of the transformation
-    initial_values = cp.where(
-        (f_bins == 0)
-        | (f_bins == Nf),  # Edge cases: DC (f=0) and Nyquist (f=Nf)
-        phif[0] * data[f_bins * Nt // 2] / 2.0,  # Adjust for symmetry
-        phif[0] * data[f_bins * Nt // 2],
+    logger.debug(
+        f"[CUPY TRANSFORM] Input types [data:{type(data)}, phif:{type(phif)}, precision:{data.dtype}]"
     )
 
-    # Initialize a 2D array to store intermediate FFT input values
-    DX = cp.zeros((Nf, Nt), dtype=complex_dtype)
-    DX[:, Nt // 2] = (
-        initial_values  # Set initial values at the center of the transformation (2 sided FFT)
+    half = Nt // 2
+    f_bins = cp.arange(Nf + 1)  # [0, 1, ..., Nf]
+
+    # 1) Build (Nf+1, Nt) DX
+    # — center:
+    center = phif[0] * data[f_bins * half]
+    center = cp.where((f_bins == 0) | (f_bins == Nf), center * 0.5, center)
+    DX = cp.zeros((Nf + 1, Nt), complex_dtype)
+    DX[:, half] = center
+
+    # — off-center (j = ±1...±(half-1))
+    offs = cp.arange(1 - half, half)  # length Nt-1
+    jj = f_bins[:, None] * half + offs[None, :]  # (Nf+1, Nt-1)
+    ii = half + offs  # (Nt-1,)
+    mask = ((f_bins[:, None] == Nf) & (offs[None, :] > 0)) | (
+        (f_bins[:, None] == 0) & (offs[None, :] < 0)
     )
+    vals = phif[cp.abs(offs)] * data[jj]
+    vals = cp.where(mask, 0.0, vals)
+    DX[:, ii] = vals
 
-    # Compute time indices for all offsets around the midpoint
-    j_range = cp.arange(
-        1 - Nt // 2, Nt // 2
-    )  # Time offsets (centered around zero)
-    j = cp.abs(j_range)  # Absolute offset indices
-    i = i_base + j_range  # Time indices in output array
+    # 2) IFFT along time
+    DXt = ifft(DX, axis=1)
 
-    # Compute conditions for edge cases
-    cond1 = (f_bins[:, None] == Nf) & (j_range[None, :] > 0)  # Nyquist
-    cond2 = (f_bins[:, None] == 0) & (j_range[None, :] < 0)  # DC
-    cond3 = j[None, :] == 0  # Center of the transformation (no offset)
+    # 3) Unpack into wave (Nt, Nf)
+    wave = cp.zeros((Nt, Nf), float_dtype)
+    sqrt2 = cp.sqrt(2.0)
 
-    # Compute frequency indices for the input data
-    jj = jj_base[:, None] + j_range[None, :]  # Frequency offsets
-    val = cp.where(
-        cond1 | cond2, 0.0, phif[j] * data[jj]
-    )  # Wavelet filter application
-    DX[:, i] = cp.where(cond3, DX[:, i], val)  # Update DX with computed values
+    # 3a) DC into col 0, even rows
+    evens = cp.arange(0, Nt, 2)
+    wave[evens, 0] = cp.real(DXt[0, evens]) * sqrt2
 
-    # Perform the inverse FFT along the time dimension
-    DX_trans = ifft(DX, axis=1)
+    # 3b) Nyquist into col 0, odd rows
+    odds = cp.arange(1, Nt, 2)
+    wave[odds, 0] = cp.real(DXt[Nf, evens]) * sqrt2
 
-    # Fill the wavelet output array based on the inverse FFT results
-    n_range = cp.arange(Nt)  # Time indices
-    cond1 = (
-                    n_range[:, None] + f_bins[None, :]
-            ) % 2 == 1  # Odd/even alternation
-    cond2 = cp.expand_dims(f_bins % 2 == 1, axis=-1)  # Odd frequency bins
+    # 3c) intermediate bins 1...Nf-1
+    mids = cp.arange(1, Nf)  # [1...Nf-1]
+    Dt_mid = DXt[mids, :]  # (Nf-1, Nt)
+    real_m = cp.real(Dt_mid).T  # (Nt, Nf-1)
+    imag_m = cp.imag(Dt_mid).T  # (Nt, Nf-1)
 
-    # Assign real and imaginary parts based on conditions
-    real_part = cp.where(cond2, -cp.imag(DX_trans), cp.real(DX_trans))
-    imag_part = cp.where(cond2, cp.real(DX_trans), cp.imag(DX_trans))
-    wave = cp.where(cond1, imag_part.T, real_part.T)
+    odd_f = (mids % 2) == 1  # shape (Nf-1,)
+    n_idx = cp.arange(Nt)[:, None]  # (Nt,1)
+    odd_nf = ((n_idx + mids[None, :]) % 2) == 1
 
-    # Special cases for frequency bins 0 (DC) and Nf (Nyquist)
-    wave[::2, 0] = cp.real(DX_trans[0, ::2] * cp.sqrt(2))  # DC component
-    wave[1::2, -1] = cp.real(
-        DX_trans[-1, ::2] * cp.sqrt(2)
-    )  # Nyquist component
+    # Select real vs imag and sign exactly as in __fill_wave_2
+    mid_vals = cp.where(
+        odd_nf,
+        cp.where(odd_f, -imag_m, imag_m),
+        cp.where(odd_f, real_m, real_m),
+    )
+    wave[:, 1:Nf] = mid_vals
 
-    # Return the wavelet-transformed array (transposed for freq-major layout)
-    return wave.T  # (Nt, Nf) -> (Nf, Nt)
+    return wave.T
