@@ -48,7 +48,7 @@ def transform_wavelet_freq_helper(
     # Create a copy of the input data (if needed).
     freq_strain = data.copy()
     __core(Nf, Nt, DX, freq_strain, phif, wave)
-    return wave
+    return wave.T
 
 
 @njit()

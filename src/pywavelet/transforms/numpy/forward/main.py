@@ -124,4 +124,4 @@ def from_freq_to_wavelet(
         complex_dtype=backend.complex_dtype,
     )
     factor = (backend.float_dtype)((2 / Nf) * np.sqrt(2))
-    return Wavelet(factor * wave.T, time=t_bins, freq=f_bins)
+    return Wavelet(factor * wave, time=t_bins, freq=f_bins)
