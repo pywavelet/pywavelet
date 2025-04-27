@@ -391,6 +391,7 @@ document.write(`
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+
 <span class="o">!</span><span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>pywavelet<span class="w"> </span>-q
 </pre></div>
 </div>
@@ -428,12 +429,12 @@ document.write(`
 
 <span class="n">min_pow2</span> <span class="o">=</span> <span class="mi">2</span>
 <span class="n">max_pow2</span> <span class="o">=</span> <span class="mi">14</span>
-<span class="n">NF</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span> <span class="o">**</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">min_pow2</span><span class="p">,</span> <span class="n">max_pow2</span><span class="p">)]</span>
+<span class="n">NF</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span><span class="o">**</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">min_pow2</span><span class="p">,</span> <span class="n">max_pow2</span><span class="p">)]</span>
 <span class="n">NREP</span> <span class="o">=</span> <span class="mi">5</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">generate_freq_domain_signal</span><span class="p">(</span>
-        <span class="n">ND</span><span class="p">,</span> <span class="n">f0</span><span class="o">=</span><span class="mf">20.0</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="mf">0.0125</span><span class="p">,</span> <span class="n">A</span><span class="o">=</span><span class="mi">2</span>
+    <span class="n">ND</span><span class="p">,</span> <span class="n">f0</span><span class="o">=</span><span class="mf">20.0</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="mf">0.0125</span><span class="p">,</span> <span class="n">A</span><span class="o">=</span><span class="mi">2</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FrequencySeries</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Generates a frequency domain signal.</span>
@@ -506,23 +507,31 @@ document.write(`
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">save_jax_runtimes</span><span class="p">():</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">pywavelet.transforms.jax.forward.from_freq</span><span class="w"> </span><span class="kn">import</span> <span class="n">transform_wavelet_freq_helper</span> <span class="k">as</span> <span class="n">jax_transform</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pywavelet.transforms.jax.forward.from_freq</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+        <span class="n">transform_wavelet_freq_helper</span> <span class="k">as</span> <span class="n">jax_transform</span><span class="p">,</span>
+    <span class="p">)</span>
 
     <span class="n">jax_label</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;jax_</span><span class="si">{</span><span class="n">JAX_DEVICE</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">JAX_PRECISION</span><span class="si">}</span><span class="s2">&quot;</span>
     <span class="n">collect_runtimes</span><span class="p">(</span><span class="n">jax_transform</span><span class="p">,</span> <span class="n">jax_label</span><span class="p">,</span> <span class="n">NF</span><span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">save_cupy_runtimes</span><span class="p">():</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">pywavelet.transforms.cupy.forward.from_freq</span><span class="w"> </span><span class="kn">import</span> <span class="n">transform_wavelet_freq_helper</span> <span class="k">as</span> <span class="n">cp_transform</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pywavelet.transforms.cupy.forward.from_freq</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+        <span class="n">transform_wavelet_freq_helper</span> <span class="k">as</span> <span class="n">cp_transform</span><span class="p">,</span>
+    <span class="p">)</span>
+
     <span class="n">collect_runtimes</span><span class="p">(</span><span class="n">cp_transform</span><span class="p">,</span> <span class="s2">&quot;cupy&quot;</span><span class="p">,</span> <span class="n">NF</span><span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">save_numpy_runtimes</span><span class="p">():</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">pywavelet.transforms.numpy.forward.from_freq</span><span class="w"> </span><span class="kn">import</span> <span class="n">transform_wavelet_freq_helper</span> <span class="k">as</span> <span class="n">np_transform</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pywavelet.transforms.numpy.forward.from_freq</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+        <span class="n">transform_wavelet_freq_helper</span> <span class="k">as</span> <span class="n">np_transform</span><span class="p">,</span>
+    <span class="p">)</span>
+
     <span class="n">collect_runtimes</span><span class="p">(</span><span class="n">np_transform</span><span class="p">,</span> <span class="s2">&quot;numpy&quot;</span><span class="p">,</span> <span class="n">NF</span><span class="p">)</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">cache_all_runtimes</span><span class="p">(</span><span class="n">cache_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;runtimes.json&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">cache_all_runtimes</span><span class="p">(</span><span class="n">cache_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;runtimes.json&quot;</span><span class="p">):</span>
     <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;runtime_*.csv&quot;</span><span class="p">):</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
@@ -531,19 +540,19 @@ document.write(`
 
     <span class="c1"># load any existing data</span>
     <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">cache_fn</span><span class="p">):</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">cache_fn</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">cache_fn</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">existing_data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
             <span class="n">data</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">existing_data</span><span class="p">)</span>
 
     <span class="c1"># save to json</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">cache_fn</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">cache_fn</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">plot_all_runtimes</span><span class="p">(</span><span class="n">cache_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;runtimes.json&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_all_runtimes</span><span class="p">(</span><span class="n">cache_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;runtimes.json&quot;</span><span class="p">):</span>
     <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mf">3.5</span><span class="p">))</span>
 
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">cache_fn</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">cache_fn</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">runtimes</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">runtimes</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">runtimes</span><span class="p">)</span>
@@ -552,7 +561,9 @@ document.write(`
     <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">plot</span><span class="p">(</span><span class="n">runtimes</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwgs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">plt</span><span class="o">.</span><span class="n">Figure</span><span class="p">,</span> <span class="n">plt</span><span class="o">.</span><span class="n">Axes</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">plot</span><span class="p">(</span>
+    <span class="n">runtimes</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwgs</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">plt</span><span class="o">.</span><span class="n">Figure</span><span class="p">,</span> <span class="n">plt</span><span class="o">.</span><span class="n">Axes</span><span class="p">]:</span>
     <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mf">3.5</span><span class="p">))</span>
     <span class="n">fig</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">figure</span>
@@ -563,8 +574,14 @@ document.write(`
     <span class="n">nds</span> <span class="o">=</span> <span class="n">runtimes</span><span class="p">[</span><span class="s2">&quot;ND&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
     <span class="n">times</span><span class="p">,</span> <span class="n">stds</span> <span class="o">=</span> <span class="n">runtimes</span><span class="p">[</span><span class="s2">&quot;median&quot;</span><span class="p">],</span> <span class="n">runtimes</span><span class="p">[</span><span class="s2">&quot;std&quot;</span><span class="p">]</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">nds</span><span class="p">,</span> <span class="n">times</span><span class="p">,</span> <span class="o">**</span><span class="n">kwgs</span><span class="p">)</span>
-    <span class="n">kwgs</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span><span class="n">nds</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">times</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">stds</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">times</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">stds</span><span class="p">),</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="o">**</span><span class="n">kwgs</span><span class="p">)</span>
+    <span class="n">kwgs</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span>
+        <span class="n">nds</span><span class="p">,</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">times</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">stds</span><span class="p">),</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">times</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">stds</span><span class="p">),</span>
+        <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwgs</span><span class="p">,</span>
+    <span class="p">)</span>
 
     <span class="n">ax</span><span class="o">.</span><span class="n">set_yscale</span><span class="p">(</span><span class="s2">&quot;log&quot;</span><span class="p">)</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">set_xscale</span><span class="p">(</span><span class="s2">&quot;log&quot;</span><span class="p">)</span>
