@@ -6,6 +6,8 @@ from utils import cuda_available
 import matplotlib.pyplot as plt
 
 from pywavelet.transforms.phi_computer import phitilde_vec_norm
+from pywavelet.transforms.numpy.inverse.to_freq import inverse_wavelet_freq_helper_fast
+
 
 fs = 32
 dt = 1 / fs
@@ -89,4 +91,26 @@ def test_forward_transform(backend, plot_dir):
     axes[1].set_title("Diff")
     plt.tight_layout()
     plt.savefig(f"{d}/wdm_{backend}.png")
+
+
+    inv = inverse_wavelet_freq_helper_fast(
+        wdm,
+        phif,
+        Nf,
+        Nt,
+
+    )
+    inv = np.abs(np.asarray(inv)**2)
+    yperi = np.abs(y_fft**2)
+    diff = np.abs(inv - yperi)
+    fig, axes = plt.subplots(1, 2, figsize=(7, 4))
+    axes[0].plot(yperi, label='True', color='k')
+    axes[0].plot(inv, label="Inverse transform")
+    axes[0].set_title("Inverse transform")
+    axes[1].plot(diff)
+    axes[1].set_title("Diff")
+    plt.tight_layout()
+    plt.savefig(f"{d}/inv_{backend}.png")
+
+
     np.testing.assert_allclose(expected_wdm, wdm_np.real)
