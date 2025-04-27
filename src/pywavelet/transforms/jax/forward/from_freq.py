@@ -17,12 +17,12 @@ logger = logging.getLogger("pywavelet")
 
 @partial(jit, static_argnames=("Nf", "Nt", "float_dtype", "complex_dtype"))
 def transform_wavelet_freq_helper(
-        data: jnp.ndarray,
-        Nf: int,
-        Nt: int,
-        phif: jnp.ndarray,
-        float_dtype=jnp.float64,
-        complex_dtype=jnp.complex128,
+    data: jnp.ndarray,
+    Nf: int,
+    Nt: int,
+    phif: jnp.ndarray,
+    float_dtype=jnp.float64,
+    complex_dtype=jnp.complex128,
 ) -> jnp.ndarray:
     """
     Transforms input data from the frequency domain to the wavelet domain using a
@@ -37,16 +37,16 @@ def transform_wavelet_freq_helper(
     Returns:
     - wave (jnp.ndarray): 2D array of wavelet-transformed data with shape (Nf, Nt).
     """
-    logger.debug(f"[JAX TRANSFORM] Input types [data:{type(data)},{data.dtype}, phif:{type(phif)},{phif.dtype}]")
+    logger.debug(
+        f"[JAX TRANSFORM] Input types [data:{type(data)},{data.dtype}, phif:{type(phif)},{phif.dtype}]"
+    )
     half = Nt // 2
     f_bins = jnp.arange(Nf + 1)  # [0,1,...,Nf]
 
     # --- 1) build the full (Nf+1, Nt) DX array ---
     # center (j = 0):
     center = phif[0] * data[f_bins * half]
-    center = jnp.where((f_bins == 0) | (f_bins == Nf),
-                       center / 2.0,
-                       center)
+    center = jnp.where((f_bins == 0) | (f_bins == Nf), center / 2.0, center)
     DX = jnp.zeros((Nf + 1, Nt), complex_dtype)
     DX = DX.at[:, half].set(center)
 
@@ -54,8 +54,9 @@ def transform_wavelet_freq_helper(
     offs = jnp.arange(1 - half, half)  # length Nt−1
     jj = f_bins[:, None] * half + offs[None, :]  # shape (Nf+1, Nt−1)
     ii = half + offs  # shape (Nt−1,)
-    mask = ((f_bins[:, None] == Nf) & (offs[None, :] > 0)) | \
-           ((f_bins[:, None] == 0) & (offs[None, :] < 0))
+    mask = ((f_bins[:, None] == Nf) & (offs[None, :] > 0)) | (
+        (f_bins[:, None] == 0) & (offs[None, :] < 0)
+    )
     vals = phif[jnp.abs(offs)] * data[jj]
     vals = jnp.where(mask, 0.0, vals)
     DX = DX.at[:, ii].set(vals)
