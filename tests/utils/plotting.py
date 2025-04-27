@@ -215,6 +215,7 @@ def plot_freqdomain_comparisions(
         alpha=0.2,
         zorder=-1,
     )
+
     # add diff to legend
     axes[0].legend(loc="upper left", frameon=False)
     ax_diff.legend(loc="upper right", frameon=False)
@@ -239,6 +240,12 @@ def plot_freqdomain_comparisions(
     axes[2].set_title("Residuals (freq-domain)")
     axes[0].set_title("Periodogram")
     axes[1].set_title("Wavelet")
+
+    xpad = 5
+    axes[0].set_xscale('linear')
+    axes[0].set_xlim(-xpad, hf.freq[-1] + xpad)
+
+
     plt.tight_layout()
     if fname:
         plt.savefig(fname)
