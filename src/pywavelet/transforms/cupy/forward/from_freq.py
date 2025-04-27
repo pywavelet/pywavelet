@@ -38,9 +38,7 @@ def transform_wavelet_freq_helper(
     # 1) Build (Nf+1, Nt) DX
     # — center:
     center = phif[0] * data[f_bins * half]
-    center = cp.where((f_bins == 0) | (f_bins == Nf),
-                      center * 0.5,
-                      center)
+    center = cp.where((f_bins == 0) | (f_bins == Nf), center * 0.5, center)
     DX = cp.zeros((Nf + 1, Nt), complex_dtype)
     DX[:, half] = center
 
@@ -48,8 +46,9 @@ def transform_wavelet_freq_helper(
     offs = cp.arange(1 - half, half)  # length Nt-1
     jj = f_bins[:, None] * half + offs[None, :]  # (Nf+1, Nt-1)
     ii = half + offs  # (Nt-1,)
-    mask = ((f_bins[:, None] == Nf) & (offs[None, :] > 0)) | \
-           ((f_bins[:, None] == 0) & (offs[None, :] < 0))
+    mask = ((f_bins[:, None] == Nf) & (offs[None, :] > 0)) | (
+        (f_bins[:, None] == 0) & (offs[None, :] < 0)
+    )
     vals = phif[cp.abs(offs)] * data[jj]
     vals = cp.where(mask, 0.0, vals)
     DX[:, ii] = vals

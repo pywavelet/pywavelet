@@ -242,9 +242,8 @@ def plot_freqdomain_comparisions(
     axes[1].set_title("Wavelet")
 
     xpad = 5
-    axes[0].set_xscale('linear')
+    axes[0].set_xscale("linear")
     axes[0].set_xlim(-xpad, hf.freq[-1] + xpad)
-
 
     plt.tight_layout()
     if fname:

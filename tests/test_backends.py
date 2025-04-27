@@ -34,8 +34,6 @@ def test_backend_fails_if_no_cupy():
         set_backend("cupy")
 
 
-
-
 def test_backed_logger():
     from pywavelet.backend import get_available_backends_table
 

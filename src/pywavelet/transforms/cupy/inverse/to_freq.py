@@ -22,10 +22,10 @@ def inverse_wavelet_freq_helper(
     # middle m=1...Nf-1
     m_mid = cp.arange(1, Nf)
     # build meshgrids (m_mid rows, n cols)
-    mm, nn = cp.meshgrid(m_mid, n, indexing='ij')
+    mm, nn = cp.meshgrid(m_mid, n, indexing="ij")
     vals = wave[nn, mm]
     signs = cp.where(((nn + mm) % 2) == 1, -1j, 1)
-    pref2[1:Nf, :] = (signs * vals)
+    pref2[1:Nf, :] = signs * vals
 
     # === STEP 2: FFT along time axis ===
     F = fft(pref2, axis=1)  # shape (Nf+1, Nt)
@@ -48,7 +48,7 @@ def inverse_wavelet_freq_helper(
     # 3c) middle m cases
     m_mid = cp.arange(1, Nf)
     i_mid = cp.arange(half)  # 0...half-1
-    mm, ii = cp.meshgrid(m_mid, i_mid, indexing='ij')
+    mm, ii = cp.meshgrid(m_mid, i_mid, indexing="ij")
     i1 = (half * mm - ii) % (ND2 + 1)
     i2 = (half * mm + ii) % (ND2 + 1)
     ind1 = (half * mm - ii) % Nt

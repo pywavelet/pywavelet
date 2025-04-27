@@ -13,6 +13,7 @@ notebooks = [
     "basic.ipynb",
 ]
 
+
 @pytest.mark.parametrize("notebook_path", notebooks)
 def test_notebook_execution(notebook_path, tmp_path):
     # Create a temp folder for notebook execution
@@ -27,7 +28,7 @@ def test_notebook_execution(notebook_path, tmp_path):
         nb = nbformat.read(f, as_version=4)
 
     # Create a NotebookClient and execute -- should run in max 20 seconds
-    client = NotebookClient(nb, timeout=20, kernel_name='python3')
+    client = NotebookClient(nb, timeout=20, kernel_name="python3")
 
     try:
         client.execute()
