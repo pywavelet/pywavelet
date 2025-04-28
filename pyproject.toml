@@ -51,7 +51,8 @@ dev = [
     "jupyter-book",
     "GitPython",
     "nbconvert",
-    "pytest-click"
+    "pytest-click",
+    "pandas"
 ]
 
 [tool.setuptools_scm]
