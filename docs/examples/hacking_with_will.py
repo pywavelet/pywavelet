@@ -338,5 +338,13 @@ t_bins = np.arange(0, Nt) * delta_T
 f_bins = np.arange(0, Nf) * delta_F
 
 
-plt.imshow(np.abs(np.rot90(wave)))
+im = plt.imshow(
+    np.abs((wave.T)),
+    aspect="auto",
+    extent=[t_bins[0], t_bins[-1], f_bins[0], f_bins[-1]],
+    origin="lower",
+    interpolation="nearest",
+)
+plt.xlabel("Time (s)")
+plt.ylabel("Frequency (Hz)")
 plt.show()
