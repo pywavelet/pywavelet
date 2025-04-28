@@ -1,4 +1,6 @@
-"""helper functions for transform_time.py"""
+"""helper functions for transform_time.py
+(taken from matt-digman's code)
+"""
 
 import numpy as np
 from numba import njit

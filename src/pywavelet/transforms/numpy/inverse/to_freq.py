@@ -1,4 +1,6 @@
-"""functions for computing the inverse wavelet transforms"""
+"""functions for computing the inverse wavelet transforms
+(taken from matt-digman's code)
+"""
 
 import numpy as np
 from numba import njit

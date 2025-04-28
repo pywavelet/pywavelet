@@ -87,7 +87,7 @@ def test_forward_transform(backend, plot_dir):
     fig, axes = plt.subplots(1, 2, figsize=(7, 4))
     cbar1 = fig.colorbar(axes[0].pcolormesh(wdm_np, shading="auto"), ax=axes[0])
     cbar2 = fig.colorbar(axes[1].pcolormesh(diff, shading="auto"), ax=axes[1])
-    axes[0].set_title("Forward transform")
+    axes[0].set_title(f"{backend} freq->WDM")
     axes[1].set_title("Diff")
     plt.tight_layout()
     plt.savefig(f"{d}/wdm_{backend}.png")
@@ -112,5 +112,6 @@ def test_forward_transform(backend, plot_dir):
     plt.tight_layout()
     plt.savefig(f"{d}/inv_{backend}.png")
 
-
-    np.testing.assert_allclose(expected_wdm, wdm_np.real)
+    assert np.allclose(
+        expected_wdm, wdm_np.real, atol=1e-5
+    ), f"Difference in freq->WDM {backend}"

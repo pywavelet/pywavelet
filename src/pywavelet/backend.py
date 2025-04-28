@@ -101,12 +101,12 @@ def get_backend_from_env():
 
 def get_precision_from_env() -> str:
     """Get the precision from the environment variable."""
-    precision = os.getenv("PYWAVELET_PRECISION", "float32").lower()
+    precision = os.getenv("PYWAVELET_PRECISION", "float64").lower()
     if precision not in VALID_PRECISIONS:
         logger.error(
-            f"Precision {precision} is not supported, defaulting to float32."
+            f"Precision {precision} is not supported, defaulting to float64."
         )
-        precision = "float32"
+        precision = "float64"
     return precision
 
 

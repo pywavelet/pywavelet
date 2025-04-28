@@ -67,8 +67,12 @@ def test_conversion_from_hf_ht(sine_freq):
     assert w1 == w2, f"w1: {w1}, w2: {w2}"
     hf1 = w1.to_frequencyseries()
     ht2 = w2.to_timeseries()
+
+    ht_mse = np.mean(np.abs((ht - ht2).data))
+
+
     assert sine_freq == hf1, f"hf1: {hf1}, sine_freq: {sine_freq}"
-    assert ht == ht2, f"ht2: {ht2}, ht: {ht}"
+    assert ht == ht2, f"ht2: {ht2}, ht: {ht}, diff: {ht_mse}"
 
 
 def _run_freqdomain_checks(hf, label, outdir, Nf=Nf, dt=dt):

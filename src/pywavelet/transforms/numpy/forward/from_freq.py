@@ -1,4 +1,6 @@
-"""helper functions for transform_freq"""
+"""helper functions for transform_freq
+(taken from matt-digman's code)
+"""
 
 import logging
 
