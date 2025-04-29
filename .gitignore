@@ -1,6 +1,7 @@
 
 case_studies
 venv
+*.gif
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
