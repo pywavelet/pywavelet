@@ -15,6 +15,10 @@ def _preprocess_bins(
     elif isinstance(data, FrequencySeries):
         # len(d) =  N // 2 + 1
         N = 2 * (len(data) - 1)
+    else:
+        raise TypeError(
+            f"data must be a TimeSeries or FrequencySeries, not {type(data)}"
+        )
 
     if Nt is not None and Nf is None:
         assert 1 <= Nt <= N, f"Nt={Nt} must be between 1 and N={N}"
