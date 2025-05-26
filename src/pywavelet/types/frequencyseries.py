@@ -65,6 +65,10 @@ class FrequencySeries:
     ) -> Tuple[plt.Figure, plt.Axes]:
         return plot_periodogram(self.data, self.freq, self.fs, ax=ax, **kwargs)
 
+    @property
+    def periodogram(self):
+        return xp.abs(self.data) ** 2
+
     def __len__(self):
         """Return the length of the frequency series."""
         return len(self.data)
