@@ -90,4 +90,4 @@ def from_wavelet_to_freq(
     freq_data *= 1.0 / np.sqrt(2)
 
     freqs = np.fft.rfftfreq(wave_in.ND, d=dt)
-    return FrequencySeries(data=freq_data, freq=freqs)
+    return FrequencySeries(data=freq_data, freq=freqs, t0=wave_in.t0)
