@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Backend Accuracy checks &#8212; Pywavelet</title>
+    <title>Accuracy checks &#8212; Pywavelet</title>
   
   
   
@@ -184,7 +184,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../api.html">API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="basic.html">Example</a></li>
 <li class="toctree-l1"><a class="reference internal" href="runtime.html">Runtime Comparisons</a></li>
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">Backend Accuracy checks</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Accuracy checks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="example_signals.html">EMRI, Galactic Binary, and MBH Transformation examples</a></li>
 </ul>
 
@@ -358,7 +358,9 @@ document.write(`
   </button>
 `);
 </script>
-
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
 </div></div>
       
     </div>
@@ -369,11 +371,20 @@ document.write(`
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>Backend Accuracy checks</h1>
+    <h1>Accuracy checks</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
             
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#monochromatic-wavelet-check">Monochromatic Wavelet check</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#parsevals-theorem-test-energy-conservation">Parseval’s Theorem Test (Energy Conservation)</a></li>
+</ul>
+            </nav>
         </div>
     </div>
 </div>
@@ -386,8 +397,8 @@ document.write(`
   <a target="_blank" href="https://colab.research.google.com/github/pywavelet/pywavelet/blob/main/docs/examples/accuracy.ipynb">
   <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
 </a>
-<section class="tex2jax_ignore mathjax_ignore" id="backend-accuracy-checks">
-<h1>Backend Accuracy checks<a class="headerlink" href="#backend-accuracy-checks" title="Link to this heading">#</a></h1>
+<section class="tex2jax_ignore mathjax_ignore" id="accuracy-checks">
+<h1>Accuracy checks<a class="headerlink" href="#accuracy-checks" title="Link to this heading">#</a></h1>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span><span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>pywavelet<span class="w"> </span>-q
@@ -395,6 +406,8 @@ document.write(`
 </div>
 </div>
 </div>
+<section id="monochromatic-wavelet-check">
+<h2>Monochromatic Wavelet check<a class="headerlink" href="#monochromatic-wavelet-check" title="Link to this heading">#</a></h2>
 <div class="cell tag_hide-input docutils container">
 <details class="hide above-input">
 <summary aria-label="Toggle hidden content">
@@ -577,34 +590,47 @@ document.write(`
 <img alt="../_images/64cca77d8493d2264a304864ef24418a598a7fc93a342cb059341310414af149.png" src="../_images/64cca77d8493d2264a304864ef24418a598a7fc93a342cb059341310414af149.png" />
 </div>
 </div>
+</section>
+<section id="parsevals-theorem-test-energy-conservation">
+<h2>Parseval’s Theorem Test (Energy Conservation)<a class="headerlink" href="#parsevals-theorem-test-energy-conservation" title="Link to this heading">#</a></h2>
+<p>The total energy of a signal is the same whether calculated directly in the time domain or indirectly from its Fourier transform in the frequency domain. This means no information is lost during the transformation between time and frequency representations.</p>
+<p>Lets see if this holds true for the wavelet transform. We will use a simple sinusoidal signal and check if the energy in the time domain matches the energy in the frequency domain.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">f0s</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ts</span> <span class="o">=</span> <span class="n">monochromatic_timeseries</span><span class="p">(</span>
+    <span class="n">f0</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+    <span class="n">dt</span><span class="o">=</span><span class="mf">0.0125</span><span class="p">,</span>
+    <span class="n">A</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">Nt</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span>
+    <span class="n">Nf</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">wdm</span> <span class="o">=</span> <span class="n">ts</span><span class="o">.</span><span class="n">to_wavelet</span><span class="p">(</span><span class="n">Nt</span><span class="o">=</span><span class="mi">32</span><span class="p">)</span>
+
+
+<span class="c1"># Calculate energy in time domain</span>
+<span class="n">energy_time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">ts</span><span class="o">.</span><span class="n">data</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
+<span class="n">energy_wavelet</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">wdm</span><span class="o">.</span><span class="n">data</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
+
+<span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">energy_time</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">energy_wavelet</span><span class="p">),</span> <span class="n">rtol</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1e-5</span>
+<span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Parseval&#39;s theorem holds: Energy is conserved.&quot;</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Parseval&#39;s theorem does not hold: Energy is not conserved.&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Time domain energy: </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">energy_time</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Wavelet domain energy: </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">energy_wavelet</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>array([ 2.5,  5. ,  7.5, 10. , 12.5, 15. , 17.5, 20. , 22.5, 25. , 27.5,
-       30. , 32.5, 35. , 37.5])
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Parseval&#39;s theorem does not hold: Energy is not conserved.
+Time domain energy: 512.0
+Wavelet domain energy: 1024.0
 </pre></div>
 </div>
 </div>
 </div>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">default_wdm</span><span class="o">.</span><span class="n">freq</span>
-</pre></div>
-</div>
-</div>
-<div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>array([ 0.  ,  1.25,  2.5 ,  3.75,  5.  ,  6.25,  7.5 ,  8.75, 10.  ,
-       11.25, 12.5 , 13.75, 15.  , 16.25, 17.5 , 18.75, 20.  , 21.25,
-       22.5 , 23.75, 25.  , 26.25, 27.5 , 28.75, 30.  , 31.25, 32.5 ,
-       33.75, 35.  , 36.25, 37.5 , 38.75])
-</pre></div>
-</div>
-</div>
-</div>
+</section>
 </section>
 
     <script type="text/x-thebe-config">
@@ -661,6 +687,22 @@ document.write(`
             </div>
             
             
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#monochromatic-wavelet-check">Monochromatic Wavelet check</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#parsevals-theorem-test-energy-conservation">Parseval’s Theorem Test (Energy Conservation)</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
               
             
           </div>

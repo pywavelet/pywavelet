@@ -184,7 +184,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../api.html">API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="basic.html">Example</a></li>
 <li class="toctree-l1"><a class="reference internal" href="runtime.html">Runtime Comparisons</a></li>
-<li class="toctree-l1"><a class="reference internal" href="accuracy.html">Backend Accuracy checks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="accuracy.html">Accuracy checks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="example_signals.html">EMRI, Galactic Binary, and MBH Transformation examples</a></li>
 </ul>
 
@@ -358,7 +358,9 @@ document.write(`
   </button>
 `);
 </script>
-
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
 </div></div>
       
     </div>
@@ -374,6 +376,14 @@ document.write(`
     <div id="print-main-content">
         <div id="jb-print-toc">
             
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#noise-robustness">Noise robustness</a></li>
+</ul>
+            </nav>
         </div>
     </div>
 </div>
@@ -383,12 +393,15 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <p><a class="reference external" href="https://colab.research.google.com/github/pywavelet/pywavelet/blob/main/docs/examples/backends.ipynb">Open in Colab</a></p>
+  <a target="_blank" href="https://colab.research.google.com/github/pywavelet/pywavelet/blob/main/docs/examples/backends.ipynb">
+  <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
+</a>
 <section class="tex2jax_ignore mathjax_ignore" id="backend-comparison">
 <h1>Backend comparison<a class="headerlink" href="#backend-comparison" title="Link to this heading">#</a></h1>
+<p>Here we plot the roundtrip of a chirp signal in the frequency domain to the wavelet domain and back to the frequency domain using different backends: NumPy, JAX, and CuPy.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>pip<span class="w"> </span>install<span class="w"> </span>pywavelet
+<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span><span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>pywavelet
 </pre></div>
 </div>
 </div>
@@ -399,19 +412,22 @@ document.write(`
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">pywavelet.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">TimeSeries</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pywavelet.transforms</span><span class="w"> </span><span class="kn">import</span> <span class="n">from_freq_to_wavelet</span><span class="p">,</span> <span class="n">from_wavelet_to_freq</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pywavelet.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">TimeSeries</span><span class="p">,</span> <span class="n">FrequencySeries</span>
+
+<span class="n">PLOT_DIR</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;backend_plots&quot;</span>
+<span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">PLOT_DIR</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">generate_chirp_time_domain_signal</span><span class="p">(</span>
-    <span class="n">t</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">freq_range</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span>
+        <span class="n">t</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">freq_range</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TimeSeries</span><span class="p">:</span>
     <span class="n">fs</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
     <span class="n">nyquist</span> <span class="o">=</span> <span class="n">fs</span> <span class="o">/</span> <span class="mi">2</span>
     <span class="n">fmax</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">freq_range</span><span class="p">)</span>
     <span class="k">assert</span> <span class="p">(</span>
-        <span class="n">fmax</span> <span class="o">&lt;</span> <span class="n">nyquist</span>
+            <span class="n">fmax</span> <span class="o">&lt;</span> <span class="n">nyquist</span>
     <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;f_max [</span><span class="si">{</span><span class="n">fmax</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> Hz] must be less than f_nyquist [</span><span class="si">{</span><span class="n">nyquist</span><span class="si">:</span><span class="s2">2f</span><span class="si">}</span><span class="s2"> Hz].&quot;</span>
 
     <span class="n">y</span> <span class="o">=</span> <span class="n">chirp</span><span class="p">(</span>
@@ -442,48 +458,54 @@ document.write(`
     <span class="k">return</span> <span class="n">ax</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">plot</span><span class="p">(</span><span class="n">h_freq</span><span class="p">,</span> <span class="n">h_reconstructed</span><span class="p">,</span> <span class="n">h_wavelet</span><span class="p">,</span> <span class="n">fname</span><span class="o">=</span><span class="s2">&quot;roundtrip_time.png&quot;</span><span class="p">):</span>
-    <span class="c1"># Plots</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">plot</span><span class="p">(</span><span class="n">h_freq</span><span class="p">,</span> <span class="n">h_reconstructed</span><span class="p">,</span> <span class="n">h_wavelet</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
-    <span class="n">_</span> <span class="o">=</span> <span class="n">h_freq</span><span class="o">.</span><span class="n">plot_periodogram</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">)</span>
-    <span class="n">_</span> <span class="o">=</span> <span class="n">h_reconstructed</span><span class="o">.</span><span class="n">plot_periodogram</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">)</span>
+    <span class="n">_</span> <span class="o">=</span> <span class="n">h_freq</span><span class="o">.</span><span class="n">plot_periodogram</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Original&quot;</span><span class="p">)</span>
+    <span class="n">_</span> <span class="o">=</span> <span class="n">h_reconstructed</span><span class="o">.</span><span class="n">plot_periodogram</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Reconstructed&quot;</span><span class="p">)</span>
     <span class="n">_</span> <span class="o">=</span> <span class="n">h_wavelet</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">absolute</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;Reds&quot;</span><span class="p">)</span>
     <span class="n">_</span> <span class="o">=</span> <span class="n">plot_residuals</span><span class="p">(</span><span class="n">axes</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">h_freq</span><span class="o">.</span><span class="n">data</span> <span class="o">-</span> <span class="n">h_reconstructed</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+    <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
     <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Orig[black] vs Reconstructed[red]&quot;</span><span class="p">)</span>
     <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Wavelet Domain&quot;</span><span class="p">)</span>
     <span class="n">axes</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Residuals&quot;</span><span class="p">)</span>
-    <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
-    <span class="c1"># plt.close()</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">title</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+    <span class="c1"># remove whitespace in &#39;title&#39;</span>
+    <span class="n">fname</span> <span class="o">=</span> <span class="n">title</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">title</span> <span class="k">else</span> <span class="s2">&quot;roundtrip&quot;</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">PLOT_DIR</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">fname</span><span class="si">}</span><span class="s2">.png&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
 
 
 <span class="c1"># Sizes</span>
 <span class="n">dt</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">512</span>
-<span class="n">Nt</span><span class="p">,</span> <span class="n">Nf</span> <span class="o">=</span> <span class="mi">2</span><span class="o">**</span><span class="mi">6</span><span class="p">,</span> <span class="mi">2</span><span class="o">**</span><span class="mi">6</span>
+<span class="n">Nt</span><span class="p">,</span> <span class="n">Nf</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">**</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">2</span> <span class="o">**</span> <span class="mi">6</span>
 <span class="n">mult</span> <span class="o">=</span> <span class="mi">16</span>
 <span class="n">freq_range</span> <span class="o">=</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mf">0.2</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">dt</span><span class="p">))</span>
 <span class="n">ND</span> <span class="o">=</span> <span class="n">Nt</span> <span class="o">*</span> <span class="n">Nf</span>
-
-<span class="c1"># time grid</span>
 <span class="n">ts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">ND</span><span class="p">)</span> <span class="o">*</span> <span class="n">dt</span>
 <span class="n">h_time</span> <span class="o">=</span> <span class="n">generate_chirp_time_domain_signal</span><span class="p">(</span><span class="n">ts</span><span class="p">,</span> <span class="n">freq_range</span><span class="p">)</span>
 <span class="n">h_freq</span> <span class="o">=</span> <span class="n">h_time</span><span class="o">.</span><span class="n">to_frequencyseries</span><span class="p">()</span>
-<span class="n">h_wavelet</span> <span class="o">=</span> <span class="n">from_freq_to_wavelet</span><span class="p">(</span><span class="n">h_freq</span><span class="p">,</span> <span class="n">Nf</span><span class="o">=</span><span class="n">Nf</span><span class="p">,</span> <span class="n">Nt</span><span class="o">=</span><span class="n">Nt</span><span class="p">)</span>
-<span class="n">h_reconstructed</span> <span class="o">=</span> <span class="n">from_wavelet_to_freq</span><span class="p">(</span><span class="n">h_wavelet</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="n">dt</span><span class="p">)</span>
-<span class="n">plot</span><span class="p">(</span><span class="n">h_freq</span><span class="p">,</span> <span class="n">h_reconstructed</span><span class="p">,</span> <span class="n">h_wavelet</span><span class="p">,</span> <span class="n">fname</span><span class="o">=</span><span class="s2">&quot;roundtrip_time.png&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
-<div class="cell_output docutils container">
-<img alt="../_images/8699de5140552592cd5ee373a868ec50b7b783da82ab540a90bb087b279f2862.png" src="../_images/8699de5140552592cd5ee373a868ec50b7b783da82ab540a90bb087b279f2862.png" />
 </div>
-</div>
+<p><strong>Using NumPy</strong></p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="c1"># using JAX</span>
+<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pywavelet.transforms.numpy</span><span class="w"> </span><span class="kn">import</span> <span class="n">from_freq_to_wavelet</span><span class="p">,</span> <span class="n">from_wavelet_to_freq</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">jax</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">jax.numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">jnp</span>
+<span class="n">h_wavelet</span> <span class="o">=</span> <span class="n">from_freq_to_wavelet</span><span class="p">(</span><span class="n">h_freq</span><span class="p">,</span> <span class="n">Nf</span><span class="o">=</span><span class="n">Nf</span><span class="p">,</span> <span class="n">Nt</span><span class="o">=</span><span class="n">Nt</span><span class="p">)</span>
+<span class="n">h_reconstructed</span> <span class="o">=</span> <span class="n">from_wavelet_to_freq</span><span class="p">(</span><span class="n">h_wavelet</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="n">dt</span><span class="p">)</span>
+<span class="n">plot</span><span class="p">(</span><span class="n">h_freq</span><span class="p">,</span> <span class="n">h_reconstructed</span><span class="p">,</span> <span class="n">h_wavelet</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;NumPy Roundtrip&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p><strong>Using JAX</strong></p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">jax</span>
 
 <span class="n">jax</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;jax_enable_x64&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
 
@@ -497,31 +519,300 @@ document.write(`
 <span class="n">jax_h_wavelet</span> <span class="o">=</span> <span class="n">jax_from_freq_to_wavelet</span><span class="p">(</span><span class="n">h_freq</span><span class="p">,</span> <span class="n">Nf</span><span class="o">=</span><span class="n">Nf</span><span class="p">,</span> <span class="n">Nt</span><span class="o">=</span><span class="n">Nt</span><span class="p">)</span>
 <span class="n">jax_h_reconstructed</span> <span class="o">=</span> <span class="n">jax_from_wavelet_to_freq</span><span class="p">(</span><span class="n">h_wavelet</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="n">dt</span><span class="p">)</span>
 <span class="n">plot</span><span class="p">(</span>
-    <span class="n">h_freq</span><span class="p">,</span> <span class="n">jax_h_reconstructed</span><span class="p">,</span> <span class="n">jax_h_wavelet</span><span class="p">,</span> <span class="n">fname</span><span class="o">=</span><span class="s2">&quot;jax_roundtrip_time.png&quot;</span>
+    <span class="n">h_freq</span><span class="p">,</span> <span class="n">jax_h_reconstructed</span><span class="p">,</span> <span class="n">jax_h_wavelet</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;JAX Roundtrip&quot;</span>
 <span class="p">)</span>
 </pre></div>
 </div>
 </div>
-<div class="cell_output docutils container">
-<img alt="../_images/83f9e8ae72dbdbc3d2069e6835d2a69e2a9d5bb79054322c9ec3e5f4dfa04e5e.png" src="../_images/83f9e8ae72dbdbc3d2069e6835d2a69e2a9d5bb79054322c9ec3e5f4dfa04e5e.png" />
 </div>
-</div>
+<p><strong>Using CuPy</strong></p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pywavelet.transforms.cupy</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pywavelet.backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">cuda_is_available</span>
+
+<span class="k">if</span> <span class="ow">not</span> <span class="n">cuda_is_available</span><span class="p">():</span>
+    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;CuPy backend is not available. Please install CuPy with CUDA support.&quot;</span><span class="p">)</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pywavelet.transforms.cupy</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">from_freq_to_wavelet</span> <span class="k">as</span> <span class="n">cp_from_freq_to_wavelet</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pywavelet.transforms.cupy</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">from_wavelet_to_freq</span> <span class="k">as</span> <span class="n">cp_from_wavelet_to_freq</span><span class="p">,</span>
 <span class="p">)</span>
 
-<span class="n">cp_h_wavelet</span> <span class="o">=</span> <span class="n">jax_from_freq_to_wavelet</span><span class="p">(</span><span class="n">h_freq</span><span class="p">,</span> <span class="n">Nf</span><span class="o">=</span><span class="n">Nf</span><span class="p">,</span> <span class="n">Nt</span><span class="o">=</span><span class="n">Nt</span><span class="p">)</span>
-<span class="n">cp_h_reconstructed</span> <span class="o">=</span> <span class="n">jax_from_wavelet_to_freq</span><span class="p">(</span><span class="n">h_wavelet</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="n">dt</span><span class="p">)</span>
-<span class="n">plot</span><span class="p">(</span><span class="n">h_freq</span><span class="p">,</span> <span class="n">cp_h_reconstructed</span><span class="p">,</span> <span class="n">cp_h_wavelet</span><span class="p">,</span> <span class="n">fname</span><span class="o">=</span><span class="s2">&quot;cp_roundtrip_time.png&quot;</span><span class="p">)</span>
+<span class="n">cp_h_wavelet</span> <span class="o">=</span> <span class="n">cp_from_freq_to_wavelet</span><span class="p">(</span><span class="n">h_freq</span><span class="p">,</span> <span class="n">Nf</span><span class="o">=</span><span class="n">Nf</span><span class="p">,</span> <span class="n">Nt</span><span class="o">=</span><span class="n">Nt</span><span class="p">)</span>
+<span class="n">cp_h_reconstructed</span> <span class="o">=</span> <span class="n">cp_from_wavelet_to_freq</span><span class="p">(</span><span class="n">h_wavelet</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="n">dt</span><span class="p">)</span>
+<span class="n">plot</span><span class="p">(</span><span class="n">h_freq</span><span class="p">,</span> <span class="n">cp_h_reconstructed</span><span class="p">,</span> <span class="n">cp_h_wavelet</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;CuPy Roundtrip&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output traceback highlight-ipythontb notranslate"><div class="highlight"><pre><span></span><span class="gt">---------------------------------------------------------------------------</span>
+<span class="ne">RuntimeError</span><span class="g g-Whitespace">                              </span>Traceback (most recent call last)
+<span class="n">Cell</span> <span class="n">In</span><span class="p">[</span><span class="mi">38</span><span class="p">],</span> <span class="n">line</span> <span class="mi">4</span>
+<span class="g g-Whitespace">      </span><span class="mi">1</span> <span class="kn">from</span><span class="w"> </span><span class="nn">pywavelet.backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">cuda_is_available</span>
+<span class="g g-Whitespace">      </span><span class="mi">3</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">cuda_is_available</span><span class="p">():</span>
+<span class="ne">----&gt; </span><span class="mi">4</span>     <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;CuPy backend is not available. Please install CuPy with CUDA support.&quot;</span><span class="p">)</span>
+<span class="g g-Whitespace">      </span><span class="mi">6</span> <span class="kn">from</span><span class="w"> </span><span class="nn">pywavelet.transforms.cupy</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+<span class="g g-Whitespace">      </span><span class="mi">7</span>     <span class="n">from_freq_to_wavelet</span> <span class="k">as</span> <span class="n">cp_from_freq_to_wavelet</span><span class="p">,</span>
+<span class="g g-Whitespace">      </span><span class="mi">8</span> <span class="p">)</span>
+<span class="g g-Whitespace">      </span><span class="mi">9</span> <span class="kn">from</span><span class="w"> </span><span class="nn">pywavelet.transforms.cupy</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+<span class="g g-Whitespace">     </span><span class="mi">10</span>     <span class="n">from_wavelet_to_freq</span> <span class="k">as</span> <span class="n">cp_from_wavelet_to_freq</span><span class="p">,</span>
+<span class="g g-Whitespace">     </span><span class="mi">11</span> <span class="p">)</span>
+
+<span class="ne">RuntimeError</span>: CuPy backend is not available. Please install CuPy with CUDA support.
 </pre></div>
 </div>
 </div>
 </div>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head text-center"><p>Backend</p></th>
+<th class="head text-center"><p>Roundtrip Plot</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-center"><p>NumPy</p></td>
+<td class="text-center"><p><img alt="NumPy Roundtrip" src="../_images/NumPy_Roundtrip.png" /></p></td>
+</tr>
+<tr class="row-odd"><td class="text-center"><p>JAX</p></td>
+<td class="text-center"><p><img alt="JAX Roundtrip" src="../_images/JAX_Roundtrip.png" /></p></td>
+</tr>
+<tr class="row-even"><td class="text-center"><p>CuPy</p></td>
+<td class="text-center"><p><img alt="CuPy Roundtrip" src="examples/backend_plots/CuPy_Roundtrip.png" /></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<section id="noise-robustness">
+<h2>Noise robustness<a class="headerlink" href="#noise-robustness" title="Link to this heading">#</a></h2>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pywavelet.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">TimeSeries</span><span class="p">,</span> <span class="n">FrequencySeries</span>
+
+<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>  <span class="c1"># For reproducibility</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">generate_white_noise</span><span class="p">(</span><span class="n">N</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2048</span><span class="p">,</span> <span class="n">scale</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FrequencySeries</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate white noise time series.&quot;&quot;&quot;</span>
+    <span class="n">noise</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">scale</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">TimeSeries</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">noise</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">N</span><span class="p">))</span><span class="o">.</span><span class="n">to_frequencyseries</span><span class="p">()</span>
+
+
+<span class="n">datasets</span> <span class="o">=</span> <span class="p">[</span><span class="n">generate_white_noise</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">)]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">get_residuals</span><span class="p">(</span><span class="n">datasets</span><span class="p">,</span> <span class="n">forward_transform</span><span class="p">,</span> <span class="n">inverse_transform</span><span class="p">,</span> <span class="n">Nf</span><span class="o">=</span><span class="mi">32</span><span class="p">):</span>
+    <span class="n">mse</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">datasets</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">h_freq</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">datasets</span><span class="p">):</span>
+        <span class="n">h_wavelet</span> <span class="o">=</span> <span class="n">forward_transform</span><span class="p">(</span><span class="n">h_freq</span><span class="p">,</span> <span class="n">Nf</span><span class="o">=</span><span class="n">Nf</span><span class="p">)</span>
+        <span class="n">h_reconstructed</span> <span class="o">=</span> <span class="n">inverse_transform</span><span class="p">(</span><span class="n">h_wavelet</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="n">h_time</span><span class="o">.</span><span class="n">dt</span><span class="p">)</span>
+        <span class="n">mse</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">get_mse</span><span class="p">(</span><span class="n">h_freq</span><span class="p">,</span> <span class="n">h_reconstructed</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">mse</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">get_mse</span><span class="p">(</span><span class="n">f1</span><span class="p">,</span> <span class="n">f2</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate Mean Squared Error between two frequency series.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">f1</span><span class="o">.</span><span class="n">data</span> <span class="o">-</span> <span class="n">f2</span><span class="o">.</span><span class="n">data</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">))</span>
+
+<span class="n">numpy_mses</span> <span class="o">=</span> <span class="n">get_residuals</span><span class="p">(</span>
+    <span class="n">datasets</span><span class="p">,</span>
+    <span class="n">from_freq_to_wavelet</span><span class="p">,</span>
+    <span class="n">from_wavelet_to_freq</span>
+<span class="p">)</span>
+
+<span class="n">jax_mses</span> <span class="o">=</span> <span class="n">get_residuals</span><span class="p">(</span>
+    <span class="n">datasets</span><span class="p">,</span>
+    <span class="n">jax_from_freq_to_wavelet</span><span class="p">,</span>
+    <span class="n">jax_from_wavelet_to_freq</span>
+<span class="p">)</span>
+
+<span class="k">if</span> <span class="n">cuda_is_available</span><span class="p">():</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pywavelet.transforms.cupy</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+        <span class="n">from_freq_to_wavelet</span> <span class="k">as</span> <span class="n">cp_from_freq_to_wavelet</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pywavelet.transforms.cupy</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+        <span class="n">from_wavelet_to_freq</span> <span class="k">as</span> <span class="n">cp_from_wavelet_to_freq</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">cp_mses</span> <span class="o">=</span> <span class="n">get_residuals</span><span class="p">(</span>
+        <span class="n">datasets</span><span class="p">,</span>
+        <span class="n">cp_from_freq_to_wavelet</span><span class="p">,</span>
+        <span class="n">cp_from_wavelet_to_freq</span>
+    <span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">cp_mses</span> <span class="o">=</span> <span class="kc">None</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="c1"># violin plot of MSEs</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">violinplot</span><span class="p">(</span>
+    <span class="p">[</span><span class="n">numpy_mses</span><span class="p">,</span> <span class="n">jax_mses</span><span class="p">]</span> <span class="o">+</span> <span class="p">([</span><span class="n">cp_mses</span><span class="p">]</span> <span class="k">if</span> <span class="n">cp_mses</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[]),</span>
+    <span class="n">showmeans</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">showextrema</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">widths</span><span class="o">=</span><span class="mf">0.8</span>
+<span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="p">([</span><span class="mi">3</span><span class="p">]</span> <span class="k">if</span> <span class="n">cp_mses</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[]))</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">(</span>
+    <span class="p">[</span><span class="s2">&quot;NumPy&quot;</span><span class="p">,</span> <span class="s2">&quot;JAX&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="p">([</span><span class="s2">&quot;CuPy&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">cp_mses</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[])</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[Text(1, 0, &#39;NumPy&#39;), Text(2, 0, &#39;JAX&#39;)]
+</pre></div>
+</div>
+<img alt="../_images/23215331f88bb63965af65380b5d587d77742a9fb7363e50bde17f6dec07f0e4.png" src="../_images/23215331f88bb63965af65380b5d587d77742a9fb7363e50bde17f6dec07f0e4.png" />
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="c1"># get max idx of jax_mses</span>
+<span class="n">max_idx</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">jax_mses</span><span class="p">))</span>
+
+
+<span class="n">Nf</span> <span class="o">=</span> <span class="mi">32</span>
+<span class="n">hfreq</span> <span class="o">=</span> <span class="n">datasets</span><span class="p">[</span><span class="n">max_idx</span><span class="p">]</span>
+<span class="n">wnm</span> <span class="o">=</span> <span class="n">from_freq_to_wavelet</span><span class="p">(</span><span class="n">hfreq</span><span class="p">,</span> <span class="n">Nf</span><span class="o">=</span><span class="n">Nf</span><span class="p">)</span>
+<span class="n">hrecon</span> <span class="o">=</span> <span class="n">from_wavelet_to_freq</span><span class="p">(</span><span class="n">wnm</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="n">hfreq</span><span class="o">.</span><span class="n">dt</span><span class="p">)</span>
+<span class="n">plot</span><span class="p">(</span>
+    <span class="n">hfreq</span><span class="p">,</span> <span class="n">hrecon</span><span class="p">,</span> <span class="n">wnm</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;White Noise Roundtrip (NumPy)&quot;</span>
+<span class="p">)</span>
+<span class="n">get_mse</span><span class="p">(</span><span class="n">hfreq</span><span class="p">,</span> <span class="n">hrecon</span><span class="p">)</span>  <span class="c1"># Print MSE for NumPy roundtrip</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>1.6673454742985615e-28
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">wnm_jax</span> <span class="o">=</span> <span class="n">jax_from_freq_to_wavelet</span><span class="p">(</span><span class="n">hfreq</span><span class="p">,</span> <span class="n">Nf</span><span class="o">=</span><span class="n">Nf</span><span class="p">)</span>
+<span class="n">hrecon_jax</span> <span class="o">=</span> <span class="n">jax_from_wavelet_to_freq</span><span class="p">(</span><span class="n">wnm_jax</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="n">hfreq</span><span class="o">.</span><span class="n">dt</span><span class="p">)</span>
+<span class="n">plot</span><span class="p">(</span>
+    <span class="n">hfreq</span><span class="p">,</span> <span class="n">hrecon_jax</span><span class="p">,</span> <span class="n">wnm_jax</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;White Noise Roundtrip (Jax)&quot;</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">get_mse</span><span class="p">(</span><span class="n">hfreq</span><span class="p">,</span> <span class="n">hrecon_jax</span><span class="p">))</span>  <span class="c1"># Print MSE for JAX roundtrip</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;expected MSE for jax roundtrip:&quot;</span><span class="p">,</span> <span class="n">jax_mses</span><span class="p">[</span><span class="n">max_idx</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>12.848047201614534
+expected MSE for jax roundtrip: 12.848047201614534
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span> <span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">hfreq</span><span class="o">.</span><span class="n">plot_periodogram</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Original&quot;</span><span class="p">)</span>
+<span class="n">hrecon_jax</span><span class="o">.</span><span class="n">plot_periodogram</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Reconstructed&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xscale</span><span class="p">(</span><span class="s2">&quot;linear&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="o">-</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+
+<span class="n">resid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">hfreq</span><span class="o">.</span><span class="n">data</span> <span class="o">-</span> <span class="n">hrecon_jax</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+<span class="n">mse</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">resid</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">hfreq</span><span class="o">.</span><span class="n">freq</span><span class="p">,</span> <span class="n">resid</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;MSE: </span><span class="si">{</span><span class="n">mse</span><span class="si">:</span><span class="s2">.2E</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+
+
+<span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">ax</span><span class="p">:</span>
+    <span class="n">a</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Frequency (Hz)&quot;</span><span class="p">)</span>
+    <span class="n">a</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Amplitude&quot;</span><span class="p">)</span>
+    <span class="n">a</span><span class="o">.</span><span class="n">set_xscale</span><span class="p">(</span><span class="s2">&quot;linear&quot;</span><span class="p">)</span>
+    <span class="n">a</span><span class="o">.</span><span class="n">set_yscale</span><span class="p">(</span><span class="s2">&quot;linear&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/5199cea28168915603cddff3a24da805550464f0a880293a3ff95be2bd76628e.png" src="../_images/5199cea28168915603cddff3a24da805550464f0a880293a3ff95be2bd76628e.png" />
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">jax_mses</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>array([ 7.1784282 ,  0.3412282 ,  6.3819535 ,  1.2144013 ,  0.27462733,
+        0.69190458,  3.96882098,  1.15552238,  8.02882568,  0.54390046,
+        4.83262299,  0.84444492,  2.00600982,  4.17576642,  2.29021299,
+        7.46416844,  1.16827308,  1.69226423,  6.89086171, 11.26142015,
+        5.04840592,  2.44840229,  0.56005081,  1.68539507,  0.50346409,
+        3.09320849,  1.54600895,  5.47859933,  0.71958427,  7.82962478,
+        5.364825  ,  5.10632507,  4.00478622,  1.29929241,  9.06782523,
+       12.8480472 ,  3.02445406,  3.57816182,  2.71404353,  6.5743191 ,
+        0.72477852,  2.02846712,  0.71753285,  0.51137052,  0.70260112,
+        0.79245948,  0.70608546,  8.537481  ,  3.36002486,  0.24922118,
+        2.01446913,  6.55748283, 10.42802756,  5.46988332,  1.17754993,
+        8.85866947,  1.11015473,  1.13743951,  4.99735251,  0.17427547,
+        3.44563637,  4.06446234,  1.89372023,  1.29761254,  0.77087475,
+        5.84211759,  0.29049541,  3.08546068,  0.91993828, 10.99750455,
+        3.82647106,  0.25508863, 11.41751324,  3.86489681,  1.49654306,
+        8.4393253 , 11.77574303,  1.44347973,  7.31852572,  2.78561988,
+        6.13839499,  0.33803385,  0.23393697,  0.224426  ,  0.19214557,
+        2.78211587,  3.58015464,  7.8736174 ,  0.15675548,  4.24489568,
+        0.96985675, 11.70232291,  1.36950606,  1.34719813,  4.78999754,
+        4.02200797,  0.47775533,  0.0580099 ,  6.84594453,  1.96714212])
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">numpy_mses</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>array([1.56234228e-28, 1.57258746e-28, 1.66723035e-28, 1.76215346e-28,
+       1.53404667e-28, 1.56837822e-28, 1.65632604e-28, 1.54706616e-28,
+       1.65438593e-28, 1.63811294e-28, 1.54475179e-28, 1.54724007e-28,
+       1.58555311e-28, 1.59483637e-28, 1.69603676e-28, 1.64195609e-28,
+       1.81804776e-28, 1.61780505e-28, 1.47562665e-28, 1.50028632e-28,
+       1.79575605e-28, 1.42717436e-28, 1.72361064e-28, 1.74955585e-28,
+       1.63744149e-28, 1.56012651e-28, 1.61206537e-28, 1.68867588e-28,
+       1.56898742e-28, 1.76253080e-28, 1.56226684e-28, 1.46729010e-28,
+       1.41967929e-28, 1.47546484e-28, 1.55150127e-28, 1.66734547e-28,
+       1.72207730e-28, 1.67879112e-28, 1.64378918e-28, 1.60704920e-28,
+       1.60854996e-28, 1.51156163e-28, 1.69385802e-28, 1.54280096e-28,
+       1.51715712e-28, 1.62576714e-28, 1.68348320e-28, 1.56597293e-28,
+       1.61650211e-28, 1.50736414e-28, 1.73829863e-28, 1.54307886e-28,
+       1.71383423e-28, 1.59127406e-28, 1.52755456e-28, 1.49468120e-28,
+       1.63545586e-28, 1.56548607e-28, 1.75022376e-28, 1.58873796e-28,
+       1.56484364e-28, 1.56518385e-28, 1.62562278e-28, 1.47225198e-28,
+       1.61673487e-28, 1.62825064e-28, 1.61562490e-28, 1.56939615e-28,
+       1.61364722e-28, 1.58034165e-28, 1.53881588e-28, 1.53169516e-28,
+       1.48258314e-28, 1.53894260e-28, 1.65770833e-28, 1.52322429e-28,
+       1.56470284e-28, 1.57572916e-28, 1.52370007e-28, 1.58665344e-28,
+       1.51740639e-28, 1.62929681e-28, 1.48518210e-28, 1.66369574e-28,
+       1.57135381e-28, 1.66025900e-28, 1.56898502e-28, 1.54414182e-28,
+       1.55052175e-28, 1.65289556e-28, 1.60333753e-28, 1.67697215e-28,
+       1.55616480e-28, 1.64529068e-28, 1.54766212e-28, 1.60022160e-28,
+       1.55711390e-28, 1.50126363e-28, 1.65463629e-28, 1.58123941e-28])
+</pre></div>
+</div>
+</div>
+</div>
+</section>
 </section>
 
     <script type="text/x-thebe-config">
@@ -560,6 +851,21 @@ document.write(`
             </div>
             
             
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#noise-robustness">Noise robustness</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
               
             
           </div>
