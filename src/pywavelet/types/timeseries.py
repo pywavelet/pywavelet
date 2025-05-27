@@ -292,3 +292,23 @@ class TimeSeries:
     @classmethod
     def _EMPTY(cls, ND: int, dt: float) -> "TimeSeries":
         return cls(xp.zeros(ND), xp.arange(0, ND * dt, dt))
+
+
+    def truncate(self, tmin: float, tmax: float) -> "TimeSeries":
+        """
+        Truncate the time series to the specified time range.
+
+        Parameters
+        ----------
+        tmin : float
+            Minimum time to keep in the series.
+        tmax : float
+            Maximum time to keep in the series.
+
+        Returns
+        -------
+        TimeSeries
+            A new TimeSeries object truncated to the specified time range.
+        """
+        mask = (self.time >= tmin) & (self.time <= tmax)
+        return TimeSeries(self.data[mask], self.time[mask])
