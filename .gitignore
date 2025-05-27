@@ -123,3 +123,4 @@ venv.bak/
 .vscode/
 /docs/runtime_data_cpu.csv
 /docs/examples/data.h5
+*.hdf5
