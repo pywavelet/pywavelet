@@ -409,6 +409,20 @@ document.write(`
 <h1>Accuracy checks<a class="headerlink" href="#accuracy-checks" title="Link to this heading">#</a></h1>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;GPU info&quot;</span>
+<span class="o">!</span>nvidia-smi
+<span class="o">!</span>nvidia-smi<span class="w"> </span>-L
+<span class="o">!</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;CPU INFO&quot;</span>
+<span class="o">!</span>lscpu<span class="w"> </span><span class="p">|</span>grep<span class="w"> </span><span class="s1">&#39;Model name&#39;</span>
+<span class="o">!</span>lscpu<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s1">&#39;Core(s) per socket:&#39;</span>
+<span class="o">!</span>lscpu<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s1">&#39;Thread(s) per core&#39;</span>
+<span class="o">!</span>free<span class="w"> </span>-h<span class="w"> </span>--si<span class="w"> </span><span class="p">|</span><span class="w"> </span>awk<span class="w">  </span><span class="s1">&#39;/Mem:/{print $2}&#39;</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span><span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>pywavelet<span class="w"> </span>-q
 </pre></div>
 </div>
