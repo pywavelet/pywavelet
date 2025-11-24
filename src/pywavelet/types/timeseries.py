@@ -293,7 +293,6 @@ class TimeSeries:
     def _EMPTY(cls, ND: int, dt: float) -> "TimeSeries":
         return cls(xp.zeros(ND), xp.arange(0, ND * dt, dt))
 
-
     def truncate(self, tmin: float, tmax: float) -> "TimeSeries":
         """
         Truncate the time series to the specified time range.

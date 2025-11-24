@@ -1,17 +1,17 @@
-import numpy as np
-from scipy.special import betainc
-from scipy.signal import chirp
-import jax
-import matplotlib.pyplot as plt
-import jax.numpy as jnp
-from matplotlib.colors import TwoSlopeNorm
 import glob
 import os
-from PIL import Image
-from tqdm.auto import trange
-import os
 
-jax.config.update('jax_enable_x64', True)
+import jax
+import jax.numpy as jnp
+import matplotlib.pyplot as plt
+import numpy as np
+from matplotlib.colors import TwoSlopeNorm
+from PIL import Image
+from scipy.signal import chirp
+from scipy.special import betainc
+from tqdm.auto import trange
+
+jax.config.update("jax_enable_x64", True)
 
 DEVICE = jax.devices()[0].device_kind
 print(f"Running JAX on {DEVICE}")
@@ -25,15 +25,11 @@ def omega(Nf: int, Nt: int):
     return df * np.arange(-Nt // 2, Nt // 2, dtype=np.float64)
 
 
-def phitilde_vec_norm(
-        Nf: int, Nt: int, d: float
-):
+def phitilde_vec_norm(Nf: int, Nt: int, d: float):
     return _phitilde_vec(omega(Nf, Nt), Nf, d) * np.sqrt(np.pi)
 
 
-def phi_vec(
-        Nf: int, d: float = 4.0, q: int = 16
-):
+def phi_vec(Nf: int, d: float = 4.0, q: int = 16):
     """get time domain phi as fourier transform of _phitilde_vec
     q: number of Nf bins over which the window extends?
     """
@@ -49,9 +45,9 @@ def phi_vec(
 
     DX = DX.copy()
     # postive frequencies
-    DX[1: half_K + 1] = _phitilde_vec(dom * np.arange(1, half_K + 1), Nf, d)
+    DX[1 : half_K + 1] = _phitilde_vec(dom * np.arange(1, half_K + 1), Nf, d)
     # negative frequencies
-    DX[half_K + 1:] = _phitilde_vec(
+    DX[half_K + 1 :] = _phitilde_vec(
         -dom * np.arange(half_K - 1, 0, -1), Nf, d
     )
     DX = K * np.fft.ifft(DX, K)
@@ -66,9 +62,7 @@ def phi_vec(
     return np.array(phi)
 
 
-def _phitilde_vec(
-        omega, Nf: int, d: float = 4.0
-):
+def _phitilde_vec(omega, Nf: int, d: float = 4.0):
     """Compute phi_tilde(omega_i) array, nx is filter steepness, defaults to 4.
     Eq 11 of Cornish '20
     """
@@ -88,23 +82,24 @@ def _phitilde_vec(
     phi[np.abs(omega) < A] = inverse_sqrt_dOmega
     return phi
 
+
 def Cnm_matrix(nt: int, nf: int) -> jnp.ndarray:
     """
-      C[i,j] == 1   if (i + j) % 2 == 0
-             == 1j  otherwise
+    C[i,j] == 1   if (i + j) % 2 == 0
+           == 1j  otherwise
     """
     i = jnp.arange(nt)[:, None]  # shape (nt,1)
     j = jnp.arange(nf)[None, :]  # shape (1,nf)
     return jnp.where((i + j) % 2 == 0, 1.0, 1j).astype(jnp.complex128)
 
 
-
-
-
 def make_gif_from_images(image_dir, gif_name, duration=3):
     images = []
-    files = glob.glob(os.path.join(image_dir, '*.png'))
-    files = sorted(files, key=lambda x: int(os.path.basename(x).split('_')[1].split('.')[0]))
+    files = glob.glob(os.path.join(image_dir, "*.png"))
+    files = sorted(
+        files,
+        key=lambda x: int(os.path.basename(x).split("_")[1].split(".")[0]),
+    )
     for filename in files:
         images.append(Image.open(filename))
     images[0].save(
@@ -112,7 +107,7 @@ def make_gif_from_images(image_dir, gif_name, duration=3):
         save_all=True,
         append_images=images[1:],
         duration=duration * 1000,  # Convert seconds to milliseconds
-        loop=0
+        loop=0,
     )
 
 
@@ -130,7 +125,9 @@ def make_animation():
     t = np.arange(0, ND) * dt
     f = np.fft.rfftfreq(ND, dt)
     T = ND * dt
-    y = chirp(t, f0=FREQ_RANGE[0], f1=FREQ_RANGE[1], t1=t[-1], method="quadratic")
+    y = chirp(
+        t, f0=FREQ_RANGE[0], f1=FREQ_RANGE[1], t1=t[-1], method="quadratic"
+    )
     phif = jnp.array(phitilde_vec_norm(Nf, Nt, d=nx))
     phit = phi_vec(Nf, d=nx)
     yf = jnp.fft.fft(y)
@@ -139,9 +136,9 @@ def make_animation():
     yf = jnp.array(yf)
     jax_phif = jnp.array(phif)
 
-    plt.plot(phitilde_vec_norm(Nf, Nt, d=1), label='d=1')
-    plt.plot(phitilde_vec_norm(Nf, Nt, d=4), label='d=4')
-    plt.plot(phitilde_vec_norm(Nf, Nt, d=100), label='d=100')
+    plt.plot(phitilde_vec_norm(Nf, Nt, d=1), label="d=1")
+    plt.plot(phitilde_vec_norm(Nf, Nt, d=4), label="d=4")
+    plt.plot(phitilde_vec_norm(Nf, Nt, d=100), label="d=100")
     plt.legend()
     plt.show()
 
@@ -152,7 +149,7 @@ def make_animation():
     f_bins = np.arange(0, Nf) * delta_F
 
     fig, axes = plt.subplots(2, 1, figsize=(4, 6))
-    axes[0].semilogy(f, (np.abs(yf) ** 2)[:ND // 2 + 1], label="FFT")
+    axes[0].semilogy(f, (np.abs(yf) ** 2)[: ND // 2 + 1], label="FFT")
     axes[0].set_xlabel("Frequency (Hz)", fontsize=14)
     axes[0].set_ylabel("Power", fontsize=14)
     axes[0].set_xlim(10, 100)
@@ -186,8 +183,8 @@ def make_animation():
     min_wnm, max_wnm = np.min(wave), np.max(wave)
 
     for m in range(Nt):
-        rolled_d = jnp.roll(d, - (m * Nt // 2))
-        xni = jnp.fft.ifft(rolled_d[j0: j1] * phif)
+        rolled_d = jnp.roll(d, -(m * Nt // 2))
+        xni = jnp.fft.ifft(rolled_d[j0:j1] * phif)
 
         fig = plt.figure(figsize=(5, 6))
         gs = fig.add_gridspec(2, 2)
@@ -196,32 +193,43 @@ def make_animation():
         ax2 = fig.add_subplot(gs[0, 1])
         ax3 = fig.add_subplot(gs[1, :])
 
-        ax1.plot(f, np.abs(d) ** 2, color='tab:gray', alpha=0.2)
-        ax1.plot(f, np.abs(rolled_d) ** 2, color='tab:gray', label='Roll(y)')
-        ax1.fill_between(np.arange(-Nt // 2, Nt / 2), max(np.abs(d) ** 2) * phif / max(phif), alpha=0.5,
-                         color='tab:orange',
-                         label='Window')
-        ax1.legend(loc='upper left', frameon=False)
+        ax1.plot(f, np.abs(d) ** 2, color="tab:gray", alpha=0.2)
+        ax1.plot(f, np.abs(rolled_d) ** 2, color="tab:gray", label="Roll(y)")
+        ax1.fill_between(
+            np.arange(-Nt // 2, Nt / 2),
+            max(np.abs(d) ** 2) * phif / max(phif),
+            alpha=0.5,
+            color="tab:orange",
+            label="Window",
+        )
+        ax1.legend(loc="upper left", frameon=False)
         ax1.set_ylim(bottom=0)
         ax2.plot(t_bins, xni)
         ax2.set_ylim(min_wnm, max_wnm)
 
-        ax1.set_xlabel('Freq [Hz]')
-        ax1.set_ylabel('Power')
+        ax1.set_xlabel("Freq [Hz]")
+        ax1.set_ylabel("Power")
 
-        ax2.set_xlabel('Time [s]')
-        ax2.set_ylabel('Wnm')
+        ax2.set_xlabel("Time [s]")
+        ax2.set_ylabel("Wnm")
 
         wdm_m = np.array(wave)
-        wdm_m[:, m + 1:] = 0
+        wdm_m[:, m + 1 :] = 0
         # cmap of 'bwr' with vcenter=0
 
         curr_min = min(wdm_m.min(), -1)
         curr_max = max(wdm_m.max(), 1)
 
         norm = TwoSlopeNorm(0, curr_min, curr_max)
-        im = ax3.imshow(wdm_m.T, aspect="auto", extent=[t_bins[0], t_bins[-1], f_bins[0], f_bins[-1]],
-                        origin="lower", interpolation="nearest", norm=norm, cmap='bwr')
+        im = ax3.imshow(
+            wdm_m.T,
+            aspect="auto",
+            extent=[t_bins[0], t_bins[-1], f_bins[0], f_bins[-1]],
+            origin="lower",
+            interpolation="nearest",
+            norm=norm,
+            cmap="bwr",
+        )
         ax3.set_xlabel("Time [s]", fontsize=14)
         ax3.set_ylabel("Freq [Hz]", fontsize=14)
         # add colorbar and label it Wnm
@@ -251,7 +259,7 @@ def gnm_matrix(Nf, Nt, T, d=4.0):
             exp = np.exp(-1j * n * omegas * delta_T)
             phi1 = _phitilde_vec(omegas - m * delta_omega, Nf, d)
             phi2 = _phitilde_vec(omegas + m * delta_omega, Nf, d)
-            gnm_t[n, m, :] = (exp * (cnm[n, m] * phi1 + cnmconj[n, m] * phi2))
+            gnm_t[n, m, :] = exp * (cnm[n, m] * phi1 + cnmconj[n, m] * phi2)
     gnm_t = np.array(gnm_t)
     gnm = np.fft.ifft(gnm_t, axis=-1)
     return gnm
@@ -261,7 +269,7 @@ gnm = gnm_matrix(Nf=32, Nt=64, T=4.0, d=4.0)
 
 
 def plot_gnm(t=0, f=0):
-    plt.close('all')
+    plt.close("all")
     plt.plot(gnm[t, f, :].real)
     plt.show()
 
@@ -286,11 +294,12 @@ def phi_unit(f: np.ndarray, A: float, d: float) -> np.ndarray:
     return phi
 
 
-def gnm_matrix(nt: int,
-               nf: int,
-               dt: float,
-               d: float = 4.0,
-               ) -> np.ndarray:
+def gnm_matrix(
+    nt: int,
+    nf: int,
+    dt: float,
+    d: float = 4.0,
+) -> np.ndarray:
     # total time samples
     nd = nt * nf
     # time and frequency steps
@@ -356,8 +365,6 @@ gnm = gnm_matrix(nt=Nt, nf=Nf, dt=dt, d=4.0)
 #
 
 
-
-
 # def x_i(m: int, data: jnp.ndarray, Nf: int, Nt: int, phit: jnp.ndarray) -> jnp.ndarray:
 #     # i0 = data.shape[0] // 2 + 1
 #     # i0 is the center of the data -- used
@@ -368,17 +375,21 @@ gnm = gnm_matrix(nt=Nt, nf=Nf, dt=dt, d=4.0)
 #     return xni
 
 
-def xtilde_i(m: int, data: jnp.ndarray, Nf: int, Nt: int, phif: jnp.ndarray) -> jnp.ndarray:
+def xtilde_i(
+    m: int, data: jnp.ndarray, Nf: int, Nt: int, phif: jnp.ndarray
+) -> jnp.ndarray:
     # i0 = data.shape[0] // 2 + 1
     # i0 is the center of the data -- used
     i0 = (Nt * Nf) // 2 + 1
     j0 = i0 - (Nt // 2)
     j1 = i0 + (Nt // 2)
-    xni = jnp.fft.ifft(jnp.roll(data, - (m * Nt // 2))[j0: j1] * phif)
+    xni = jnp.fft.ifft(jnp.roll(data, -(m * Nt // 2))[j0:j1] * phif)
     return xni
 
 
-def freq_to_wdm(data: jnp.ndarray, Nf: int, Nt: int, phif: jnp.ndarray) -> jnp.ndarray:
+def freq_to_wdm(
+    data: jnp.ndarray, Nf: int, Nt: int, phif: jnp.ndarray
+) -> jnp.ndarray:
     """
     Returns Nt, Nf
     """
@@ -386,11 +397,17 @@ def freq_to_wdm(data: jnp.ndarray, Nf: int, Nt: int, phif: jnp.ndarray) -> jnp.n
     data_shifted = jnp.fft.fftshift(data)
     output = jnp.zeros((Nf, Nt), dtype=jnp.complex128)
     # i is shift in freq
-    return (jax.lax.fori_loop(
-        0, Nt,
-        lambda i, output: output.at[:, i].set(xtilde_i(i, data_shifted, Nf, Nt, phif)),
-        output
-    ) * Cnm_matrix(Nf, Nt)).real * jnp.sqrt(2.0)
+    return (
+        jax.lax.fori_loop(
+            0,
+            Nt,
+            lambda i, output: output.at[:, i].set(
+                xtilde_i(i, data_shifted, Nf, Nt, phif)
+            ),
+            output,
+        )
+        * Cnm_matrix(Nf, Nt)
+    ).real * jnp.sqrt(2.0)
 
 
 def wdm_to_freq(wnm: jnp.ndarray, phit: jnp.ndarray) -> jnp.ndarray:
@@ -402,25 +419,26 @@ def wdm_to_freq(wnm: jnp.ndarray, phit: jnp.ndarray) -> jnp.ndarray:
     # 4) build an index array to do all the rolls in one go:
     #    for each m, pick Wf[m, (j - shifts[m]) % Nt]
     # 5) return as a flat length‐Nf*Nt vector
-    W = jnp.fft.fft(wnm, axis=0)          # shape (Nf, Nt), complex
-    Wf = jnp.sum(W * phit[:, None], axis=0) # phit --> should be Nt long
+    W = jnp.fft.fft(wnm, axis=0)  # shape (Nf, Nt), complex
+    Wf = jnp.sum(W * phit[:, None], axis=0)  # phit --> should be Nt long
     # Wf --> Nf size
-    shifts = (jnp.arange(Nf) * (Nt // 2)) % Nt    # shape (Nf,)
+    shifts = (jnp.arange(Nf) * (Nt // 2)) % Nt  # shape (Nf,)
 
-    j = jnp.arange(Nt)                         # (Nt,)
+    j = jnp.arange(Nt)  # (Nt,)
     idx = (j[None, :] - shifts[:, None]) % Nt  # (Nf, Nt)
 
     rolled = jnp.take_along_axis(Wf, idx, axis=1)  # (Nf, Nt)
 
-
     return rolled.reshape(-1)
 
-def wdm_to_freq(wave: np.ndarray,
-                  phi: np.ndarray,
-                  dt: float,) -> np.ndarray:
+
+def wdm_to_freq(
+    wave: np.ndarray,
+    phi: np.ndarray,
+    dt: float,
+) -> np.ndarray:
     Nt, Nf = wave.shape
     ND = Nt * Nf
-
 
     M = Nf
     omega = np.pi / dt
@@ -456,30 +474,30 @@ def wdm_to_freq(wave: np.ndarray,
         for j in range(halfNt):
             x = y * phi[j]
             kk = jj + j
-            dataf[kk]       += x * row_fft[j].real
-            dataf[ND - kk]  += x * row_fft[j].imag
+            dataf[kk] += x * row_fft[j].real
+            dataf[ND - kk] += x * row_fft[j].imag
 
         # “Negative” freqs (j = halfNt-1 .. 1)
         for j in range(halfNt - 1, 0, -1):
             x = y * phi[j]
             kk = jj - j
             # map to row_fft[Nt-j]
-            dataf[kk]       += x * row_fft[Nt - j].real
-            dataf[ND - kk]  += x * row_fft[Nt - j].imag
+            dataf[kk] += x * row_fft[Nt - j].real
+            dataf[ND - kk] += x * row_fft[Nt - j].imag
 
     return dataf
+
+
 #
 
 
-
 new_x = wdm_to_freq(wnm, phif, dt)
-plt.close('all')
+plt.close("all")
 # plt subplots
 fig, axes = plt.subplots(2, 1, figsize=(4, 6), sharex=True)
-axes[0].semilogy(f, (np.abs(yf) ** 2)[:ND // 2 + 1], label="FFT")
+axes[0].semilogy(f, (np.abs(yf) ** 2)[: ND // 2 + 1], label="FFT")
 axes[0].set_xlabel("Frequency (Hz)", fontsize=14)
-axes[1].semilogy(f, (np.abs(new_x) ** 2)[:ND // 2 + 1], label="FFT")
+axes[1].semilogy(f, (np.abs(new_x) ** 2)[: ND // 2 + 1], label="FFT")
 axes[0].set_ylabel("Power", fontsize=14)
 
 plt.show()
-
