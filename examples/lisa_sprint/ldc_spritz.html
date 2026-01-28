@@ -1,0 +1,1506 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>LDC Spritz &#8212; Pywavelet</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css?v=9c3e77be" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../../_static/togglebutton.js?v=1ae7504c"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="../../_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'examples/lisa_sprint/ldc_spritz';</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/logo.png" class="logo__image only-light" alt="Pywavelet - Home"/>
+    <script>document.write(`<img src="../../_static/logo.png" class="logo__image only-dark" alt="Pywavelet - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../index.html">
+                    PyWavelet
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text"> </span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../basic.html">Example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../runtime.html">Runtime Comparisons</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../accuracy.html">Accuracy checks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../example_signals.html">EMRI, Galactic Binary, and MBH Transformation examples</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/pywavelet/pywavelet" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/pywavelet/pywavelet/issues/new?title=Issue%20on%20page%20%2Fexamples/lisa_sprint/ldc_spritz.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../_sources/examples/lisa_sprint/ldc_spritz.ipynb" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.ipynb</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>LDC Spritz</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fitting-psd">Fitting PSD</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="ldc-spritz">
+<h1>LDC Spritz<a class="headerlink" href="#ldc-spritz" title="Link to this heading">#</a></h1>
+<p>Lets try to make a PSD for the LDC Spritz</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">jax</span>
+
+<span class="n">jax</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;jax_enable_x64&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="n">f</span> <span class="o">=</span> <span class="s2">&quot;/Users/avaj0001/Downloads/drive-download-20250430T050734Z-1-001/LDC-2b-Spritz-MBHB1.asc&quot;</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">skiprows</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+<span class="n">t</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">Z</span> <span class="o">=</span> <span class="n">data</span>
+
+
+<span class="n">X</span> <span class="o">=</span> <span class="n">X</span><span class="p">[:</span><span class="mi">535552</span><span class="p">]</span>
+<span class="n">time</span> <span class="o">=</span> <span class="n">t</span><span class="p">[:</span><span class="mi">535552</span><span class="p">]</span>
+<span class="n">gap_mask</span> <span class="o">=</span> <span class="n">X</span> <span class="o">==</span> <span class="mi">0</span>
+<span class="n">gap_mask</span> <span class="o">=</span> <span class="n">gap_mask</span><span class="p">[:</span><span class="mi">535552</span><span class="p">]</span>
+
+
+<span class="c1"># standardise X</span>
+<span class="n">SCALING</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+<span class="n">X</span> <span class="o">=</span> <span class="p">(</span><span class="n">X</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">X</span><span class="p">))</span> <span class="o">/</span> <span class="n">SCALING</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pywavelet</span><span class="w"> </span><span class="kn">import</span> <span class="n">set_backend</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.fft</span><span class="w"> </span><span class="kn">import</span> <span class="n">rfft</span><span class="p">,</span> <span class="n">rfftfreq</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.signal.windows</span><span class="w"> </span><span class="kn">import</span> <span class="n">tukey</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">copy</span><span class="w"> </span><span class="kn">import</span> <span class="n">deepcopy</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">glob</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">PIL</span><span class="w"> </span><span class="kn">import</span> <span class="n">Image</span>
+
+<span class="n">set_backend</span><span class="p">(</span><span class="s2">&quot;jax&quot;</span><span class="p">)</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pywavelet.transforms</span><span class="w"> </span><span class="kn">import</span> <span class="n">from_freq_to_wavelet</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pywavelet.transforms</span><span class="w"> </span><span class="kn">import</span> <span class="n">from_wavelet_to_freq</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pywavelet.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">Wavelet</span><span class="p">,</span> <span class="n">FrequencySeries</span><span class="p">,</span> <span class="n">TimeSeries</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">jax.numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">jnp</span>
+
+<span class="n">plot_dir</span> <span class="o">=</span> <span class="s2">&quot;out_spritz&quot;</span>
+<span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">plot_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">make_gif_from_images</span><span class="p">(</span><span class="n">image_regex</span><span class="p">,</span> <span class="n">gif_name</span><span class="p">,</span> <span class="n">duration</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
+    <span class="n">images</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">files</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">image_regex</span><span class="p">)</span>
+    <span class="n">files</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+        <span class="n">files</span><span class="p">,</span>
+        <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]),</span>
+    <span class="p">)</span>
+    <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+        <span class="n">images</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span>
+    <span class="n">images</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">save</span><span class="p">(</span>
+        <span class="n">gif_name</span><span class="p">,</span>
+        <span class="n">save_all</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">append_images</span><span class="o">=</span><span class="n">images</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span>
+        <span class="n">duration</span><span class="o">=</span><span class="n">duration</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">,</span>  <span class="c1"># Convert seconds to milliseconds</span>
+        <span class="n">loop</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #7fbfbf; text-decoration-color: #7fbfbf">[12:06:52] </span><span style="color: #808000; text-decoration-color: #808000">WARNING </span> JAX SUBPACKAGE NOT FULLY TESTED                                                   <a href="file:///Users/avaj0001/Documents/projects/pywavelet/package/src/pywavelet/transforms/jax/__init__.py" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">__init__.py</span></a><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">:</span><a href="file:///Users/avaj0001/Documents/projects/pywavelet/package/src/pywavelet/transforms/jax/__init__.py#5" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">5</span></a>
+</pre>
+</div><div class="output text_html"><pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #7fbfbf; text-decoration-color: #7fbfbf">           </span><span style="color: #000080; text-decoration-color: #000080">INFO    </span> Jax running on cpu <span style="font-weight: bold">[</span>32bit precision<span style="font-weight: bold">]</span>.                                            <a href="file:///Users/avaj0001/Documents/projects/pywavelet/package/src/pywavelet/transforms/jax/__init__.py" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">__init__.py</span></a><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">:</span><a href="file:///Users/avaj0001/Documents/projects/pywavelet/package/src/pywavelet/transforms/jax/__init__.py#21" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">21</span></a>
+</pre>
+</div><div class="output text_html"><pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="color: #7fbfbf; text-decoration-color: #7fbfbf">           </span><span style="color: #808000; text-decoration-color: #808000">WARNING </span> Jax is not running in 64bit precision. To change, use                            <a href="file:///Users/avaj0001/Documents/projects/pywavelet/package/src/pywavelet/transforms/jax/__init__.py" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">__init__.py</span></a><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">:</span><a href="file:///Users/avaj0001/Documents/projects/pywavelet/package/src/pywavelet/transforms/jax/__init__.py#23" target="_blank"><span style="color: #7f7f7f; text-decoration-color: #7f7f7f">23</span></a>
+<span style="color: #7fbfbf; text-decoration-color: #7fbfbf">           </span>         <span style="color: #800080; text-decoration-color: #800080; font-weight: bold">jax.config.update</span><span style="font-weight: bold">(</span><span style="color: #008000; text-decoration-color: #008000">'jax_enable_x64'</span>, <span style="color: #00ff00; text-decoration-color: #00ff00; font-style: italic">True</span><span style="font-weight: bold">)</span>.                                       <span style="color: #7f7f7f; text-decoration-color: #7f7f7f">              </span>
+</pre>
+</div></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">plot_wnm_and_ts</span><span class="p">(</span>
+    <span class="n">timeseries</span><span class="p">,</span>
+    <span class="n">freqseries</span><span class="p">,</span>
+    <span class="n">wnm</span><span class="p">,</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;spritz&quot;</span><span class="p">,</span>
+    <span class="n">psd_approx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">save</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+
+    <span class="n">wnm</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">zscale</span><span class="o">=</span><span class="s2">&quot;log&quot;</span><span class="p">,</span> <span class="n">absolute</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+    <span class="n">freqseries</span><span class="o">.</span><span class="n">plot_periodogram</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">psd_approx</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">psd_approx</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">scaling</span><span class="o">=</span><span class="mf">1e5</span><span class="p">)</span>
+
+    <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">frameon</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">timeseries</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">get_figure</span><span class="p">()</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">save</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">plot_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">.png&quot;</span><span class="p">))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_mask</span><span class="p">(</span><span class="n">wnm</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;mask&quot;</span><span class="p">):</span>
+    <span class="n">mask_wnm</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">wnm</span><span class="p">)</span>
+    <span class="n">mask_wnm</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">mask_wnm</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">at</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># set outliers to 1 (masked)</span>
+    <span class="n">mask_wnm</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">mask_wnm</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">at</span><span class="p">[</span><span class="o">~</span><span class="n">mask</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
+        <span class="mi">0</span>
+    <span class="p">)</span>  <span class="c1"># set non-outliers to 0 (unmasked -- we keep)</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">wnm</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+    <span class="n">percentage</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Percentage of data masked: </span><span class="si">{</span><span class="n">percentage</span><span class="si">:</span><span class="s2">.2%</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="n">mask_wnm</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+        <span class="n">absolute</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;binary&quot;</span><span class="p">,</span>
+        <span class="n">show_colorbar</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">percentage</span><span class="si">:</span><span class="s2">.2%</span><span class="si">}</span><span class="s2">% masked&quot;</span><span class="p">,</span>
+        <span class="n">zscale</span><span class="o">=</span><span class="s2">&quot;linear&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">plot_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">.png&quot;</span><span class="p">))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">mad_threshold</span><span class="p">(</span><span class="n">wnm</span><span class="p">:</span> <span class="n">Wavelet</span><span class="p">,</span> <span class="n">nsigma</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">5.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Wavelet</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Sigma-clipping using median and MAD across time for each frequency bin.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;MAD thresholding -- deleting values &gt; nsigma (</span><span class="si">{</span><span class="n">nsigma</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">)* MAD&quot;</span><span class="p">)</span>
+
+    <span class="n">wnm_copy</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">wnm</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">wnm</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+    <span class="c1"># median and MAD</span>
+    <span class="n">median</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="n">mad</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">data</span> <span class="o">-</span> <span class="n">median</span><span class="p">))</span>
+
+    <span class="c1"># mask outliers (True = outlier)</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">data</span> <span class="o">-</span> <span class="n">median</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">nsigma</span> <span class="o">*</span> <span class="n">mad</span>
+    <span class="n">wnm_copy</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">wnm_copy</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">at</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">median</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">wnm_copy</span><span class="p">,</span> <span class="n">mask</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">generate_noise_from_psd</span><span class="p">(</span><span class="n">noise_psd</span><span class="p">,</span> <span class="n">freqs</span><span class="p">,</span> <span class="n">n_samples</span><span class="p">):</span>
+    <span class="n">white_noise_fft</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">freqs</span><span class="p">))</span>
+        <span class="o">+</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">freqs</span><span class="p">))</span>
+    <span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">white_noise_fft</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>  <span class="c1"># Adjust DC component</span>
+    <span class="c1"># Scale amplitude by sqrt(n_samples) to match the PSD normalization with np.fft.irfft</span>
+    <span class="n">colored_noise_fft</span> <span class="o">=</span> <span class="n">white_noise_fft</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">noise_psd</span> <span class="o">*</span> <span class="n">n_samples</span><span class="p">)</span>
+    <span class="n">noise_time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">irfft</span><span class="p">(</span><span class="n">colored_noise_fft</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">n_samples</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">noise_time</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">denoise</span><span class="p">(</span><span class="n">wnm</span><span class="p">,</span> <span class="n">thr</span><span class="p">,</span> <span class="n">gap_mask</span><span class="p">,</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+
+    <span class="n">wnm</span><span class="p">,</span> <span class="n">mask</span> <span class="o">=</span> <span class="n">mad_threshold</span><span class="p">(</span><span class="n">wnm</span><span class="p">,</span> <span class="n">nsigma</span><span class="o">=</span><span class="n">thr</span> <span class="o">*</span> <span class="mi">10</span><span class="p">)</span>
+    <span class="n">plot_mask</span><span class="p">(</span><span class="n">wnm</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;mask-</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># plot each iteration</span>
+    <span class="n">fs</span> <span class="o">=</span> <span class="n">wnm</span><span class="o">.</span><span class="n">to_frequencyseries</span><span class="p">()</span>
+    <span class="n">ts</span> <span class="o">=</span> <span class="n">fs</span><span class="o">.</span><span class="n">to_timeseries</span><span class="p">()</span>
+
+    <span class="n">psd_approx</span> <span class="o">=</span> <span class="n">PSDApprox</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">ts</span><span class="p">)</span>
+
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+    <span class="n">plot_wnm_and_ts</span><span class="p">(</span>
+        <span class="n">ts</span><span class="p">,</span>
+        <span class="n">fs</span><span class="p">,</span>
+        <span class="n">wnm</span><span class="p">,</span>
+        <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Iter_</span><span class="si">{</span><span class="n">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">psd_approx</span><span class="o">=</span><span class="n">psd_approx</span><span class="p">,</span>
+        <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span>
+        <span class="n">save</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ts ND : </span><span class="si">{</span><span class="n">ts</span><span class="o">.</span><span class="n">ND</span><span class="si">}</span><span class="s2">, wnm ND: </span><span class="si">{</span><span class="n">wnm</span><span class="o">.</span><span class="n">ND</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;N Gaps:&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">gap_mask</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Filling gaps with generated noise&quot;</span><span class="p">)</span>
+
+    <span class="c1"># fill in gap</span>
+    <span class="n">generated_noise</span> <span class="o">=</span> <span class="n">generate_noise_from_psd</span><span class="p">(</span>
+        <span class="n">psd_approx</span><span class="o">.</span><span class="n">power</span> <span class="o">*</span> <span class="mf">1e2</span><span class="p">,</span> <span class="n">psd_approx</span><span class="o">.</span><span class="n">freq</span><span class="p">,</span> <span class="n">ts</span><span class="o">.</span><span class="n">ND</span>
+    <span class="p">)</span>
+    <span class="n">generated_noise</span> <span class="o">=</span> <span class="n">generated_noise</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">generated_noise</span> <span class="o">=</span> <span class="n">generated_noise</span><span class="p">[:</span> <span class="nb">len</span><span class="p">(</span><span class="n">ts</span><span class="o">.</span><span class="n">data</span><span class="p">)]</span>
+
+    <span class="c1"># fill in the gaps</span>
+    <span class="n">time_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ts</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;BEFORE&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">generated_noise</span><span class="p">))</span>
+    <span class="c1"># scale the generated_noise to match the original ts.data</span>
+    <span class="c1"># generated_noise = generated_noise * np.std(ts.data[0:100]) + np.mean(ts.data[0:100])</span>
+    <span class="c1"># print(np.std(generated_noise))</span>
+    <span class="n">time_data</span><span class="p">[</span><span class="n">gap_mask</span><span class="p">]</span> <span class="o">=</span> <span class="n">generated_noise</span><span class="p">[</span><span class="n">gap_mask</span><span class="p">]</span> <span class="o">*</span> <span class="mf">1e2</span>
+
+    <span class="n">new_ts</span> <span class="o">=</span> <span class="n">TimeSeries</span><span class="p">(</span><span class="n">time_data</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">ts</span><span class="o">.</span><span class="n">time</span><span class="p">)</span>
+    <span class="n">new_wnm</span> <span class="o">=</span> <span class="n">new_ts</span><span class="o">.</span><span class="n">to_frequencyseries</span><span class="p">()</span><span class="o">.</span><span class="n">to_wavelet</span><span class="p">(</span><span class="n">Nf</span><span class="o">=</span><span class="mi">256</span><span class="p">)</span>
+
+    <span class="n">ts</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+    <span class="n">ax</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+        <span class="n">ts</span><span class="o">.</span><span class="n">time</span><span class="p">[</span><span class="n">gap_mask</span><span class="p">],</span>
+        <span class="n">generated_noise</span><span class="p">[</span><span class="n">gap_mask</span><span class="p">],</span>
+        <span class="n">color</span><span class="o">=</span><span class="s2">&quot;tab:orange&quot;</span><span class="p">,</span>
+        <span class="n">label</span><span class="o">=</span><span class="s2">&quot;generated noise&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="c1"># new_ts.plot(ax[3], color=&#39;tab:orange&#39;, alpha=0.5)</span>
+    <span class="n">new_wnm</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">zscale</span><span class="o">=</span><span class="s2">&quot;log&quot;</span><span class="p">,</span> <span class="n">absolute</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="n">plot_dir</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;Iter_</span><span class="si">{</span><span class="n">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">wnm</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">iterative_denoise</span><span class="p">(</span>
+    <span class="n">wnm</span><span class="p">:</span> <span class="n">Wavelet</span><span class="p">,</span>
+    <span class="n">gap_mask</span><span class="p">,</span>
+    <span class="n">iterations</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
+    <span class="n">base_threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.3</span><span class="p">,</span>
+    <span class="n">decay</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.9</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Wavelet</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Iteratively apply thresholding, decaying the threshold each time.</span>
+<span class="sd">    method: &#39;global&#39;, &#39;mad&#39;, or &#39;blockwise&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">new_wnm</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">wnm</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">iterations</span><span class="p">):</span>
+        <span class="n">thr</span> <span class="o">=</span> <span class="n">base_threshold</span> <span class="o">*</span> <span class="p">(</span><span class="n">decay</span><span class="o">**</span><span class="n">i</span><span class="p">)</span>
+        <span class="n">new_wnm</span> <span class="o">=</span> <span class="n">denoise</span><span class="p">(</span><span class="n">wnm</span><span class="p">,</span> <span class="n">thr</span><span class="p">,</span> <span class="n">gap_mask</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">new_wnm</span>
+
+
+<span class="n">ts</span> <span class="o">=</span> <span class="n">TimeSeries</span><span class="p">(</span><span class="n">X</span><span class="p">[:</span><span class="mi">535552</span><span class="p">],</span> <span class="n">time</span><span class="o">=</span><span class="n">t</span><span class="p">[:</span><span class="mi">535552</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ts ND : </span><span class="si">{</span><span class="n">ts</span><span class="o">.</span><span class="n">ND</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+
+<span class="n">fs</span> <span class="o">=</span> <span class="n">ts</span><span class="o">.</span><span class="n">to_frequencyseries</span><span class="p">()</span>
+<span class="n">orig_wnm</span> <span class="o">=</span> <span class="n">fs</span><span class="o">.</span><span class="n">to_wavelet</span><span class="p">(</span><span class="n">Nf</span><span class="o">=</span><span class="mi">256</span><span class="p">)</span>
+<span class="n">plot_wnm_and_ts</span><span class="p">(</span><span class="n">ts</span><span class="p">,</span> <span class="n">fs</span><span class="p">,</span> <span class="n">orig_wnm</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Iter_00&quot;</span><span class="p">)</span>
+
+<span class="n">wnm</span> <span class="o">=</span> <span class="n">fs</span><span class="o">.</span><span class="n">to_wavelet</span><span class="p">(</span><span class="n">Nf</span><span class="o">=</span><span class="mi">256</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;wnm ND : </span><span class="si">{</span><span class="n">wnm</span><span class="o">.</span><span class="n">ND</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="c1"># psd_approx = PSDApprox.fit(ts)</span>
+<span class="c1">#</span>
+<span class="c1"># generated_noise = generate_noise_from_psd(psd_approx.power, psd_approx.freq, ts.ND)</span>
+
+
+<span class="n">wnm</span> <span class="o">=</span> <span class="n">iterative_denoise</span><span class="p">(</span>
+    <span class="n">wnm</span><span class="p">,</span> <span class="n">gap_mask</span><span class="p">,</span> <span class="n">iterations</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">base_threshold</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="mf">0.9</span>
+<span class="p">)</span>
+<span class="c1"># make_gif_from_images(os.path.join(plot_dir, &#39;Iter_*.png&#39;), os.path.join(plot_dir, &#39;wnm_psd_gen.gif&#39;), duration=0.5)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>ts ND : 535552
+wnm ND : 535552
+MAD thresholding -- deleting values &gt; nsigma (9.00)* MAD
+Percentage of data masked: 3.17%
+ts ND : 535552, wnm ND: 535552
+N Gaps: 10080
+Filling gaps with generated noise
+BEFORE
+2.8030794625010573
+</pre></div>
+</div>
+<img alt="../../_images/3b13fdfb0c4a40ea36f655ecb22dac236faaa18a837cfd37279b79e97341ec9d.png" src="../../_images/3b13fdfb0c4a40ea36f655ecb22dac236faaa18a837cfd37279b79e97341ec9d.png" />
+<img alt="../../_images/e944ecac8329e09d1b0f3d6f210521bf44eeea8e91495f35cf53d108db505b21.png" src="../../_images/e944ecac8329e09d1b0f3d6f210521bf44eeea8e91495f35cf53d108db505b21.png" />
+<img alt="../../_images/a3f04f1d13426db3d111a164a6da002d83bf34292fef8d62fd83a7295af2f618.png" src="../../_images/a3f04f1d13426db3d111a164a6da002d83bf34292fef8d62fd83a7295af2f618.png" />
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="c1"># gap_mask = ts.data == 0</span>
+<span class="c1"># ts.m</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output traceback highlight-ipythontb notranslate"><div class="highlight"><pre><span></span><span class="gt">---------------------------------------------------------------------------</span>
+<span class="ne">AttributeError</span><span class="g g-Whitespace">                            </span>Traceback (most recent call last)
+<span class="n">Cell</span> <span class="n">In</span><span class="p">[</span><span class="mi">43</span><span class="p">],</span> <span class="n">line</span> <span class="mi">2</span>
+<span class="g g-Whitespace">      </span><span class="mi">1</span> <span class="n">gap_mask</span> <span class="o">=</span> <span class="n">ts</span><span class="o">.</span><span class="n">data</span> <span class="o">==</span> <span class="mi">0</span>
+<span class="ne">----&gt; </span><span class="mi">2</span> <span class="n">ts</span><span class="o">.</span><span class="n">m</span>
+
+<span class="ne">AttributeError</span>: &#39;TimeSeries&#39; object has no attribute &#39;m&#39;
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="c1"># i = 0</span>
+<span class="c1"># wnm, mask = mad_threshold(wnm, nsigma=10)</span>
+<span class="c1">#</span>
+<span class="c1"># # plot each iteration</span>
+<span class="c1"># fs = wnm.to_frequencyseries()</span>
+<span class="c1"># ts = fs.to_timeseries()</span>
+<span class="c1">#</span>
+<span class="c1"># psd_approx = PSDApprox.fit(ts)</span>
+<span class="c1">#</span>
+
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+<span class="n">plot_wnm_and_ts</span><span class="p">(</span>
+    <span class="n">ts</span><span class="p">,</span>
+    <span class="n">fs</span><span class="p">,</span>
+    <span class="n">wnm</span><span class="p">,</span>
+    <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Iter_</span><span class="si">{</span><span class="n">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+    <span class="n">psd_approx</span><span class="o">=</span><span class="n">psd_approx</span><span class="p">,</span>
+    <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span>
+    <span class="n">save</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<span class="c1"># fill in gap</span>
+<span class="n">generated_noise</span> <span class="o">=</span> <span class="n">generate_noise_from_psd</span><span class="p">(</span>
+    <span class="n">psd_approx</span><span class="o">.</span><span class="n">power</span> <span class="o">*</span> <span class="mf">1e1</span><span class="p">,</span> <span class="n">psd_approx</span><span class="o">.</span><span class="n">freq</span><span class="p">,</span> <span class="n">ts</span><span class="o">.</span><span class="n">ND</span>
+<span class="p">)</span>
+<span class="n">generated_noise</span> <span class="o">=</span> <span class="n">generated_noise</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">generated_noise</span> <span class="o">=</span> <span class="n">generated_noise</span><span class="p">[:</span> <span class="nb">len</span><span class="p">(</span><span class="n">ts</span><span class="o">.</span><span class="n">data</span><span class="p">)]</span>
+
+
+<span class="c1"># fill in the gaps</span>
+<span class="n">time_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ts</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;BEFORE&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">generated_noise</span><span class="p">))</span>
+<span class="c1"># scale the generated_noise to match the original ts.data</span>
+<span class="c1"># generated_noise = generated_noise * np.std(ts.data[0:100]) + np.mean(ts.data[0:100])</span>
+<span class="c1"># print(np.std(generated_noise))</span>
+<span class="n">time_data</span><span class="p">[</span><span class="n">gap_mask</span><span class="p">]</span> <span class="o">=</span> <span class="n">generated_noise</span><span class="p">[</span><span class="n">gap_mask</span><span class="p">]</span> <span class="o">*</span> <span class="mf">1e1</span>
+
+
+<span class="n">new_ts</span> <span class="o">=</span> <span class="n">TimeSeries</span><span class="p">(</span><span class="n">time_data</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">ts</span><span class="o">.</span><span class="n">time</span><span class="p">)</span>
+<span class="n">new_wnm</span> <span class="o">=</span> <span class="n">new_ts</span><span class="o">.</span><span class="n">to_frequencyseries</span><span class="p">()</span><span class="o">.</span><span class="n">to_wavelet</span><span class="p">(</span><span class="n">Nf</span><span class="o">=</span><span class="mi">256</span><span class="p">)</span>
+
+<span class="n">ts</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">ts</span><span class="o">.</span><span class="n">time</span><span class="p">[</span><span class="n">gap_mask</span><span class="p">],</span>
+    <span class="n">generated_noise</span><span class="p">[</span><span class="n">gap_mask</span><span class="p">],</span>
+    <span class="n">color</span><span class="o">=</span><span class="s2">&quot;tab:orange&quot;</span><span class="p">,</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;generated noise&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="c1"># new_ts.plot(ax[3], color=&#39;tab:orange&#39;, alpha=0.5)</span>
+<span class="n">new_wnm</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">zscale</span><span class="o">=</span><span class="s2">&quot;log&quot;</span><span class="p">,</span> <span class="n">absolute</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+        <span class="n">plot_dir</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s2">&quot;Iter_</span><span class="si">{</span><span class="n">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>BEFORE
+0.8844361892657235
+</pre></div>
+</div>
+<img alt="../../_images/45a60273bec45299b43090f8e27dbc6022ff0b05fd20fd993516f27bcbfdeaa7.png" src="../../_images/45a60273bec45299b43090f8e27dbc6022ff0b05fd20fd993516f27bcbfdeaa7.png" />
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">ts</span><span class="o">.</span><span class="n">time</span><span class="p">[</span><span class="n">gap_mask</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>array([], dtype=float64)
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">ts</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>np.float64(1.2227757197604746e-20)
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">generated_noise</span> <span class="o">=</span> <span class="n">generate_noise_from_psd</span><span class="p">(</span>
+    <span class="n">psd_approx</span><span class="o">.</span><span class="n">power</span> <span class="o">*</span> <span class="mf">1e5</span><span class="p">,</span> <span class="n">psd_approx</span><span class="o">.</span><span class="n">freq</span><span class="p">,</span> <span class="mi">2048</span>
+<span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">generated_noise</span> <span class="o">*</span> <span class="mf">1e-18</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[&lt;matplotlib.lines.Line2D at 0x1225e47c0&gt;]
+</pre></div>
+</div>
+<img alt="../../_images/15ecc186cd09d59028671a3ad3c16b3e65e8c468ac922afd650c446795d70c55.png" src="../../_images/15ecc186cd09d59028671a3ad3c16b3e65e8c468ac922afd650c446795d70c55.png" />
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ts</span><span class="o">.</span><span class="n">time</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">generated_noise</span> <span class="o">*</span> <span class="mf">1e-20</span><span class="p">))</span>
+<span class="c1"># plt.scatter(ts.time[gap_mask], generated_noise[gap_mask], color=&quot;tab:orange&quot;, zorder=10)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output traceback highlight-ipythontb notranslate"><div class="highlight"><pre><span></span><span class="gt">---------------------------------------------------------------------------</span>
+<span class="ne">ValueError</span><span class="g g-Whitespace">                                </span>Traceback (most recent call last)
+<span class="n">Cell</span> <span class="n">In</span><span class="p">[</span><span class="mi">54</span><span class="p">],</span> <span class="n">line</span> <span class="mi">1</span>
+<span class="ne">----&gt; </span><span class="mi">1</span> <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ts</span><span class="o">.</span><span class="n">time</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">generated_noise</span> <span class="o">*</span> <span class="mf">1e-20</span><span class="p">))</span>
+<span class="g g-Whitespace">      </span><span class="mi">2</span> <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">ts</span><span class="o">.</span><span class="n">time</span><span class="p">[</span><span class="n">gap_mask</span><span class="p">],</span> <span class="n">generated_noise</span><span class="p">[</span><span class="n">gap_mask</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;tab:orange&quot;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+
+<span class="nn">File ~/miniforge3/envs/pywavelet/lib/python3.10/site-packages/matplotlib/pyplot.py:3827,</span> in <span class="ni">plot</span><span class="nt">(scalex, scaley, data, *args, **kwargs)</span>
+<span class="g g-Whitespace">   </span><span class="mi">3819</span> <span class="nd">@_copy_docstring_and_deprecators</span><span class="p">(</span><span class="n">Axes</span><span class="o">.</span><span class="n">plot</span><span class="p">)</span>
+<span class="g g-Whitespace">   </span><span class="mi">3820</span> <span class="k">def</span><span class="w"> </span><span class="nf">plot</span><span class="p">(</span>
+<span class="g g-Whitespace">   </span><span class="mi">3821</span>     <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">ArrayLike</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span>
+   <span class="p">(</span><span class="o">...</span><span class="p">)</span>
+<span class="g g-Whitespace">   </span><span class="mi">3825</span>     <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+<span class="g g-Whitespace">   </span><span class="mi">3826</span> <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Line2D</span><span class="p">]:</span>
+<span class="ne">-&gt; </span><span class="mi">3827</span>     <span class="k">return</span> <span class="n">gca</span><span class="p">()</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+<span class="g g-Whitespace">   </span><span class="mi">3828</span>         <span class="o">*</span><span class="n">args</span><span class="p">,</span>
+<span class="g g-Whitespace">   </span><span class="mi">3829</span>         <span class="n">scalex</span><span class="o">=</span><span class="n">scalex</span><span class="p">,</span>
+<span class="g g-Whitespace">   </span><span class="mi">3830</span>         <span class="n">scaley</span><span class="o">=</span><span class="n">scaley</span><span class="p">,</span>
+<span class="g g-Whitespace">   </span><span class="mi">3831</span>         <span class="o">**</span><span class="p">({</span><span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">data</span><span class="p">}</span> <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">{}),</span>
+<span class="g g-Whitespace">   </span><span class="mi">3832</span>         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+<span class="g g-Whitespace">   </span><span class="mi">3833</span>     <span class="p">)</span>
+
+<span class="nn">File ~/miniforge3/envs/pywavelet/lib/python3.10/site-packages/matplotlib/axes/_axes.py:1777,</span> in <span class="ni">Axes.plot</span><span class="nt">(self, scalex, scaley, data, *args, **kwargs)</span>
+<span class="g g-Whitespace">   </span><span class="mi">1534</span><span class="w"> </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="g g-Whitespace">   </span><span class="mi">1535</span><span class="sd"> Plot y versus x as lines and/or markers.</span>
+<span class="g g-Whitespace">   </span><span class="mi">1536</span><span class="sd"> </span>
+<span class="sd">   (...)</span>
+<span class="g g-Whitespace">   </span><span class="mi">1774</span><span class="sd"> (``&#39;green&#39;``) or hex strings (``&#39;#008000&#39;``).</span>
+<span class="g g-Whitespace">   </span><span class="mi">1775</span><span class="sd"> &quot;&quot;&quot;</span>
+<span class="g g-Whitespace">   </span><span class="mi">1776</span> <span class="n">kwargs</span> <span class="o">=</span> <span class="n">cbook</span><span class="o">.</span><span class="n">normalize_kwargs</span><span class="p">(</span><span class="n">kwargs</span><span class="p">,</span> <span class="n">mlines</span><span class="o">.</span><span class="n">Line2D</span><span class="p">)</span>
+<span class="ne">-&gt; </span><span class="mi">1777</span> <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)]</span>
+<span class="g g-Whitespace">   </span><span class="mi">1778</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
+<span class="g g-Whitespace">   </span><span class="mi">1779</span>     <span class="bp">self</span><span class="o">.</span><span class="n">add_line</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+
+<span class="nn">File ~/miniforge3/envs/pywavelet/lib/python3.10/site-packages/matplotlib/axes/_base.py:297,</span> in <span class="ni">_process_plot_var_args.__call__</span><span class="nt">(self, axes, data, return_kwargs, *args, **kwargs)</span>
+<span class="g g-Whitespace">    </span><span class="mi">295</span>     <span class="n">this</span> <span class="o">+=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+<span class="g g-Whitespace">    </span><span class="mi">296</span>     <span class="n">args</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+<span class="ne">--&gt; </span><span class="mi">297</span> <span class="k">yield from</span> <span class="bp">self</span><span class="o">.</span><span class="n">_plot_args</span><span class="p">(</span>
+<span class="g g-Whitespace">    </span><span class="mi">298</span>     <span class="n">axes</span><span class="p">,</span> <span class="n">this</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">,</span> <span class="n">ambiguous_fmt_datakey</span><span class="o">=</span><span class="n">ambiguous_fmt_datakey</span><span class="p">,</span>
+<span class="g g-Whitespace">    </span><span class="mi">299</span>     <span class="n">return_kwargs</span><span class="o">=</span><span class="n">return_kwargs</span>
+<span class="g g-Whitespace">    </span><span class="mi">300</span> <span class="p">)</span>
+
+<span class="nn">File ~/miniforge3/envs/pywavelet/lib/python3.10/site-packages/matplotlib/axes/_base.py:494,</span> in <span class="ni">_process_plot_var_args._plot_args</span><span class="nt">(self, axes, tup, kwargs, return_kwargs, ambiguous_fmt_datakey)</span>
+<span class="g g-Whitespace">    </span><span class="mi">491</span>     <span class="n">axes</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">update_units</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+<span class="g g-Whitespace">    </span><span class="mi">493</span> <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">y</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+<span class="ne">--&gt; </span><span class="mi">494</span>     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;x and y must have same first dimension, but &quot;</span>
+<span class="g g-Whitespace">    </span><span class="mi">495</span>                      <span class="sa">f</span><span class="s2">&quot;have shapes </span><span class="si">{</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2"> and </span><span class="si">{</span><span class="n">y</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="g g-Whitespace">    </span><span class="mi">496</span> <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">ndim</span> <span class="o">&gt;</span> <span class="mi">2</span> <span class="ow">or</span> <span class="n">y</span><span class="o">.</span><span class="n">ndim</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+<span class="g g-Whitespace">    </span><span class="mi">497</span>     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;x and y can be no greater than 2D, but have &quot;</span>
+<span class="g g-Whitespace">    </span><span class="mi">498</span>                      <span class="sa">f</span><span class="s2">&quot;shapes </span><span class="si">{</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2"> and </span><span class="si">{</span><span class="n">y</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="ne">ValueError</span>: x and y must have same first dimension, but have shapes (535552,) and (2048,)
+</pre></div>
+</div>
+<img alt="../../_images/33591efa9564a66f129f6ec32a0f5b5c19f44e60783ea04c1d8c7ee72fba24dd.png" src="../../_images/33591efa9564a66f129f6ec32a0f5b5c19f44e60783ea04c1d8c7ee72fba24dd.png" />
+</div>
+</div>
+<section id="fitting-psd">
+<h2>Fitting PSD<a class="headerlink" href="#fitting-psd" title="Link to this heading">#</a></h2>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">jax</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">jax.numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">jnp</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">optax</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Tuple</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">fit_psd_spline_jax</span><span class="p">(</span>
+    <span class="n">freqs</span><span class="p">:</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>  <span class="c1"># shape [N]</span>
+    <span class="n">psd_obs</span><span class="p">:</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>  <span class="c1"># shape [N]</span>
+    <span class="n">n_knots</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span>
+    <span class="n">lr</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-3</span><span class="p">,</span>
+    <span class="n">steps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">200</span><span class="p">,</span>
+    <span class="n">log_eps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-12</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+    <span class="n">knots</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">freqs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">freqs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">n_knots</span><span class="p">)</span>
+    <span class="n">log_true</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">psd_obs</span> <span class="o">+</span> <span class="n">log_eps</span><span class="p">)</span>
+    <span class="n">init_knot_logs</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">knots</span><span class="p">,</span> <span class="n">freqs</span><span class="p">,</span> <span class="n">log_true</span><span class="p">)</span>
+
+    <span class="n">optimizer</span> <span class="o">=</span> <span class="n">optax</span><span class="o">.</span><span class="n">adam</span><span class="p">(</span><span class="n">lr</span><span class="p">)</span>
+    <span class="n">opt_state</span> <span class="o">=</span> <span class="n">optimizer</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">init_knot_logs</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">loss_and_grads</span><span class="p">(</span><span class="n">knot_logs</span><span class="p">):</span>
+        <span class="n">pred</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">freqs</span><span class="p">,</span> <span class="n">knots</span><span class="p">,</span> <span class="n">knot_logs</span><span class="p">)</span>
+        <span class="n">loss</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">mean</span><span class="p">((</span><span class="n">pred</span> <span class="o">-</span> <span class="n">log_true</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">grads</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">kl</span><span class="p">:</span> <span class="n">jnp</span><span class="o">.</span><span class="n">mean</span><span class="p">((</span><span class="n">jnp</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">freqs</span><span class="p">,</span> <span class="n">knots</span><span class="p">,</span> <span class="n">kl</span><span class="p">)</span> <span class="o">-</span> <span class="n">log_true</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="p">)(</span><span class="n">knot_logs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">loss</span><span class="p">,</span> <span class="n">grads</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">step</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+        <span class="n">knot_logs</span><span class="p">,</span> <span class="n">opt_state</span> <span class="o">=</span> <span class="n">state</span>
+        <span class="n">loss</span><span class="p">,</span> <span class="n">grads</span> <span class="o">=</span> <span class="n">loss_and_grads</span><span class="p">(</span><span class="n">knot_logs</span><span class="p">)</span>
+        <span class="n">updates</span><span class="p">,</span> <span class="n">opt_state</span> <span class="o">=</span> <span class="n">optimizer</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">grads</span><span class="p">,</span> <span class="n">opt_state</span><span class="p">)</span>
+        <span class="n">knot_logs</span> <span class="o">=</span> <span class="n">optax</span><span class="o">.</span><span class="n">apply_updates</span><span class="p">(</span><span class="n">knot_logs</span><span class="p">,</span> <span class="n">updates</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">knot_logs</span><span class="p">,</span> <span class="n">opt_state</span><span class="p">)</span>
+
+    <span class="c1"># training loop</span>
+    <span class="n">knot_logs_final</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">jit</span><span class="p">(</span>
+        <span class="k">lambda</span> <span class="n">kl</span><span class="p">,</span> <span class="n">os</span><span class="p">:</span> <span class="n">jax</span><span class="o">.</span><span class="n">lax</span><span class="o">.</span><span class="n">fori_loop</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">steps</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="p">(</span><span class="n">kl</span><span class="p">,</span> <span class="n">os</span><span class="p">))</span>
+    <span class="p">)(</span><span class="n">init_knot_logs</span><span class="p">,</span> <span class="n">opt_state</span><span class="p">)</span>
+
+    <span class="n">log_psd_fit</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">freqs</span><span class="p">,</span> <span class="n">knots</span><span class="p">,</span> <span class="n">knot_logs_final</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">jnp</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">log_psd_fit</span><span class="p">),</span> <span class="n">knot_logs_final</span><span class="p">,</span> <span class="n">knots</span>
+
+
+<span class="n">std</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">ts</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+<span class="n">mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">ts</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+<span class="n">ynorm</span> <span class="o">=</span> <span class="p">(</span><span class="n">ts</span><span class="o">.</span><span class="n">data</span> <span class="o">-</span> <span class="n">mean</span><span class="p">)</span> <span class="o">/</span> <span class="n">std</span>
+<span class="n">sampling_freq</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="n">ts</span><span class="o">.</span><span class="n">time</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">ts</span><span class="o">.</span><span class="n">time</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+<span class="n">freq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">rfftfreq</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ynorm</span><span class="p">),</span> <span class="n">d</span><span class="o">=</span><span class="mi">1</span> <span class="o">/</span> <span class="n">sampling_freq</span><span class="p">)</span>
+<span class="n">power</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">jnp</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">rfft</span><span class="p">(</span><span class="n">ynorm</span><span class="p">))</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">ynorm</span><span class="p">)</span>
+
+<span class="n">freq</span> <span class="o">=</span> <span class="n">freq</span><span class="p">[</span><span class="mi">1</span><span class="p">::</span><span class="mi">5</span><span class="p">]</span>
+<span class="n">power</span> <span class="o">=</span> <span class="n">power</span><span class="p">[</span><span class="mi">1</span><span class="p">::</span><span class="mi">5</span><span class="p">]</span>
+
+<span class="n">psd_fit</span><span class="p">,</span> <span class="n">fitted_logs</span><span class="p">,</span> <span class="n">knots</span> <span class="o">=</span> <span class="n">fit_psd_spline_jax</span><span class="p">(</span><span class="n">freq</span><span class="p">,</span> <span class="n">power</span><span class="p">)</span>
+
+<span class="c1"># then you can plot</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span><span class="n">freq</span><span class="p">,</span> <span class="n">power</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;data&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span><span class="n">freq</span><span class="p">,</span> <span class="n">psd_fit</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;spline fit&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">knots</span><span class="p">,</span> <span class="n">jnp</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">fitted_logs</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;C1&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;knots&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../../_images/498a06b13f9a6b0837604a84b0ec513a91d7a7ea1b68303980b62e0b64491460.png" src="../../_images/498a06b13f9a6b0837604a84b0ec513a91d7a7ea1b68303980b62e0b64491460.png" />
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">jax</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">jax.numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">jnp</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">jax</span><span class="w"> </span><span class="kn">import</span> <span class="n">lax</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">jax</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">jax.numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">jnp</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">jax</span><span class="w"> </span><span class="kn">import</span> <span class="n">lax</span>
+
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+
+
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">PSDApprox</span><span class="p">:</span>
+    <span class="n">freq</span><span class="p">:</span> <span class="n">jnp</span><span class="o">.</span><span class="n">array</span>
+    <span class="n">power</span><span class="p">:</span> <span class="n">jnp</span><span class="o">.</span><span class="n">array</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fit</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">ts</span><span class="p">,</span> <span class="n">window_size</span><span class="o">=</span><span class="mi">101</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculates a running median approximation of the Power Spectral Density (PSD)</span>
+<span class="sd">        from a periodogram.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">          periodogram: A JAX array representing the periodogram.</span>
+<span class="sd">          window_size: An integer representing the size of the running median window.</span>
+<span class="sd">                       Must be odd.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">          A JAX array representing the running median PSD approximation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">std</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">ts</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">ts</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">ynorm</span> <span class="o">=</span> <span class="p">(</span><span class="n">ts</span><span class="o">.</span><span class="n">data</span> <span class="o">-</span> <span class="n">mean</span><span class="p">)</span> <span class="o">/</span> <span class="n">std</span>
+        <span class="n">sampling_freq</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="n">ts</span><span class="o">.</span><span class="n">time</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">ts</span><span class="o">.</span><span class="n">time</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+        <span class="n">freq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">rfftfreq</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ynorm</span><span class="p">),</span> <span class="n">d</span><span class="o">=</span><span class="mi">1</span> <span class="o">/</span> <span class="n">sampling_freq</span><span class="p">)</span>
+        <span class="n">power</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">jnp</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">rfft</span><span class="p">(</span><span class="n">ynorm</span><span class="p">))</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">ynorm</span><span class="p">)</span>
+
+        <span class="n">freq</span> <span class="o">=</span> <span class="n">freq</span><span class="p">[</span><span class="mi">1</span><span class="p">::</span><span class="mi">5</span><span class="p">]</span>
+        <span class="n">periodogram</span> <span class="o">=</span> <span class="n">power</span><span class="p">[</span><span class="mi">1</span><span class="p">::</span><span class="mi">5</span><span class="p">]</span>
+        <span class="n">periodogram</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">periodogram</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">jnp</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">window_size</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Window size must be odd for running median.&quot;</span><span class="p">)</span>
+
+        <span class="n">padding</span> <span class="o">=</span> <span class="n">window_size</span> <span class="o">//</span> <span class="mi">2</span>
+        <span class="n">padded_periodogram</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span>
+            <span class="n">periodogram</span><span class="p">,</span> <span class="p">(</span><span class="n">padding</span><span class="p">,</span> <span class="n">padding</span><span class="p">),</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;reflect&quot;</span>
+        <span class="p">)</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">median_window</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>
+            <span class="n">window</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">lax</span><span class="o">.</span><span class="n">dynamic_slice</span><span class="p">(</span>
+                <span class="n">padded_periodogram</span><span class="p">,</span> <span class="p">(</span><span class="n">i</span><span class="p">,),</span> <span class="p">(</span><span class="n">window_size</span><span class="p">,)</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="n">jnp</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">jnp</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">window</span><span class="p">))</span>
+
+        <span class="n">n</span> <span class="o">=</span> <span class="n">periodogram</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">indices</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+        <span class="n">running_median</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">vmap</span><span class="p">(</span><span class="n">median_window</span><span class="p">)(</span><span class="n">indices</span><span class="p">)</span>
+
+        <span class="c1"># rescale the running median to have the same power as the original</span>
+        <span class="n">running_median</span> <span class="o">=</span> <span class="n">running_median</span>
+
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">freq</span><span class="o">=</span><span class="n">freq</span><span class="p">,</span> <span class="n">power</span><span class="o">=</span><span class="n">running_median</span> <span class="o">*</span> <span class="n">std</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">scaling</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">power</span><span class="p">)</span> <span class="o">*</span> <span class="n">scaling</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">freq</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;running median approx&quot;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">)</span>
+
+
+<span class="n">psd_approx</span> <span class="o">=</span> <span class="n">PSDApprox</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">ts</span><span class="p">)</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span><span class="n">freq</span><span class="p">,</span> <span class="n">power</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Data&quot;</span><span class="p">)</span>
+<span class="n">psd_approx</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>
+<span class="n">psd_approx</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">scaling</span><span class="o">=</span><span class="mf">1e3</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../../_images/3dec954e2f1e4ff6e010e717acdae61b412915042cb2b3246223d6e3e3e92f22.png" src="../../_images/3dec954e2f1e4ff6e010e717acdae61b412915042cb2b3246223d6e3e3e92f22.png" />
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">psd_approx</span> <span class="o">=</span> <span class="n">running_median_psd_approximation</span><span class="p">(</span><span class="n">fs</span><span class="o">.</span><span class="n">periodogram</span><span class="p">,</span> <span class="n">window_size</span><span class="o">=</span><span class="mi">101</span><span class="p">)</span>
+
+
+<span class="n">plt</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span><span class="n">freq</span><span class="p">,</span> <span class="n">power</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;spline fit&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">freq</span><span class="p">,</span> <span class="n">psd_approx</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;running median approx&quot;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output traceback highlight-ipythontb notranslate"><div class="highlight"><pre><span></span><span class="gt">---------------------------------------------------------------------------</span>
+<span class="ne">ValueError</span><span class="g g-Whitespace">                                </span>Traceback (most recent call last)
+<span class="n">Cell</span> <span class="n">In</span><span class="p">[</span><span class="mi">8</span><span class="p">],</span> <span class="n">line</span> <span class="mi">5</span>
+<span class="g g-Whitespace">      </span><span class="mi">1</span> <span class="n">psd_approx</span> <span class="o">=</span> <span class="n">running_median_psd_approximation</span><span class="p">(</span><span class="n">fs</span><span class="o">.</span><span class="n">periodogram</span><span class="p">,</span> <span class="n">window_size</span><span class="o">=</span><span class="mi">101</span><span class="p">)</span>
+<span class="g g-Whitespace">      </span><span class="mi">4</span> <span class="n">plt</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span><span class="n">freq</span><span class="p">,</span> <span class="n">power</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;spline fit&quot;</span><span class="p">)</span>
+<span class="ne">----&gt; </span><span class="mi">5</span> <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">freq</span><span class="p">,</span> <span class="n">psd_approx</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;running median approx&quot;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">)</span>
+
+<span class="nn">File ~/miniforge3/envs/pywavelet/lib/python3.10/site-packages/matplotlib/pyplot.py:3827,</span> in <span class="ni">plot</span><span class="nt">(scalex, scaley, data, *args, **kwargs)</span>
+<span class="g g-Whitespace">   </span><span class="mi">3819</span> <span class="nd">@_copy_docstring_and_deprecators</span><span class="p">(</span><span class="n">Axes</span><span class="o">.</span><span class="n">plot</span><span class="p">)</span>
+<span class="g g-Whitespace">   </span><span class="mi">3820</span> <span class="k">def</span><span class="w"> </span><span class="nf">plot</span><span class="p">(</span>
+<span class="g g-Whitespace">   </span><span class="mi">3821</span>     <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">ArrayLike</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span>
+   <span class="p">(</span><span class="o">...</span><span class="p">)</span>
+<span class="g g-Whitespace">   </span><span class="mi">3825</span>     <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+<span class="g g-Whitespace">   </span><span class="mi">3826</span> <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Line2D</span><span class="p">]:</span>
+<span class="ne">-&gt; </span><span class="mi">3827</span>     <span class="k">return</span> <span class="n">gca</span><span class="p">()</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+<span class="g g-Whitespace">   </span><span class="mi">3828</span>         <span class="o">*</span><span class="n">args</span><span class="p">,</span>
+<span class="g g-Whitespace">   </span><span class="mi">3829</span>         <span class="n">scalex</span><span class="o">=</span><span class="n">scalex</span><span class="p">,</span>
+<span class="g g-Whitespace">   </span><span class="mi">3830</span>         <span class="n">scaley</span><span class="o">=</span><span class="n">scaley</span><span class="p">,</span>
+<span class="g g-Whitespace">   </span><span class="mi">3831</span>         <span class="o">**</span><span class="p">({</span><span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">data</span><span class="p">}</span> <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">{}),</span>
+<span class="g g-Whitespace">   </span><span class="mi">3832</span>         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+<span class="g g-Whitespace">   </span><span class="mi">3833</span>     <span class="p">)</span>
+
+<span class="nn">File ~/miniforge3/envs/pywavelet/lib/python3.10/site-packages/matplotlib/axes/_axes.py:1777,</span> in <span class="ni">Axes.plot</span><span class="nt">(self, scalex, scaley, data, *args, **kwargs)</span>
+<span class="g g-Whitespace">   </span><span class="mi">1534</span><span class="w"> </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="g g-Whitespace">   </span><span class="mi">1535</span><span class="sd"> Plot y versus x as lines and/or markers.</span>
+<span class="g g-Whitespace">   </span><span class="mi">1536</span><span class="sd"> </span>
+<span class="sd">   (...)</span>
+<span class="g g-Whitespace">   </span><span class="mi">1774</span><span class="sd"> (``&#39;green&#39;``) or hex strings (``&#39;#008000&#39;``).</span>
+<span class="g g-Whitespace">   </span><span class="mi">1775</span><span class="sd"> &quot;&quot;&quot;</span>
+<span class="g g-Whitespace">   </span><span class="mi">1776</span> <span class="n">kwargs</span> <span class="o">=</span> <span class="n">cbook</span><span class="o">.</span><span class="n">normalize_kwargs</span><span class="p">(</span><span class="n">kwargs</span><span class="p">,</span> <span class="n">mlines</span><span class="o">.</span><span class="n">Line2D</span><span class="p">)</span>
+<span class="ne">-&gt; </span><span class="mi">1777</span> <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)]</span>
+<span class="g g-Whitespace">   </span><span class="mi">1778</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
+<span class="g g-Whitespace">   </span><span class="mi">1779</span>     <span class="bp">self</span><span class="o">.</span><span class="n">add_line</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+
+<span class="nn">File ~/miniforge3/envs/pywavelet/lib/python3.10/site-packages/matplotlib/axes/_base.py:297,</span> in <span class="ni">_process_plot_var_args.__call__</span><span class="nt">(self, axes, data, return_kwargs, *args, **kwargs)</span>
+<span class="g g-Whitespace">    </span><span class="mi">295</span>     <span class="n">this</span> <span class="o">+=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+<span class="g g-Whitespace">    </span><span class="mi">296</span>     <span class="n">args</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+<span class="ne">--&gt; </span><span class="mi">297</span> <span class="k">yield from</span> <span class="bp">self</span><span class="o">.</span><span class="n">_plot_args</span><span class="p">(</span>
+<span class="g g-Whitespace">    </span><span class="mi">298</span>     <span class="n">axes</span><span class="p">,</span> <span class="n">this</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">,</span> <span class="n">ambiguous_fmt_datakey</span><span class="o">=</span><span class="n">ambiguous_fmt_datakey</span><span class="p">,</span>
+<span class="g g-Whitespace">    </span><span class="mi">299</span>     <span class="n">return_kwargs</span><span class="o">=</span><span class="n">return_kwargs</span>
+<span class="g g-Whitespace">    </span><span class="mi">300</span> <span class="p">)</span>
+
+<span class="nn">File ~/miniforge3/envs/pywavelet/lib/python3.10/site-packages/matplotlib/axes/_base.py:494,</span> in <span class="ni">_process_plot_var_args._plot_args</span><span class="nt">(self, axes, tup, kwargs, return_kwargs, ambiguous_fmt_datakey)</span>
+<span class="g g-Whitespace">    </span><span class="mi">491</span>     <span class="n">axes</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">update_units</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+<span class="g g-Whitespace">    </span><span class="mi">493</span> <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">y</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+<span class="ne">--&gt; </span><span class="mi">494</span>     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;x and y must have same first dimension, but &quot;</span>
+<span class="g g-Whitespace">    </span><span class="mi">495</span>                      <span class="sa">f</span><span class="s2">&quot;have shapes </span><span class="si">{</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2"> and </span><span class="si">{</span><span class="n">y</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="g g-Whitespace">    </span><span class="mi">496</span> <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">ndim</span> <span class="o">&gt;</span> <span class="mi">2</span> <span class="ow">or</span> <span class="n">y</span><span class="o">.</span><span class="n">ndim</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+<span class="g g-Whitespace">    </span><span class="mi">497</span>     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;x and y can be no greater than 2D, but have &quot;</span>
+<span class="g g-Whitespace">    </span><span class="mi">498</span>                      <span class="sa">f</span><span class="s2">&quot;shapes </span><span class="si">{</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2"> and </span><span class="si">{</span><span class="n">y</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="ne">ValueError</span>: x and y must have same first dimension, but have shapes (53568,) and (267841,)
+</pre></div>
+</div>
+<img alt="../../_images/2c5538679dccace4d1d0bb72075ede8fc7fd34aa8bb3d7d0e8c402c88902bfbe.png" src="../../_images/2c5538679dccace4d1d0bb72075ede8fc7fd34aa8bb3d7d0e8c402c88902bfbe.png" />
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">psd_approx</span> <span class="o">=</span> <span class="n">PSDApprox</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">ts</span><span class="p">)</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span><span class="n">freq</span><span class="p">,</span> <span class="n">power</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Data&quot;</span><span class="p">)</span>
+<span class="n">psd_approx</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../../_images/198f1e28ca9e90af4ca17ea8eb6b4e9af358f490738e149a53baaa72cbf9f32c.png" src="../../_images/198f1e28ca9e90af4ca17ea8eb6b4e9af358f490738e149a53baaa72cbf9f32c.png" />
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">reload_ext</span> autoreload
+<span class="o">%</span><span class="k">autoreload</span> 2
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">log_psplines.psplines</span><span class="w"> </span><span class="kn">import</span> <span class="n">LogPSplines</span><span class="p">,</span> <span class="n">Periodogram</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">log_psplines.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">Timeseries</span> <span class="k">as</span> <span class="n">PsplinesTimeseries</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">log_psplines.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_pdgrm</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">log_psplines.mcmc</span><span class="w"> </span><span class="kn">import</span> <span class="n">run_mcmc</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">get_basic_psd</span><span class="p">(</span><span class="n">ts</span><span class="p">):</span>
+    <span class="n">psd_approx</span> <span class="o">=</span> <span class="n">PSDApprox</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">ts</span><span class="p">)</span>
+
+    <span class="n">std</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">ts</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+    <span class="n">mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">ts</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+    <span class="n">ynorm</span> <span class="o">=</span> <span class="p">(</span><span class="n">ts</span><span class="o">.</span><span class="n">data</span> <span class="o">-</span> <span class="n">mean</span><span class="p">)</span> <span class="o">/</span> <span class="n">std</span>
+    <span class="n">new_ts</span> <span class="o">=</span> <span class="n">PsplinesTimeseries</span><span class="p">(</span><span class="n">t</span><span class="o">=</span><span class="n">ts</span><span class="o">.</span><span class="n">time</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">ynorm</span><span class="p">,</span> <span class="n">std</span><span class="o">=</span><span class="n">std</span><span class="p">)</span>
+    <span class="n">periodogram</span> <span class="o">=</span> <span class="n">new_ts</span><span class="o">.</span><span class="n">to_periodogram</span><span class="p">()</span>
+    <span class="n">spline_model</span> <span class="o">=</span> <span class="n">LogPSplines</span><span class="o">.</span><span class="n">from_periodogram</span><span class="p">(</span>
+        <span class="n">periodogram</span><span class="o">=</span><span class="n">periodogram</span><span class="p">,</span>
+        <span class="n">n_knots</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
+        <span class="n">degree</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+        <span class="n">diffMatrixOrder</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="n">parametric_model</span><span class="o">=</span><span class="n">psd_approx</span><span class="o">.</span><span class="n">power</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">psd_fit</span> <span class="o">=</span> <span class="n">spline_model</span><span class="p">()</span> <span class="o">*</span> <span class="n">std</span><span class="o">**</span><span class="mi">2</span>
+    <span class="n">freq</span> <span class="o">=</span> <span class="n">periodogram</span><span class="o">.</span><span class="n">freqs</span>
+    <span class="k">return</span> <span class="n">freq</span><span class="p">,</span> <span class="n">psd_fit</span>
+
+
+<span class="c1">#</span>
+<span class="c1"># freq, psd = get_basic_psd(ts)</span>
+<span class="c1"># fig, ax = ts.to_frequencyseries().plot_periodogram()</span>
+<span class="c1"># ax.plot(freq, psd, label=&#39;LogPSpline fit&#39;, color=&#39;red&#39;)</span>
+
+<span class="c1">#</span>
+<span class="c1"># # new_ts = new_ts.standardise()</span>
+<span class="c1"># periodogram = new_ts.to_periodogram()</span>
+<span class="c1">#</span>
+<span class="c1"># plot_pdgrm(</span>
+<span class="c1">#     pdgrm=periodogram</span>
+<span class="c1"># )</span>
+<span class="c1"># new_ts.fs</span>
+
+<span class="c1"># print(new_ts.std)</span>
+<span class="c1">#</span>
+<span class="c1"># plt.plot(new_ts.t, new_ts.y)</span>
+
+<span class="n">psd_approx</span> <span class="o">=</span> <span class="n">PSDApprox</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">ts</span><span class="p">)</span>
+<span class="n">pgrm</span> <span class="o">=</span> <span class="n">Periodogram</span><span class="p">(</span><span class="n">freqs</span><span class="o">=</span><span class="n">freq</span><span class="p">[</span><span class="mi">1</span><span class="p">::</span><span class="mi">5</span><span class="p">],</span> <span class="n">power</span><span class="o">=</span><span class="n">power</span><span class="p">[</span><span class="mi">1</span><span class="p">::</span><span class="mi">5</span><span class="p">])</span>
+<span class="n">approx_pdgrm</span> <span class="o">=</span> <span class="n">Periodogram</span><span class="p">(</span>
+    <span class="n">freqs</span><span class="o">=</span><span class="n">freq</span><span class="p">[</span><span class="mi">1</span><span class="p">::</span><span class="mi">5</span><span class="p">],</span> <span class="n">power</span><span class="o">=</span><span class="p">(</span><span class="n">psd_approx</span><span class="o">.</span><span class="n">power</span> <span class="o">+</span> <span class="mf">1e-6</span><span class="p">)[</span><span class="mi">1</span><span class="p">::</span><span class="mi">5</span><span class="p">]</span>
+<span class="p">)</span>
+
+<span class="c1"># periodogram = new_ts.to_periodogram()</span>
+<span class="c1"># periodogram = periodogram.downsample(factor=2)</span>
+<span class="n">spline_model</span> <span class="o">=</span> <span class="n">LogPSplines</span><span class="o">.</span><span class="n">from_periodogram</span><span class="p">(</span>
+    <span class="n">periodogram</span><span class="o">=</span><span class="n">approx_pdgrm</span><span class="p">,</span>
+    <span class="n">n_knots</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span>
+    <span class="n">degree</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+    <span class="n">diffMatrixOrder</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="n">knot_kwargs</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">frac_log</span><span class="o">=</span><span class="mf">0.2</span><span class="p">),</span>
+    <span class="n">parametric_model</span><span class="o">=</span><span class="n">psd_approx</span><span class="o">.</span><span class="n">power</span><span class="p">[</span><span class="mi">1</span><span class="p">::</span><span class="mi">5</span><span class="p">],</span>
+<span class="p">)</span>
+<span class="c1"># psd_fit = spline_model()*std**2</span>
+<span class="c1"># freq = periodogram.freqs</span>
+
+
+<span class="c1">#</span>
+<span class="c1"># plot_pdgrm(approx_pdgrm,</span>
+<span class="c1">#            spline_model=spline_model,)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="c1"># spline_model.weights = jnp.zeros_like(spline_model.weights)</span>
+
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plot_pdgrm</span><span class="p">(</span>
+    <span class="n">pgrm</span><span class="p">,</span>
+    <span class="n">spline_model</span><span class="o">=</span><span class="n">spline_model</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(&lt;Figure size 400x300 with 1 Axes&gt;,
+ &lt;Axes: xlabel=&#39;Frequency (Hz)&#39;, ylabel=&#39;Power&#39;&gt;)
+</pre></div>
+</div>
+<img alt="../../_images/2c92e04ec0c3aab10de8df43b12832e352d1155577ac3004cfb81876c520e5a6.png" src="../../_images/2c92e04ec0c3aab10de8df43b12832e352d1155577ac3004cfb81876c520e5a6.png" />
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">spline_model</span><span class="o">.</span><span class="n">weights</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Array([-1.83805977e-04, -8.91185326e-04, -3.50013510e-03, -1.41638674e-02,
+       -4.68858779e-02, -5.48335022e-02, -8.07325358e-02, -4.11451571e-02,
+       -2.90809579e-02,  1.35925098e-02,  1.89796170e-03, -1.22993804e-01,
+       -4.31864295e-02, -6.86834892e-02, -2.76254263e-02, -5.92031779e-02,
+       -3.12930658e-02, -1.45095947e-01, -1.69640967e-01, -9.97554737e-03,
+       -3.66073730e-02,  8.64408365e-04,  4.08797426e-03, -1.64652760e-02,
+       -5.38484879e-03, -9.39892661e-02, -4.52676155e-02, -3.97503113e-01,
+       -1.78027318e-01, -5.50896853e-02, -2.90669526e-02,  1.80494641e-02,
+        2.39938545e-02,  3.91933908e-02,  3.06856455e-02,  2.16521871e-02,
+       -3.09561810e-04, -1.92035073e-01,  6.27716268e-02, -1.60554802e-02,
+        3.00683515e-02,  3.03128060e-03], dtype=float64)
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+
+<span class="c1"># approx_pdgrm = approx_pdgrm.downsample(10)</span>
+
+<span class="n">t0</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+<span class="n">samples</span><span class="p">,</span> <span class="n">spline_model</span> <span class="o">=</span> <span class="n">run_mcmc</span><span class="p">(</span>
+    <span class="n">pgrm</span><span class="p">,</span>
+    <span class="n">parametric_model</span><span class="o">=</span><span class="n">psd_approx</span><span class="o">.</span><span class="n">power</span><span class="p">[</span><span class="mi">1</span><span class="p">::</span><span class="mi">5</span><span class="p">],</span>
+    <span class="n">n_knots</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span>
+    <span class="n">num_samples</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span>
+    <span class="n">num_warmup</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<span class="n">runtime</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">())</span> <span class="o">-</span> <span class="n">t0</span>
+
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plot_pdgrm</span><span class="p">(</span><span class="n">pgrm</span><span class="p">,</span> <span class="n">spline_model</span><span class="p">,</span> <span class="n">sampler</span><span class="o">.</span><span class="n">get_samples</span><span class="p">()[</span><span class="s2">&quot;weights&quot;</span><span class="p">])</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">plot_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;test_mcmc.png&quot;</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Spline model: LogPSplines(knots=40, degree=3, n=10711)
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>sample: 100%|██████████| 1000/1000 [05:59&lt;00:00,  2.78it/s, 1023 steps of size 5.86e-04. acc. prob=0.93]
+</pre></div>
+</div>
+<div class="output traceback highlight-ipythontb notranslate"><div class="highlight"><pre><span></span><span class="gt">---------------------------------------------------------------------------</span>
+<span class="ne">NameError</span><span class="g g-Whitespace">                                 </span>Traceback (most recent call last)
+<span class="n">Cell</span> <span class="n">In</span><span class="p">[</span><span class="mi">87</span><span class="p">],</span> <span class="n">line</span> <span class="mi">18</span>
+<span class="g g-Whitespace">      </span><span class="mi">6</span> <span class="n">samples</span><span class="p">,</span> <span class="n">spline_model</span> <span class="o">=</span> <span class="n">run_mcmc</span><span class="p">(</span>
+<span class="g g-Whitespace">      </span><span class="mi">7</span>     <span class="n">pgrm</span><span class="p">,</span> 
+<span class="g g-Whitespace">      </span><span class="mi">8</span>     <span class="n">parametric_model</span><span class="o">=</span><span class="n">psd_approx</span><span class="o">.</span><span class="n">power</span><span class="p">[</span><span class="mi">1</span><span class="p">::</span><span class="mi">5</span><span class="p">],</span>
+<span class="g g-Whitespace">      </span><span class="mi">9</span>     <span class="n">n_knots</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">num_samples</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">num_warmup</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span>
+<span class="g g-Whitespace">     </span><span class="mi">10</span> <span class="p">)</span>
+<span class="g g-Whitespace">     </span><span class="mi">14</span> <span class="n">runtime</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">())</span> <span class="o">-</span> <span class="n">t0</span>
+<span class="ne">---&gt; </span><span class="mi">18</span> <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plot_pdgrm</span><span class="p">(</span><span class="n">pgrm</span><span class="p">,</span> <span class="n">spline_model</span><span class="p">,</span> <span class="n">sampler</span><span class="o">.</span><span class="n">get_samples</span><span class="p">()[</span><span class="s1">&#39;weights&#39;</span><span class="p">])</span>
+<span class="g g-Whitespace">     </span><span class="mi">19</span> <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">plot_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;test_mcmc.png&quot;</span><span class="p">))</span>
+
+<span class="ne">NameError</span>: name &#39;sampler&#39; is not defined
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plot_pdgrm</span><span class="p">(</span><span class="n">pgrm</span><span class="p">,</span> <span class="n">spline_model</span><span class="p">,</span> <span class="n">samples</span><span class="o">.</span><span class="n">get_samples</span><span class="p">()[</span><span class="s2">&quot;weights&quot;</span><span class="p">])</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">plot_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;test_mcmc.png&quot;</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../../_images/8d5533ed10e224a327870710bf53a3faa1a28f3f69641ecebdc2e2ee6ceab6a0.png" src="../../_images/8d5533ed10e224a327870710bf53a3faa1a28f3f69641ecebdc2e2ee6ceab6a0.png" />
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plot_pdgrm</span><span class="p">(</span><span class="n">pgrm</span><span class="p">,</span> <span class="n">spline_model</span><span class="p">,</span> <span class="n">samples</span><span class="o">.</span><span class="n">get_samples</span><span class="p">()[</span><span class="s2">&quot;weights&quot;</span><span class="p">])</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">left</span><span class="o">=</span><span class="mf">10e-5</span><span class="p">)</span>
+<span class="c1"># fig.savefig(os.path.join(plot_dir, f&quot;test_mcmc.png&quot;))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(0.0001, np.float64(0.0999925310707457))
+</pre></div>
+</div>
+<img alt="../../_images/54037f264781632b97537aeebcef0c40d29c4a80352bf7e542e440e32478631b.png" src="../../_images/54037f264781632b97537aeebcef0c40d29c4a80352bf7e542e440e32478631b.png" />
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">new_ts</span> <span class="o">=</span> <span class="n">PsplinesTimeseries</span><span class="p">(</span><span class="n">t</span><span class="o">=</span><span class="n">ts</span><span class="o">.</span><span class="n">time</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">ts</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+<span class="n">new_ts</span><span class="o">.</span><span class="n">standardise</span><span class="p">()</span>
+<span class="n">periodogram</span> <span class="o">=</span> <span class="n">new_ts</span><span class="o">.</span><span class="n">to_periodogram</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">jax</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">jax.numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">jnp</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">optax</span>
+
+<span class="n">logP</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">power</span> <span class="o">+</span> <span class="mf">1e-6</span><span class="p">)</span>  <span class="c1"># log-PSD (add eps to avoid log(0))</span>
+
+<span class="c1"># Define knots for piecewise-linear fit on [0,0.5]</span>
+<span class="n">num_knots</span> <span class="o">=</span> <span class="mi">40</span>
+<span class="n">knots</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">freq</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">freq</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">num_knots</span><span class="p">)</span>
+<span class="c1"># Initialize spline coefficients (values at knots)</span>
+<span class="n">coefs</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">num_knots</span><span class="p">)</span>
+
+<span class="c1"># Hyperparameters: smoothing penalty weight</span>
+<span class="n">lambda_penalty</span> <span class="o">=</span> <span class="mf">1e-2</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">loss_fn</span><span class="p">(</span><span class="n">coefs</span><span class="p">,</span> <span class="n">freq</span><span class="p">,</span> <span class="n">logP</span><span class="p">):</span>
+    <span class="c1"># Linear interpolation of coefs at frequencies</span>
+    <span class="n">y_pred</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">freq</span><span class="p">,</span> <span class="n">knots</span><span class="p">,</span> <span class="n">coefs</span><span class="p">)</span>
+    <span class="c1"># Mean squared error on log-PSD</span>
+    <span class="n">mse</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">mean</span><span class="p">((</span><span class="n">y_pred</span> <span class="o">-</span> <span class="n">logP</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="c1"># Second-difference penalty</span>
+    <span class="n">pen</span> <span class="o">=</span> <span class="n">lambda_penalty</span> <span class="o">*</span> <span class="n">jnp</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">jnp</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">coefs</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">mse</span> <span class="o">+</span> <span class="n">pen</span>
+
+
+<span class="c1"># Use Optax to minimize the loss</span>
+<span class="n">optimizer</span> <span class="o">=</span> <span class="n">optax</span><span class="o">.</span><span class="n">adam</span><span class="p">(</span><span class="n">learning_rate</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+<span class="n">opt_state</span> <span class="o">=</span> <span class="n">optimizer</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">coefs</span><span class="p">)</span>
+
+
+<span class="nd">@jax</span><span class="o">.</span><span class="n">jit</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">train_step</span><span class="p">(</span><span class="n">coefs</span><span class="p">,</span> <span class="n">opt_state</span><span class="p">,</span> <span class="n">freq</span><span class="p">,</span> <span class="n">logP</span><span class="p">):</span>
+    <span class="n">loss</span><span class="p">,</span> <span class="n">grads</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">value_and_grad</span><span class="p">(</span><span class="n">loss_fn</span><span class="p">)(</span><span class="n">coefs</span><span class="p">,</span> <span class="n">freq</span><span class="p">,</span> <span class="n">logP</span><span class="p">)</span>
+    <span class="n">updates</span><span class="p">,</span> <span class="n">opt_state</span> <span class="o">=</span> <span class="n">optimizer</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">grads</span><span class="p">,</span> <span class="n">opt_state</span><span class="p">)</span>
+    <span class="n">coefs</span> <span class="o">=</span> <span class="n">optax</span><span class="o">.</span><span class="n">apply_updates</span><span class="p">(</span><span class="n">coefs</span><span class="p">,</span> <span class="n">updates</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">coefs</span><span class="p">,</span> <span class="n">opt_state</span><span class="p">,</span> <span class="n">loss</span>
+
+
+<span class="c1"># Run a few training iterations</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">500</span><span class="p">):</span>
+    <span class="n">coefs</span><span class="p">,</span> <span class="n">opt_state</span><span class="p">,</span> <span class="n">loss</span> <span class="o">=</span> <span class="n">train_step</span><span class="p">(</span><span class="n">coefs</span><span class="p">,</span> <span class="n">opt_state</span><span class="p">,</span> <span class="n">freq</span><span class="p">,</span> <span class="n">logP</span><span class="p">)</span>
+<span class="c1"># The fitted smooth log-PSD is:</span>
+<span class="n">logP_smooth_spline</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">freq</span><span class="p">,</span> <span class="n">knots</span><span class="p">,</span> <span class="n">coefs</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span><span class="n">freq</span><span class="p">,</span> <span class="n">power</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">loglog</span><span class="p">(</span><span class="n">freq</span><span class="p">,</span> <span class="n">jnp</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">logP_smooth_spline</span><span class="p">),</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;spline fit&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[&lt;matplotlib.lines.Line2D at 0x12d302620&gt;]
+</pre></div>
+</div>
+<img alt="../../_images/b60946182971ed30bfd9daca454b54f7339d8f7eeac4b60b756164801dc5e93c.png" src="../../_images/b60946182971ed30bfd9daca454b54f7339d8f7eeac4b60b756164801dc5e93c.png" />
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">gap_mask</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>array([False, False, False, ..., False, False, False])
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./examples/lisa_sprint"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fitting-psd">Fitting PSD</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By pywavelet developers
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2023.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
