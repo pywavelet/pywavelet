@@ -5,6 +5,104 @@ CHANGELOG
 =========
 
 
+.. _changelog-v0.2.9:
+
+v0.2.9 (2026-01-28)
+===================
+
+Bug Fixes
+---------
+
+* fix: update offs calculation in transform_wavelet_freq_helper to prevent overwriting center term (`f44048e`_)
+
+Documentation
+-------------
+
+* docs: fix api page (`913370d`_)
+
+Unknown
+-------
+
+* Add MIT License to the project (`1b7dfda`_)
+
+* [pre-commit.ci] pre-commit autoupdate (#25)
+
+* [pre-commit.ci] pre-commit autoupdate
+
+updates:
+- [github.com/pre-commit/pre-commit-hooks: v5.0.0 → v6.0.0](https://github.com/pre-commit/pre-commit-hooks/compare/v5.0.0...v6.0.0)
+- [github.com/PyCQA/isort: 6.0.1 → 7.0.0](https://github.com/PyCQA/isort/compare/6.0.1...7.0.0)
+- https://github.com/psf/black → https://github.com/psf/black-pre-commit-mirror
+- [github.com/psf/black-pre-commit-mirror: 25.1.0 → 25.11.0](https://github.com/psf/black-pre-commit-mirror/compare/25.1.0...25.11.0)
+
+* [pre-commit.ci] auto fixes from pre-commit.com hooks
+
+for more information, see https://pre-commit.ci
+
+---------
+
+Co-authored-by: pre-commit-ci[bot] <66853113+pre-commit-ci[bot]@users.noreply.github.com> (`128e78f`_)
+
+* add LVK example (`7a48826`_)
+
+* add box plot (`66fcd8a`_)
+
+* add plot fixes (`5064dd6`_)
+
+* add more to the accuracy notebook (`cffe925`_)
+
+* add more scripts for paper plots (`ad2ec94`_)
+
+* Add link to radler data (`1b3bc68`_)
+
+* Add truncate function (`e7c04ca`_)
+
+* LISA Sprint 2025 (`f941d73`_)
+
+* Add t0 for inverse transform (`f476030`_)
+
+* raise type error if invalid dtype passed (`2634e86`_)
+
+* Add pdgrm helper property (`ee250df`_)
+
+* fix link to colabl (`0a4a286`_)
+
+* fix animation (`ed1d8f3`_)
+
+* add axes labels (`84c43be`_)
+
+* add hacking with will (`ffe14fb`_)
+
+* add pandas (`662251c`_)
+
+* add logss for tests (`b4e1c89`_)
+
+* Merge branch 'main' of github.com:pywavelet/pywavelet (`b4126e6`_)
+
+.. _f44048e: https://github.com/pywavelet/pywavelet/commit/f44048e88c34b442d08244babd2839c6367426cd
+.. _913370d: https://github.com/pywavelet/pywavelet/commit/913370d2a3909d4b5b08c22e53db65f8aeb2b53f
+.. _1b7dfda: https://github.com/pywavelet/pywavelet/commit/1b7dfdaab92acdd61cd29a3794d118ddc9723f20
+.. _128e78f: https://github.com/pywavelet/pywavelet/commit/128e78fe60212c08cbaf59e332c46f262c0b1b09
+.. _7a48826: https://github.com/pywavelet/pywavelet/commit/7a48826b1f03fd5aa29e244122616772d320636f
+.. _66fcd8a: https://github.com/pywavelet/pywavelet/commit/66fcd8a8ff4e41443ccbfb6efbbfc4c0fcbfd0d9
+.. _5064dd6: https://github.com/pywavelet/pywavelet/commit/5064dd6523bdff0e763c6aadb3ecb696b3d93971
+.. _cffe925: https://github.com/pywavelet/pywavelet/commit/cffe9250ae0e499319f38bcc1cf2a82e6268288b
+.. _ad2ec94: https://github.com/pywavelet/pywavelet/commit/ad2ec946d3522fe648e0a5c33490c3f3aff2f4df
+.. _1b3bc68: https://github.com/pywavelet/pywavelet/commit/1b3bc68ce6bb9c94b2f5e84ec3f797ccd3423c7a
+.. _e7c04ca: https://github.com/pywavelet/pywavelet/commit/e7c04ca6214fb185e178e529fac9c4eb9cd3be64
+.. _f941d73: https://github.com/pywavelet/pywavelet/commit/f941d736d83cf11d4d2a4354aa11808c1f4a5047
+.. _f476030: https://github.com/pywavelet/pywavelet/commit/f47603016457170cde897d357651e256ec303a60
+.. _2634e86: https://github.com/pywavelet/pywavelet/commit/2634e867590f955bd0e87c1db28ac740bdeeee8f
+.. _ee250df: https://github.com/pywavelet/pywavelet/commit/ee250df6c698309befb52f0ef0f1e6842dd56637
+.. _0a4a286: https://github.com/pywavelet/pywavelet/commit/0a4a28649db6bc4c1ad22b1751b15fe9cc859e4b
+.. _ed1d8f3: https://github.com/pywavelet/pywavelet/commit/ed1d8f3a366401202b96d020730363a23d843bd6
+.. _84c43be: https://github.com/pywavelet/pywavelet/commit/84c43bef4ff2f2369e738362ffee4f28f9b8dd1f
+.. _ffe14fb: https://github.com/pywavelet/pywavelet/commit/ffe14fb6f80d1cb39087320323c312627523d3fe
+.. _662251c: https://github.com/pywavelet/pywavelet/commit/662251c55f8f83e3d65fdbaed7b4462871a261e6
+.. _b4e1c89: https://github.com/pywavelet/pywavelet/commit/b4e1c89f643190b1594e789a2d9fddd2a22d7140
+.. _b4126e6: https://github.com/pywavelet/pywavelet/commit/b4126e63128d865114fb8430485a6ee497defb3d
+
+
 .. _changelog-v0.2.8:
 
 v0.2.8 (2025-04-27)
@@ -15,8 +113,15 @@ Bug Fixes
 
 * fix: add direct forwaard transform tesst (`b7f4499`_)
 
+Chores
+------
+
+* chore(release): 0.2.8 (`9f5621f`_)
+
 Unknown
 -------
+
+* add more plots for testing forward transform (`883e032`_)
 
 * Fixing roundtrip transforms for jax + cupy (#23)
 
@@ -83,6 +188,8 @@ Co-authored-by: pre-commit-ci[bot] <66853113+pre-commit-ci[bot]@users.noreply.gi
 * Merge branch 'main' of github.com:pywavelet/pywavelet (`7d64ccb`_)
 
 .. _b7f4499: https://github.com/pywavelet/pywavelet/commit/b7f44992491d5b555ca05a8a870ab82617826b38
+.. _9f5621f: https://github.com/pywavelet/pywavelet/commit/9f5621f455127eaa4d200cb640826d02cc261fec
+.. _883e032: https://github.com/pywavelet/pywavelet/commit/883e0320d30b4c45e23619fca9e4331ad2fccbcc
 .. _248ba73: https://github.com/pywavelet/pywavelet/commit/248ba73a33662cc6200886dec18f88c5fdef4946
 .. _eed33ab: https://github.com/pywavelet/pywavelet/commit/eed33ab619dc5fdd404c3e6227f3a103dc5cc99e
 .. _6c8d990: https://github.com/pywavelet/pywavelet/commit/6c8d9903ff2caf37fae0b4c6e3febecdcba4cbd1
