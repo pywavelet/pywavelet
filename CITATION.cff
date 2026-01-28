@@ -5,13 +5,27 @@ message: >-
   metadata from this file.
 type: software
 authors:
-  - given-names: pywavelet
-    family-names: pywavelet
-    email: pywavelet@aut.ac.nz
+  - given-names: Avi
+    family-names: Vajpeyi
     affiliation: >-
-      Science Centre 303S, 38 Princes st,
-      Auckland, 1010, New Zealand
-    orcid: 'https://orcid.org/0000-0002-4146-1132'
+      Department of Statistics, University of Auckland, 38 Princes St,
+      Auckland, New Zealand
+  - given-names: Quentin
+    family-names: Baghi
+    affiliation: Paris
+  - given-names: Ollie
+    family-names: Burke
+    affiliation: >-
+      School of Physics and Astronomy, University of Glasgow, University Avenue,
+      Glasgow, G12 8QQ, UK; Laboratoire des 2 Infinis - Toulouse (L2IT-IN2P3),
+      Université de Toulouse, CNRS, UPS, F-31062 Toulouse Cedex 9, France
+  - given-names: Giorgio
+    family-names: Mentasti
+    affiliation: >-
+      Department of Physics, Imperial College London, Prince Consort Road,
+      SW7 2AZ, London, United Kingdom
+  - given-names: Lorenzo
+    family-names: Speri
 identifiers:
   - type: url
     value: ''
