@@ -6,6 +6,10 @@ on:
       - main
     paths:
       - 'docs/**'
+      - 'src/**'
+  workflow_dispatch:
+
+      
 
 # This job installs dependencies, builds the book, and pushes it to `gh-pages`
 jobs:
