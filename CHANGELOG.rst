@@ -5,6 +5,19 @@ CHANGELOG
 =========
 
 
+.. _changelog-v0.2.10:
+
+v0.2.10 (2026-01-28)
+====================
+
+Unknown
+-------
+
+* Merge branch 'main' of github.com:pywavelet/pywavelet (`f33ffd0`_)
+
+.. _f33ffd0: https://github.com/pywavelet/pywavelet/commit/f33ffd0a7da538767f239099a7290d8635b7c160
+
+
 .. _changelog-v0.2.9:
 
 v0.2.9 (2026-01-28)
@@ -13,7 +26,14 @@ v0.2.9 (2026-01-28)
 Bug Fixes
 ---------
 
+* fix: adjust offs calculation in transform_wavelet_freq_helper to prevent overwriting center term (`ab657f7`_)
+
 * fix: update offs calculation in transform_wavelet_freq_helper to prevent overwriting center term (`f44048e`_)
+
+Chores
+------
+
+* chore(release): 0.2.9 (`f5bd844`_)
 
 Documentation
 -------------
@@ -79,7 +99,9 @@ Co-authored-by: pre-commit-ci[bot] <66853113+pre-commit-ci[bot]@users.noreply.gi
 
 * Merge branch 'main' of github.com:pywavelet/pywavelet (`b4126e6`_)
 
+.. _ab657f7: https://github.com/pywavelet/pywavelet/commit/ab657f7c45ad4c463a12610f9740dc14285e99ed
 .. _f44048e: https://github.com/pywavelet/pywavelet/commit/f44048e88c34b442d08244babd2839c6367426cd
+.. _f5bd844: https://github.com/pywavelet/pywavelet/commit/f5bd8443ffca6f8364977c33bd7d051cc40ee8d3
 .. _913370d: https://github.com/pywavelet/pywavelet/commit/913370d2a3909d4b5b08c22e53db65f8aeb2b53f
 .. _1b7dfda: https://github.com/pywavelet/pywavelet/commit/1b7dfdaab92acdd61cd29a3794d118ddc9723f20
 .. _128e78f: https://github.com/pywavelet/pywavelet/commit/128e78fe60212c08cbaf59e332c46f262c0b1b09
