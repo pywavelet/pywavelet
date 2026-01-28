@@ -83,4 +83,3 @@ def test_inverse_to_time_noncompact_helpers_and_wrap_branch():
         n=0, Nf=Nf, Nt=Nt, K=K2, phis=phis, fft_fin_real=fft_fin_real, res=res
     )
     assert np.any(res != 0.0)
-

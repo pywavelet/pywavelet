@@ -12,7 +12,13 @@ def test_wavelet_bins_preprocess_typeerror():
         _preprocess_bins(object(), Nf=4, Nt=4)
 
 
-@pytest.mark.parametrize("module_path", ["pywavelet.transforms.numpy.forward.main", "pywavelet.transforms.jax.forward.main"])
+@pytest.mark.parametrize(
+    "module_path",
+    [
+        "pywavelet.transforms.numpy.forward.main",
+        "pywavelet.transforms.jax.forward.main",
+    ],
+)
 def test_forward_time_to_wavelet_truncates_and_caps_mult(module_path, caplog):
     mod = importlib.import_module(module_path)
 
@@ -91,9 +97,7 @@ def test_timeseries_padding_filtering_slicing_and_truncation(caplog):
     with pytest.raises(ValueError):
         ts.highpass_filter(fmin=ts.nyquist_frequency + 1.0)
     # filtfilt-style padding needs a longer series than our tiny padding test
-    ts_long = TimeSeries(
-        data=np.ones(128), time=np.arange(0, 128) * dt
-    )
+    ts_long = TimeSeries(data=np.ones(128), time=np.arange(0, 128) * dt)
     filtered = ts_long.highpass_filter(fmin=1.0)
     assert filtered.ND == ts_long.ND
 
@@ -143,7 +147,11 @@ def test_wavelet_properties_ops_and_snr():
 def test_plotting_smoke_and_time_axis_branches():
     import matplotlib.pyplot as plt
 
-    from pywavelet.types.plotting import _fmt_time_axis, plot_spectrogram, plot_wavelet_grid
+    from pywavelet.types.plotting import (
+        _fmt_time_axis,
+        plot_spectrogram,
+        plot_wavelet_grid,
+    )
 
     # plot_wavelet_grid with trend + log scale path
     Nf, Nt = 3, 7
