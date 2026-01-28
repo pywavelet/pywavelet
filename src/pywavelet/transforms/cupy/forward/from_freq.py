@@ -43,9 +43,13 @@ def transform_wavelet_freq_helper(
     DX[:, half] = center
 
     # — off-center (j = ±1...±(half-1))
-    offs = cp.arange(1 - half, half)  # length Nt-1
-    jj = f_bins[:, None] * half + offs[None, :]  # (Nf+1, Nt-1)
-    ii = half + offs  # (Nt-1,)
+    # NOTE: we must exclude offs==0 here; otherwise we overwrite the center term
+    # (and lose the 1/2 correction for f_bin==0 and f_bin==Nf).
+    offs = cp.concatenate(
+        [cp.arange(1 - half, 0), cp.arange(1, half)]
+    )  # length Nt-2
+    jj = f_bins[:, None] * half + offs[None, :]  # (Nf+1, Nt-2)
+    ii = half + offs  # (Nt-2,)
     mask = ((f_bins[:, None] == Nf) & (offs[None, :] > 0)) | (
         (f_bins[:, None] == 0) & (offs[None, :] < 0)
     )
