@@ -20,15 +20,15 @@ Transform Functions
 Types
 **************************
 
-.. autoclass:: pywavelet.transforms.types.TimeSeries
+.. autoclass:: pywavelet.types.TimeSeries
     :members:
     :undoc-members:
 
-.. autoclass:: pywavelet.transforms.types.FrequencySeries
+.. autoclass:: pywavelet.types.FrequencySeries
     :members:
     :undoc-members:
 
 
-.. autoclass:: pywavelet.transforms.types.Wavelet
+.. autoclass:: pywavelet.types.Wavelet
     :members:
     :undoc-members:
