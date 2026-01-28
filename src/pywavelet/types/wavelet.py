@@ -332,6 +332,7 @@ class Wavelet:
             return Wavelet(
                 data=self.data + other, time=self.time, freq=self.freq
             )
+        return NotImplemented
 
     def __sub__(self, other):
         """Element-wise subtraction of two Wavelet objects."""
@@ -343,6 +344,7 @@ class Wavelet:
             return Wavelet(
                 data=self.data - other, time=self.time, freq=self.freq
             )
+        return NotImplemented
 
     def __mul__(self, other):
         """Element-wise multiplication of two Wavelet objects."""
@@ -354,10 +356,7 @@ class Wavelet:
             return Wavelet(
                 data=self.data * other, time=self.time, freq=self.freq
             )
-        elif isinstance(other, WaveletMask):
-            return Wavelet(
-                data=self.data * other.data, time=self.time, freq=self.freq
-            )
+        return NotImplemented
 
     def __truediv__(self, other):
         """Element-wise division of two Wavelet objects."""
@@ -369,6 +368,7 @@ class Wavelet:
             return Wavelet(
                 data=self.data / other, time=self.time, freq=self.freq
             )
+        return NotImplemented
 
     def __eq__(self, other: "Wavelet") -> bool:
         """Element-wise comparison of two Wavelet objects."""

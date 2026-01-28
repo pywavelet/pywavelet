@@ -67,10 +67,6 @@ class TimeSeries:
         """Return the number of data points in the time series."""
         return len(self.data)
 
-    def __getitem__(self, item):
-        """Return the data point at the specified index."""
-        return self.data[item]
-
     @property
     def sample_rate(self) -> float:
         """
@@ -283,8 +279,8 @@ class TimeSeries:
             # Handle slicing
             return self.__handle_slice(key)
         else:
-            # Handle regular indexing
-            return TimeSeries(self.data[key], self.time[key])
+            # Handle regular indexing: return the data value (like a sequence)
+            return self.data[key]
 
     def __handle_slice(self, slice_obj) -> "TimeSeries":
         return TimeSeries(self.data[slice_obj], self.time[slice_obj])
