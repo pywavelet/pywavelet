@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 900 320" width="900" height="320">
+  <defs>
+    <style>
+      .panel { fill: #ffffff; stroke: #d0d7de; stroke-width: 2; }
+      .axis { stroke: #6e7781; stroke-width: 2; }
+      .grid { stroke: #d8dee4; stroke-width: 1; opacity: 0.6; }
+      .label { font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial; font-size: 18px; fill: #24292f; }
+      .sub { font-size: 14px; fill: #57606a; }
+      .path { fill: none; stroke: #0969da; stroke-width: 4; }
+      .dot { fill: #cf222e; }
+      .tile { fill: #0969da; opacity: 0.08; }
+    </style>
+  </defs>
+
+  <!-- Left panel: time-domain -->
+  <rect class="panel" x="20" y="20" width="400" height="280" rx="12" />
+  <text class="label" x="40" y="52">Time domain</text>
+  <text class="label sub" x="40" y="78">signal (chirp-like)</text>
+
+  <!-- axes -->
+  <line class="axis" x1="60" y1="260" x2="380" y2="260" />
+  <line class="axis" x1="60" y1="100" x2="60" y2="260" />
+  <!-- light grid -->
+  <line class="grid" x1="140" y1="100" x2="140" y2="260" />
+  <line class="grid" x1="220" y1="100" x2="220" y2="260" />
+  <line class="grid" x1="300" y1="100" x2="300" y2="260" />
+  <line class="grid" x1="60" y1="220" x2="380" y2="220" />
+  <line class="grid" x1="60" y1="180" x2="380" y2="180" />
+  <line class="grid" x1="60" y1="140" x2="380" y2="140" />
+
+  <!-- A stylized chirp: increasing oscillation frequency -->
+  <path id="time_path" class="path" d="
+    M 60 200
+    C 85 110, 110 290, 135 200
+    C 153 140, 171 260, 189 200
+    C 204 160, 219 240, 234 200
+    C 247 170, 260 230, 273 200
+    C 284 176, 295 224, 306 200
+    C 316 180, 326 220, 336 200
+    C 345 184, 354 216, 363 200
+    C 371 187, 379 213, 387 200
+  " />
+
+  <circle class="dot" r="6">
+    <animateMotion dur="4s" repeatCount="indefinite" keySplines="0.42 0 0.58 1" calcMode="spline">
+      <mpath xlink:href="#time_path"/>
+    </animateMotion>
+  </circle>
+
+  <text class="label sub" x="340" y="285">t</text>
+
+  <!-- Right panel: time-frequency / wavelet grid -->
+  <rect class="panel" x="480" y="20" width="400" height="280" rx="12" />
+  <text class="label" x="500" y="52">Wavelet / time-frequency view</text>
+  <text class="label sub" x="500" y="78">energy follows a track</text>
+
+  <!-- axes -->
+  <line class="axis" x1="520" y1="260" x2="840" y2="260" />
+  <line class="axis" x1="520" y1="100" x2="520" y2="260" />
+  <!-- light grid tiles -->
+  <g>
+    <rect class="tile" x="520" y="100" width="80" height="40" />
+    <rect class="tile" x="600" y="140" width="80" height="40" />
+    <rect class="tile" x="680" y="180" width="80" height="40" />
+    <rect class="tile" x="760" y="220" width="80" height="40" />
+    <animate attributeName="opacity" values="0.25;0.08;0.25" dur="2.5s" repeatCount="indefinite"/>
+  </g>
+
+  <!-- track and moving dot -->
+  <path id="tf_path" class="path" d="M 520 240 L 840 120" />
+  <circle class="dot" r="6">
+    <animateMotion dur="4s" repeatCount="indefinite" rotate="auto" keySplines="0.42 0 0.58 1" calcMode="spline">
+      <mpath xlink:href="#tf_path"/>
+    </animateMotion>
+  </circle>
+
+  <text class="label sub" x="800" y="285">t</text>
+  <text class="label sub" x="492" y="112">f</text>
+</svg>
+

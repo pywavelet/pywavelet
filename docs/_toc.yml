@@ -4,19 +4,34 @@
 format: jb-book
 root: index.rst
 parts:
-- caption: " "
+- caption: Getting started
+  chapters:
+  - file: quickstart.rst
+  - file: backends.rst
+  - file: choosing_parameters.rst
+
+- caption: Concepts
+  chapters:
+  - file: how_it_works.rst
+  - file: window_function.rst
+  - file: window_effects.rst
+
+- caption: Reference
   chapters:
   - file: api.rst
+  - file: citing.rst
+  - file: faq.rst
+
+- caption: Examples
+  chapters:
   - file: examples/basic.ipynb
   - file: examples/runtime.ipynb
   - file: examples/accuracy.ipynb
   - file: examples/example_signals.ipynb
-#- caption:  Case Studies
-#  chapters:
-#  - url: https://www.youtube.com/watch?v=dQw4w9WgXcQ&themeRefresh=1
-#    title: LISA white-dwarf
-#  - url: https://www.youtube.com/watch?v=dQw4w9WgXcQ&themeRefresh=1
-#    title: LVK compact binary
-#  - url: https://www.youtube.com/watch?v=dQw4w9WgXcQ&themeRefresh=1
-#    title: Analysis with gaps
 
+- caption: Case studies (WIP)
+  chapters:
+  - file: examples/lisa_sprint/lisa_sprint.ipynb
+  - file: examples/lisa_sprint/ldc_spritz.ipynb
+  - file: examples/lvk.ipynb
+  - file: examples/radler/README.md

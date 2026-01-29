@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 360" width="980" height="360">
+  <defs>
+    <style>
+      .panel { fill: #ffffff; stroke: #d0d7de; stroke-width: 2; }
+      .axis { stroke: #6e7781; stroke-width: 2; }
+      .grid { stroke: #d8dee4; stroke-width: 1; opacity: 0.55; }
+      .label { font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial; font-size: 16px; fill: #24292f; }
+      .sub { font-size: 13px; fill: #57606a; }
+      .sig { fill: none; stroke: #0969da; stroke-width: 2.5; }
+      .win { fill: #fb8c00; opacity: 0.18; stroke: #fb8c00; stroke-width: 2; }
+      .arrow { stroke: #57606a; stroke-width: 2; marker-end: url(#m); }
+      .col { fill: #0969da; opacity: 0.12; }
+      .colhot { fill: #cf222e; opacity: 0.18; }
+      .dot { fill: #cf222e; }
+    </style>
+    <marker id="m" markerWidth="10" markerHeight="10" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L6,3 L0,6 Z" fill="#57606a"/>
+    </marker>
+  </defs>
+
+  <rect class="panel" x="20" y="20" width="300" height="320" rx="12"/>
+  <rect class="panel" x="340" y="20" width="300" height="320" rx="12"/>
+  <rect class="panel" x="660" y="20" width="300" height="320" rx="12"/>
+
+  <text class="label" x="40" y="48">1) Roll spectrum + apply window</text>
+  <text class="label sub" x="40" y="70">select a packet for this time bin</text>
+
+  <text class="label" x="360" y="48">2) IFFT to time packet</text>
+  <text class="label sub" x="360" y="70">windowed inverse FFT</text>
+
+  <text class="label" x="680" y="48">3) Pack into wavelet grid</text>
+  <text class="label sub" x="680" y="70">fill one column per time bin</text>
+
+  <!-- Left: spectrum + moving window -->
+  <line class="axis" x1="55" y1="295" x2="285" y2="295"/>
+  <line class="axis" x1="55" y1="105" x2="55" y2="295"/>
+  <line class="grid" x1="112" y1="105" x2="112" y2="295"/>
+  <line class="grid" x1="169" y1="105" x2="169" y2="295"/>
+  <line class="grid" x1="226" y1="105" x2="226" y2="295"/>
+  <path class="sig" d="M55 255 C 80 140, 110 300, 140 225 C 170 150, 200 290, 230 210 C 250 170, 268 240, 285 200"/>
+  <rect class="win" x="70" y="105" width="70" height="190" rx="10">
+    <animate attributeName="x" dur="4s" repeatCount="indefinite" values="70;190;70"/>
+  </rect>
+  <circle class="dot" cx="105" cy="140" r="5">
+    <animate attributeName="cx" dur="4s" repeatCount="indefinite" values="105;225;105"/>
+  </circle>
+
+  <!-- Middle: time packet -->
+  <line class="axis" x1="375" y1="295" x2="605" y2="295"/>
+  <line class="axis" x1="375" y1="105" x2="375" y2="295"/>
+  <line class="grid" x1="432" y1="105" x2="432" y2="295"/>
+  <line class="grid" x1="489" y1="105" x2="489" y2="295"/>
+  <line class="grid" x1="546" y1="105" x2="546" y2="295"/>
+  <path class="sig" d="M375 240 C 405 140, 435 300, 465 220 C 495 160, 520 260, 545 210 C 565 175, 585 230, 605 205"/>
+  <rect class="win" x="385" y="105" width="70" height="190" rx="10">
+    <animate attributeName="x" dur="4s" repeatCount="indefinite" values="385;505;385"/>
+  </rect>
+
+  <!-- Right: wavelet grid filling columns -->
+  <line class="axis" x1="695" y1="295" x2="925" y2="295"/>
+  <line class="axis" x1="695" y1="105" x2="695" y2="295"/>
+  <!-- background columns -->
+  <g>
+    <rect class="col" x="705" y="115" width="18" height="170"/>
+    <rect class="col" x="727" y="115" width="18" height="170"/>
+    <rect class="col" x="749" y="115" width="18" height="170"/>
+    <rect class="col" x="771" y="115" width="18" height="170"/>
+    <rect class="col" x="793" y="115" width="18" height="170"/>
+    <rect class="col" x="815" y="115" width="18" height="170"/>
+    <rect class="col" x="837" y="115" width="18" height="170"/>
+    <rect class="col" x="859" y="115" width="18" height="170"/>
+    <rect class="col" x="881" y="115" width="18" height="170"/>
+  </g>
+  <!-- moving "current" column -->
+  <rect class="colhot" x="705" y="115" width="18" height="170">
+    <animate attributeName="x" dur="4s" repeatCount="indefinite" values="705;881;705"/>
+  </rect>
+  <circle class="dot" cx="714" cy="200" r="5">
+    <animate attributeName="cx" dur="4s" repeatCount="indefinite" values="714;890;714"/>
+    <animate attributeName="cy" dur="4s" repeatCount="indefinite" values="250;140;250"/>
+  </circle>
+
+  <!-- arrows between panels -->
+  <line class="arrow" x1="320" y1="180" x2="340" y2="180"/>
+  <line class="arrow" x1="640" y1="180" x2="660" y2="180"/>
+</svg>
+
