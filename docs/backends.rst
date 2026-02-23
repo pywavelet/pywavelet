@@ -50,4 +50,3 @@ Troubleshooting
 
 - If you request ``cupy`` without a working CUDA runtime, PyWavelet falls back to NumPy and prints a table of available backends.
 - On JAX, ``PYWAVELET_PRECISION=float64`` enables 64-bit mode (``jax_enable_x64``) during import.
-

@@ -29,10 +29,13 @@ from scipy.signal import chirp
 os.environ.setdefault("PYWAVELET_BACKEND", "numpy")
 os.environ.setdefault("PYWAVELET_PRECISION", "float64")
 
-from pywavelet.transforms import from_freq_to_wavelet, from_time_to_wavelet
-from pywavelet.transforms import phi_vec, phitilde_vec_norm
+from pywavelet.transforms import (
+    from_freq_to_wavelet,
+    from_time_to_wavelet,
+    phi_vec,
+    phitilde_vec_norm,
+)
 from pywavelet.types import FrequencySeries, TimeSeries
-
 
 ROOT = Path(__file__).resolve().parents[1]
 STATIC = ROOT / "_static"
@@ -96,7 +99,9 @@ def _dx_ifft_for_fbin(
     return np.fft.ifft(DX, Nt)
 
 
-def _pack_wave_column_from_dx(dx_trans: np.ndarray, Nt: int, f_bin: int) -> np.ndarray:
+def _pack_wave_column_from_dx(
+    dx_trans: np.ndarray, Nt: int, f_bin: int
+) -> np.ndarray:
     """Mimic the parity packing logic into wave[:, f_bin] for one column."""
     col = np.zeros(Nt, dtype=float)
     if f_bin == 0:
@@ -127,7 +132,9 @@ def make_freq_to_wavelet_gif() -> None:
     phif = np.asarray(phif, dtype=np.float64)
 
     # Precompute per-frame packets
-    dx_packets = [(_dx_ifft_for_fbin(yf, phif, Nf, Nt, fb)) for fb in range(Nf + 1)]
+    dx_packets = [
+        (_dx_ifft_for_fbin(yf, phif, Nf, Nt, fb)) for fb in range(Nf + 1)
+    ]
 
     # Build wavelet grid incrementally (shape Nt x Nf, matching helper description)
     wave = np.zeros((Nt, Nf), dtype=float)
@@ -158,8 +165,12 @@ def make_freq_to_wavelet_gif() -> None:
     fs = FrequencySeries(data=yf, freq=f)
     lib_wave = from_freq_to_wavelet(fs, Nf=Nf, Nt=Nt, nx=nx)
     if not np.allclose(lib_wave.data, wavelet_full, rtol=5e-6, atol=5e-9):
-        max_err = float(np.max(np.abs(np.asarray(lib_wave.data) - wavelet_full)))
-        raise RuntimeError(f"freq->wavelet manual mismatch (max abs err={max_err:.3e})")
+        max_err = float(
+            np.max(np.abs(np.asarray(lib_wave.data) - wavelet_full))
+        )
+        raise RuntimeError(
+            f"freq->wavelet manual mismatch (max abs err={max_err:.3e})"
+        )
 
     fig = plt.figure(figsize=(9.2, 5.2))
     gs = fig.add_gridspec(2, 2, height_ratios=[1, 1.1])
@@ -182,17 +193,27 @@ def make_freq_to_wavelet_gif() -> None:
     # Twin axis for the window amplitude (keeps scaling intuitive)
     ax_win = ax_spec.twinx()
     (win_line,) = ax_win.plot(
-        f, np.zeros_like(f), color="#fb8c00", linewidth=2, label="|phitilde| (norm)"
+        f,
+        np.zeros_like(f),
+        color="#fb8c00",
+        linewidth=2,
+        label="|phitilde| (norm)",
     )
     ax_win.set_ylim(0.0, 1.05)
     ax_win.set_ylabel("window amplitude")
     ax_win.grid(False)
-    ax_spec.legend(handles=[spec_line, win_line], frameon=False, loc="upper right")
+    ax_spec.legend(
+        handles=[spec_line, win_line], frameon=False, loc="upper right"
+    )
 
     # Packet panel
     n = np.arange(Nt)
-    (packet_r,) = ax_packet.plot(n, np.real(dx_packets[0]), label="Re", color="#0969da")
-    (packet_i,) = ax_packet.plot(n, np.imag(dx_packets[0]), label="Im", color="#8250df", alpha=0.85)
+    (packet_r,) = ax_packet.plot(
+        n, np.real(dx_packets[0]), label="Re", color="#0969da"
+    )
+    (packet_i,) = ax_packet.plot(
+        n, np.imag(dx_packets[0]), label="Im", color="#8250df", alpha=0.85
+    )
     ax_packet.set_title("IFFT packet (per f-bin)")
     ax_packet.set_xlabel("time-bin index n")
     ax_packet.set_ylabel("amplitude")
@@ -228,7 +249,9 @@ def make_freq_to_wavelet_gif() -> None:
 
         # Highlight the active band on the x-axis.
         band_span.remove()
-        band_span = ax_spec.axvspan(f[start], f[end], color="#fb8c00", alpha=0.12)
+        band_span = ax_spec.axvspan(
+            f[start], f[end], color="#fb8c00", alpha=0.12
+        )
         band_center.set_xdata([f[jj_base], f[jj_base]])
 
         # Window curve on its own axis (normalized).
@@ -296,7 +319,9 @@ def _windowed_packet_time(
     return wdata, np.fft.rfft(wdata, K)
 
 
-def _pack_wave_row_from_rfft(wfft: np.ndarray, Nf: int, mult: int, t_bin: int) -> np.ndarray:
+def _pack_wave_row_from_rfft(
+    wfft: np.ndarray, Nf: int, mult: int, t_bin: int
+) -> np.ndarray:
     """Mimic the compact packing in __fill_wave_2 for one time-bin row."""
     row = np.zeros(Nf, dtype=float)
     if t_bin % 2 == 0:
@@ -325,7 +350,10 @@ def make_time_to_wavelet_gif() -> None:
     K = mult * 2 * Nf
 
     # Precompute packets per time bin
-    packets = [(_windowed_packet_time(ts.data, phi, Nf, Nt, mult, tb)) for tb in range(Nt)]
+    packets = [
+        (_windowed_packet_time(ts.data, phi, Nf, Nt, mult, tb))
+        for tb in range(Nt)
+    ]
 
     wave = np.zeros((Nt, Nf), dtype=float)  # time bins x freq bins
 
@@ -351,8 +379,12 @@ def make_time_to_wavelet_gif() -> None:
     # Correctness check against library implementation (NumPy backend).
     lib_wave = from_time_to_wavelet(ts, Nf=Nf, Nt=Nt, nx=nx, mult=mult)
     if not np.allclose(lib_wave.data, wave_full.T, rtol=5e-6, atol=5e-9):
-        max_err = float(np.max(np.abs(np.asarray(lib_wave.data) - wave_full.T)))
-        raise RuntimeError(f"time->wavelet manual mismatch (max abs err={max_err:.3e})")
+        max_err = float(
+            np.max(np.abs(np.asarray(lib_wave.data) - wave_full.T))
+        )
+        raise RuntimeError(
+            f"time->wavelet manual mismatch (max abs err={max_err:.3e})"
+        )
 
     fig = plt.figure(figsize=(9.2, 5.2))
     gs = fig.add_gridspec(2, 2, height_ratios=[1, 1.1])
@@ -397,7 +429,9 @@ def make_time_to_wavelet_gif() -> None:
 
     # FFT panel
     freqs = np.fft.rfftfreq(K, d=dt)
-    (fft_line,) = ax_fft.semilogy(freqs, np.abs(packets[0][1]) ** 2 + 1e-20, color="#0969da")
+    (fft_line,) = ax_fft.semilogy(
+        freqs, np.abs(packets[0][1]) ** 2 + 1e-20, color="#0969da"
+    )
     ax_fft.set_title("RFFT of windowed segment")
     ax_fft.set_xlabel("frequency [Hz]")
     ax_fft.set_ylabel("power")
@@ -461,10 +495,18 @@ def make_time_to_wavelet_gif() -> None:
         start_mod = start % T
         end_mod = end % T
         if start_mod <= end_mod:
-            win_patches.append(ax_time.axvspan(start_mod, end_mod, color="#fb8c00", alpha=0.25))
+            win_patches.append(
+                ax_time.axvspan(
+                    start_mod, end_mod, color="#fb8c00", alpha=0.25
+                )
+            )
         else:
-            win_patches.append(ax_time.axvspan(0.0, end_mod, color="#fb8c00", alpha=0.25))
-            win_patches.append(ax_time.axvspan(start_mod, T, color="#fb8c00", alpha=0.25))
+            win_patches.append(
+                ax_time.axvspan(0.0, end_mod, color="#fb8c00", alpha=0.25)
+            )
+            win_patches.append(
+                ax_time.axvspan(start_mod, T, color="#fb8c00", alpha=0.25)
+            )
 
         # update phi overlay to match the exact indices used (with periodic wrapping)
         jj0 = (tb * Nf - K // 2) % ND
