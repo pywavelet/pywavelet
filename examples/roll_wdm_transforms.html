@@ -1,0 +1,758 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>&lt;no title&gt; &#8212; Pywavelet</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css?v=9c3e77be" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../_static/togglebutton.js?v=1ae7504c"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="../_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'examples/roll_wdm_transforms';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/logo.png" class="logo__image only-light" alt="Pywavelet - Home"/>
+    <script>document.write(`<img src="../_static/logo.png" class="logo__image only-dark" alt="Pywavelet - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../index.html">
+                    PyWavelet
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../backends.html">Backends &amp; Precision</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../choosing_parameters.html">Choosing parameters</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Concepts</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../how_it_works.html">How it works</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../window_function.html">Window function</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../window_effects.html">Window effects</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../citing.html">Citing PyWavelet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">FAQ</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Examples</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="basic.html">Example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runtime.html">Runtime Comparisons</a></li>
+<li class="toctree-l1"><a class="reference internal" href="accuracy.html">Accuracy checks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_signals.html">EMRI, Galactic Binary, and MBH Transformation examples</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Case studies (WIP)</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="lisa_sprint/lisa_sprint.html">Lisa Sprint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lisa_sprint/ldc_spritz.html">LDC Spritz</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lvk.html">LVK example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="radler/README.html">Radler LDC</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/pywavelet/pywavelet" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/pywavelet/pywavelet/issues/new?title=Issue%20on%20page%20%2Fexamples/roll_wdm_transforms.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/examples/roll_wdm_transforms.ipynb" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.ipynb</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1><no title></h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="simple visible nav section-nav flex-column">
+</ul>
+
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">numpy.fft</span><span class="w"> </span><span class="kn">import</span> <span class="n">fft</span><span class="p">,</span> <span class="n">ifft</span><span class="p">,</span> <span class="n">fftfreq</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">Cnm</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">m</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">((</span><span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">4</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="n">n</span><span class="o">+</span><span class="n">m</span><span class="p">)))</span>
+
+<span class="c1"># Please note that here d is not used as we are taking it to be d=1, which allows us to perform analytics further</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">Phi_unit</span><span class="p">(</span><span class="n">f</span><span class="p">,</span><span class="n">A</span><span class="p">,</span><span class="n">d</span><span class="p">):</span>
+    <span class="n">B</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">A</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39; Unitary φ-window in frequency domain, sampled at frequencies f, with parameters A and d.&#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">f</span><span class="p">)</span><span class="o">&gt;</span><span class="n">A</span><span class="o">+</span><span class="n">B</span><span class="p">,</span><span class="n">f</span><span class="o">*</span><span class="mi">0</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">f</span><span class="p">)</span><span class="o">&gt;</span><span class="n">A</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">f</span><span class="p">)</span><span class="o">-</span><span class="n">A</span><span class="p">)</span><span class="o">/</span><span class="n">B</span><span class="p">),</span><span class="n">f</span><span class="o">*</span><span class="mi">0</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">gnmf</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">m</span><span class="p">,</span><span class="n">f</span><span class="p">,</span><span class="n">DT</span><span class="p">,</span><span class="n">nf</span><span class="p">,</span><span class="n">A</span><span class="p">,</span><span class="n">d</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;Returns the Gabor atom g_{n,m}(f) in frequency domain, sampled at frequencies f, for time shift n and freq shift m.&#39;&#39;&#39;</span>
+    <span class="n">DF</span><span class="o">=</span><span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">DT</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">m</span><span class="o">==</span><span class="mi">0</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mi">4</span><span class="n">j</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">n</span><span class="o">*</span><span class="n">f</span><span class="o">*</span><span class="n">DT</span><span class="p">)</span><span class="o">*</span><span class="n">Phi_unit</span><span class="p">(</span><span class="n">f</span><span class="o">/</span><span class="n">DF</span><span class="p">,</span><span class="n">A</span><span class="p">,</span><span class="n">d</span><span class="p">),</span>
+             <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">m</span><span class="o">==</span><span class="n">nf</span><span class="p">,(</span><span class="n">Phi_unit</span><span class="p">(</span><span class="n">f</span><span class="o">/</span><span class="n">DF</span><span class="o">+</span><span class="n">m</span><span class="p">,</span><span class="n">A</span><span class="p">,</span><span class="n">d</span><span class="p">)</span><span class="o">+</span><span class="n">Phi_unit</span><span class="p">(</span><span class="n">f</span><span class="o">/</span><span class="n">DF</span><span class="o">-</span><span class="n">m</span><span class="p">,</span><span class="n">A</span><span class="p">,</span><span class="n">d</span><span class="p">))</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mi">4</span><span class="n">j</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">n</span><span class="o">*</span><span class="n">f</span><span class="o">*</span><span class="n">DT</span><span class="p">),</span>
+                    <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="n">m</span><span class="o">*</span><span class="n">n</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">conjugate</span><span class="p">(</span><span class="n">Cnm</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">m</span><span class="p">))</span><span class="o">*</span><span class="n">Phi_unit</span><span class="p">(</span><span class="n">f</span><span class="o">/</span><span class="n">DF</span><span class="o">+</span><span class="n">m</span><span class="p">,</span><span class="n">A</span><span class="p">,</span><span class="n">d</span><span class="p">)</span><span class="o">+</span><span class="n">Cnm</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">m</span><span class="p">)</span><span class="o">*</span><span class="n">Phi_unit</span><span class="p">(</span><span class="n">f</span><span class="o">/</span><span class="n">DF</span><span class="o">-</span><span class="n">m</span><span class="p">,</span><span class="n">A</span><span class="p">,</span><span class="n">d</span><span class="p">))</span>
+                     <span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="n">j</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">n</span><span class="o">*</span><span class="n">f</span><span class="o">*</span><span class="n">DT</span><span class="p">)</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+             <span class="p">))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">wdm_forward</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">nt</span><span class="p">,</span> <span class="n">nf</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39; Forward WDM: from time-domain signal x of length nt*nf to W of shape (nt, nf+1) &#39;&#39;&#39;</span>
+
+    <span class="n">n_total</span> <span class="o">=</span> <span class="n">nt</span> <span class="o">*</span> <span class="n">nf</span>
+    <span class="k">if</span> <span class="n">nt</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">!=</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">nf</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;nt and nf must both be even.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="n">n_total</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;len(x)=</span><span class="si">{</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2"> must equal nt*nf=</span><span class="si">{</span><span class="n">n_total</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="mi">0</span> <span class="o">&lt;</span> <span class="n">A</span> <span class="o">&lt;</span> <span class="mf">0.5</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;A must be in (0, 0.5).&quot;</span><span class="p">)</span>
+
+    <span class="c1"># 1) Compute FFT of full signal</span>
+    <span class="n">X_fft</span> <span class="o">=</span> <span class="n">fft</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>  <span class="c1"># length = n_total</span>
+
+    <span class="c1"># 2) Build φ-window of length=nt</span>
+    <span class="n">dF_phi</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">nf</span> <span class="o">*</span> <span class="n">dt</span><span class="p">)</span>
+    <span class="n">fs_full</span> <span class="o">=</span> <span class="n">fftfreq</span><span class="p">(</span><span class="n">n_total</span><span class="p">,</span><span class="n">dt</span><span class="p">)</span>  <span class="c1"># length = n_total</span>
+    <span class="n">half</span> <span class="o">=</span> <span class="n">nt</span> <span class="o">//</span> <span class="mi">2</span>
+    <span class="n">fs_phi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">fs_full</span><span class="p">[:</span><span class="n">half</span><span class="p">],</span> <span class="n">fs_full</span><span class="p">[</span><span class="o">-</span><span class="n">half</span><span class="p">:]])</span>  <span class="c1"># length = nt</span>
+    <span class="n">phi_window</span> <span class="o">=</span> <span class="n">Phi_unit</span><span class="p">(</span><span class="n">fs_phi</span> <span class="o">/</span> <span class="n">dF_phi</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">nf</span><span class="p">)</span>  <span class="c1"># length = nt</span>
+
+    <span class="c1"># 3) Prepare output array</span>
+    <span class="n">W</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nt</span><span class="p">,</span> <span class="n">nf</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+
+    <span class="c1"># 4) Handle m=0 separately, since they only involve half of the φ-window</span>
+    <span class="n">block</span><span class="o">=</span><span class="n">X_fft</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="n">half</span><span class="p">]</span><span class="o">*</span><span class="n">phi_window</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="n">half</span><span class="p">]</span>
+    <span class="n">larr</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">half</span><span class="p">)</span>
+    <span class="n">narr</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">nt</span><span class="p">)</span>
+    <span class="n">W</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mi">4</span><span class="n">j</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">larr</span><span class="p">[</span><span class="kc">None</span><span class="p">,:]</span><span class="o">*</span><span class="n">narr</span><span class="p">[:,</span><span class="kc">None</span><span class="p">]</span><span class="o">/</span><span class="n">nt</span><span class="p">)</span><span class="o">*</span><span class="n">block</span><span class="p">[</span><span class="kc">None</span><span class="p">,:],</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                      <span class="o">+</span><span class="n">X_fft</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">phi_window</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">nt</span><span class="o">*</span><span class="n">nf</span><span class="p">)</span>
+
+    <span class="c1"># 5) For each sub-band m=1..nf-1:</span>
+    <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">nf</span><span class="p">):</span>
+        <span class="n">block</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">X_fft</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="o">*</span><span class="n">half</span><span class="p">):</span><span class="nb">int</span><span class="p">((</span><span class="n">m</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">half</span><span class="p">)],</span> <span class="n">X_fft</span><span class="p">[</span><span class="nb">int</span><span class="p">((</span><span class="n">m</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">half</span><span class="p">):</span><span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="o">*</span><span class="n">half</span><span class="p">)]])</span>
+
+        <span class="c1"># Multiply by φ-window and IFFT</span>
+        <span class="n">xnm_time</span> <span class="o">=</span> <span class="n">ifft</span><span class="p">(</span><span class="n">block</span> <span class="o">*</span> <span class="n">phi_window</span><span class="p">)</span>  <span class="c1"># length = nt, complex</span>
+
+        <span class="c1"># Real part of conj(C)·xnm_time, scaled by √2/nf</span>
+        <span class="n">W</span><span class="p">[:,</span> <span class="n">m</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">2.0</span><span class="p">)</span> <span class="o">/</span> <span class="n">nf</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="n">Cnm</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">nt</span><span class="p">),</span> <span class="n">m</span><span class="p">))</span> <span class="o">*</span> <span class="n">xnm_time</span><span class="p">)</span>
+
+    <span class="c1"># 6) Handle m=nf separately, since they only involve the other half of the φ-window</span>
+    <span class="n">block</span><span class="o">=</span><span class="n">X_fft</span><span class="p">[</span><span class="n">n_total</span><span class="o">//</span><span class="mi">2</span><span class="o">-</span><span class="n">half</span><span class="p">:</span><span class="n">n_total</span><span class="o">//</span><span class="mi">2</span><span class="p">]</span><span class="o">*</span><span class="n">phi_window</span><span class="p">[</span><span class="o">-</span><span class="n">half</span><span class="p">:]</span>
+    <span class="n">larr</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_total</span><span class="o">//</span><span class="mi">2</span><span class="o">-</span><span class="n">half</span><span class="p">,</span><span class="n">n_total</span><span class="o">//</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">narr</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">nt</span><span class="p">)</span>
+    <span class="n">W</span><span class="p">[:,</span> <span class="n">nf</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mi">4</span><span class="n">j</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">larr</span><span class="p">[</span><span class="kc">None</span><span class="p">,:]</span><span class="o">*</span><span class="n">narr</span><span class="p">[:,</span><span class="kc">None</span><span class="p">]</span><span class="o">/</span><span class="n">nt</span><span class="p">)</span><span class="o">*</span><span class="n">block</span><span class="p">[</span><span class="kc">None</span><span class="p">,:],</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                       <span class="o">+</span><span class="n">X_fft</span><span class="p">[</span><span class="n">n_total</span><span class="o">//</span><span class="mi">2</span><span class="p">]</span><span class="o">*</span><span class="n">phi_window</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">nt</span><span class="o">*</span><span class="n">nf</span><span class="p">)</span> 
+
+    <span class="k">return</span> <span class="n">W</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">wdm_inverse</span><span class="p">(</span><span class="n">W</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39; Inverse WDM: from W of shape (nt, nf+1) to time-domain signal x of length nt*nf &#39;&#39;&#39;</span>
+
+    <span class="n">nt</span><span class="p">,</span> <span class="n">nfp1</span> <span class="o">=</span> <span class="n">W</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">nf</span> <span class="o">=</span> <span class="n">nfp1</span> <span class="o">-</span> <span class="mi">1</span>
+
+    <span class="k">if</span> <span class="n">nt</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">!=</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">nf</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;nt and nf must both be even.&quot;</span><span class="p">)</span>
+    <span class="n">n_total</span> <span class="o">=</span> <span class="n">nt</span> <span class="o">*</span> <span class="n">nf</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="mi">0</span> <span class="o">&lt;</span> <span class="n">A</span> <span class="o">&lt;</span> <span class="mf">0.5</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;A must be in (0, 0.5).&quot;</span><span class="p">)</span>
+
+    <span class="c1"># 1) Build φ-window (same as forward)</span>
+    <span class="n">dF_phi</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">nf</span> <span class="o">*</span> <span class="n">dt</span><span class="p">)</span>
+    <span class="n">fs_full</span> <span class="o">=</span> <span class="n">fftfreq</span><span class="p">(</span><span class="n">n_total</span><span class="p">,</span><span class="n">dt</span><span class="p">)</span>
+    <span class="n">half</span> <span class="o">=</span> <span class="n">nt</span> <span class="o">//</span> <span class="mi">2</span>
+    <span class="n">fs_phi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">fs_full</span><span class="p">[:</span><span class="n">half</span><span class="p">],</span> <span class="n">fs_full</span><span class="p">[</span><span class="o">-</span><span class="n">half</span><span class="p">:]])</span>
+    <span class="n">phi_window</span> <span class="o">=</span> <span class="n">Phi_unit</span><span class="p">(</span><span class="n">fs_phi</span> <span class="o">/</span> <span class="n">dF_phi</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">nf</span><span class="p">)</span>
+
+    <span class="c1"># 2) Build C(n,m) and form ylm = C · W / sqrt(2) · nf</span>
+    <span class="n">n_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">nt</span><span class="p">)[:,</span> <span class="kc">None</span><span class="p">]</span>  <span class="c1"># shape (nt,1)</span>
+    <span class="n">m_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">nf</span><span class="p">)[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:]</span>  <span class="c1"># shape (1,nf)</span>
+
+    <span class="n">ylm</span> <span class="o">=</span> <span class="n">Cnm</span><span class="p">(</span><span class="n">n_idx</span><span class="p">,</span> <span class="n">m_idx</span><span class="p">)</span> <span class="o">*</span> <span class="n">W</span><span class="p">[:,</span> <span class="p">:</span><span class="n">nf</span><span class="p">]</span> <span class="o">*</span> <span class="n">nf</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">2.0</span><span class="p">)</span>
+
+    <span class="c1"># 3) FFT each column along axis=0</span>
+    <span class="n">Y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fft</span><span class="p">(</span><span class="n">ylm</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># shape (nt,nf)</span>
+
+    <span class="c1"># 4) Reconstruct full-spectrum X_recon of length n_total</span>
+    <span class="n">X_recon</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n_total</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span>
+
+    <span class="c1"># 5) Handle m=0 separately, since they only involve half of the φ-window</span>
+
+    <span class="n">narr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">nt</span><span class="p">)</span>
+    <span class="n">larr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">half</span><span class="p">)</span>
+
+    <span class="n">X_recon</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="n">half</span><span class="p">]</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">W</span><span class="p">[:,</span><span class="mi">0</span><span class="p">][:,</span><span class="kc">None</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mi">4</span><span class="n">j</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">narr</span><span class="p">[:,</span><span class="kc">None</span><span class="p">]</span><span class="o">*</span><span class="n">larr</span><span class="p">[</span><span class="kc">None</span><span class="p">,:]</span><span class="o">/</span><span class="n">nt</span><span class="p">)</span>
+                              <span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">nf</span><span class="p">)</span><span class="o">*</span><span class="n">phi_window</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="n">half</span><span class="p">]</span>
+    <span class="n">X_recon</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">W</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="p">(</span><span class="n">nf</span><span class="p">)</span> <span class="o">*</span> <span class="n">phi_window</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="mi">2</span>
+
+    <span class="c1"># 6) For each sub-band m=1..nf-1:</span>
+    <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">nf</span><span class="p">):</span>
+        <span class="c1"># Build the nt-length “block” in frequency space: Y[:,m] * φ-window</span>
+        <span class="n">block</span> <span class="o">=</span> <span class="n">Y</span><span class="p">[:,</span> <span class="n">m</span><span class="p">]</span> <span class="o">*</span> <span class="n">phi_window</span>  <span class="c1"># length = nt</span>
+        <span class="n">X_recon</span><span class="p">[(</span><span class="n">m</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">half</span><span class="p">:(</span><span class="n">m</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">half</span><span class="p">]</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">block</span><span class="p">[</span><span class="n">half</span><span class="p">:],</span> <span class="n">block</span><span class="p">[:</span><span class="n">half</span><span class="p">]])</span>
+
+
+    <span class="c1"># 7) Handle m=Nf separately, since they only involve half of the φ-window</span>
+    <span class="n">larr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_total</span><span class="o">//</span><span class="mi">2</span> <span class="o">-</span> <span class="n">half</span><span class="p">,</span> <span class="n">n_total</span><span class="o">//</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="n">X_recon</span><span class="p">[</span><span class="n">n_total</span><span class="o">//</span><span class="mi">2</span><span class="o">-</span><span class="n">half</span><span class="p">:</span><span class="n">n_total</span><span class="o">//</span><span class="mi">2</span><span class="p">]</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">W</span><span class="p">[:,</span><span class="n">nf</span><span class="p">][:,</span><span class="kc">None</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mi">4</span><span class="n">j</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">narr</span><span class="p">[:,</span><span class="kc">None</span><span class="p">]</span><span class="o">*</span><span class="n">larr</span><span class="p">[</span><span class="kc">None</span><span class="p">,:]</span><span class="o">/</span><span class="n">nt</span><span class="p">)</span>
+                                                  <span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">nf</span><span class="p">)</span><span class="o">*</span><span class="n">phi_window</span><span class="p">[</span><span class="o">-</span><span class="n">half</span><span class="p">:]</span>
+    <span class="n">X_recon</span><span class="p">[</span><span class="n">n_total</span><span class="o">//</span><span class="mi">2</span><span class="p">]</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">W</span><span class="p">[:,</span> <span class="n">nf</span><span class="p">])</span> <span class="o">*</span> <span class="p">(</span><span class="n">nf</span><span class="p">)</span> <span class="o">*</span> <span class="n">phi_window</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="mi">2</span>
+    
+
+    <span class="c1"># 5) IFFT back to time domain</span>
+    <span class="n">x_time</span> <span class="o">=</span> <span class="n">ifft</span><span class="p">(</span><span class="n">X_recon</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">x_time</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">nf</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="sd">&#39;&#39;&#39; Parameters of the signal and WDM&#39;&#39;&#39;</span>
+
+<span class="n">N</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="mi">10</span><span class="p">)</span>
+<span class="n">Nt</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="mi">5</span><span class="p">)</span>
+<span class="n">Nf</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">N</span><span class="o">/</span><span class="n">Nt</span><span class="p">)</span>
+<span class="n">dt</span><span class="o">=</span><span class="mf">1.1</span> <span class="c1"># This number is random, to show that it works for any dt</span>
+<span class="n">T</span><span class="o">=</span><span class="n">dt</span><span class="o">*</span><span class="n">N</span>
+<span class="n">df</span><span class="o">=</span><span class="mi">1</span><span class="o">/</span><span class="n">T</span>
+<span class="n">DT</span><span class="o">=</span><span class="n">Nf</span><span class="o">*</span><span class="n">dt</span>
+<span class="n">DF</span><span class="o">=</span><span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">DT</span><span class="p">)</span>
+<span class="n">DOm</span><span class="o">=</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">DF</span>
+<span class="n">times</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">N</span><span class="p">)</span><span class="o">*</span><span class="n">dt</span>
+<span class="n">freqs</span><span class="o">=</span><span class="n">fftfreq</span><span class="p">(</span><span class="n">N</span><span class="p">,</span><span class="n">dt</span><span class="p">)</span>
+
+<span class="n">Atry</span><span class="o">=</span><span class="mi">1</span><span class="o">/</span><span class="mi">3</span> <span class="c1"># Necula/Cornish/pywavelet use A=1/4 but I found https://en.wikipedia.org/wiki/Meyer_wavelet with A=1/3</span>
+         <span class="c1"># whose Meyer window has an analytical expression in time domain. I believe we can extend it to A=1/4 too</span>
+<span class="n">dtry</span><span class="o">=</span><span class="mi">1</span> <span class="c1"># d is not used in the current implementation, for the reason here explained above (it allows analytics for the Meyer window)</span>
+
+<span class="c1"># Precompute the Gabor atoms g_{n,m}(f) for all n,m and frequencies f, to speed up reconstruction</span>
+<span class="n">gnmf_tab</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Nt</span><span class="p">,</span><span class="n">Nf</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">N</span><span class="p">))</span><span class="o">*</span><span class="mi">1</span><span class="n">j</span>
+<span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Nt</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Nf</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">gnmf_tab</span><span class="p">[</span><span class="n">n</span><span class="p">,</span><span class="n">m</span><span class="p">]</span> <span class="o">=</span> <span class="n">gnmf</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">m</span><span class="p">,</span><span class="n">freqs</span><span class="p">,</span><span class="n">DT</span><span class="p">,</span><span class="n">Nf</span><span class="p">,</span><span class="n">Atry</span><span class="p">,</span><span class="n">dtry</span><span class="p">)</span>
+
+
+<span class="sd">&#39;&#39;&#39; Generating a test signal, applying WDM forward and inverse, and comparing the results in frequency domain.&#39;&#39;&#39;</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">waveform_sine_example</span><span class="p">(</span><span class="n">t</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">t</span><span class="o">*</span><span class="mf">0.08</span><span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">waveform_chirplet_example</span><span class="p">(</span><span class="n">t</span><span class="p">,</span><span class="n">T</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">t</span><span class="o">-</span><span class="n">T</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="o">/</span><span class="p">(</span><span class="n">T</span><span class="o">/</span><span class="mi">4</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">t</span><span class="o">*</span><span class="p">(</span><span class="mf">0.1</span><span class="o">+</span><span class="n">t</span><span class="o">*</span><span class="mf">0.153</span><span class="o">/</span><span class="n">T</span><span class="p">)</span><span class="o">+</span><span class="mf">0.3</span><span class="p">)</span>
+
+<span class="c1"># You can switch between a chirplet and a sine wave by commenting/uncommenting the following lines:</span>
+<span class="n">xt</span><span class="o">=</span><span class="n">waveform_chirplet_example</span><span class="p">(</span><span class="n">times</span><span class="p">,</span><span class="n">T</span><span class="p">)</span>
+<span class="c1"># xt=waveform_sine_example(times)</span>
+
+<span class="n">wnm</span> <span class="o">=</span> <span class="n">wdm_forward</span><span class="p">(</span><span class="n">xt</span><span class="p">,</span> <span class="n">Nt</span><span class="p">,</span> <span class="n">Nf</span><span class="p">,</span> <span class="n">Atry</span><span class="p">,</span> <span class="n">dtry</span><span class="p">,</span> <span class="n">dt</span><span class="p">)</span>
+<span class="n">xt_inverted</span> <span class="o">=</span> <span class="n">wdm_inverse</span><span class="p">(</span><span class="n">wnm</span><span class="p">,</span> <span class="n">Atry</span><span class="p">,</span> <span class="n">dtry</span><span class="p">,</span> <span class="n">dt</span><span class="p">)</span>
+<span class="n">xl_reconstr_gnm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;nm,nmk-&gt;k&#39;</span><span class="p">,</span> <span class="n">wnm</span><span class="p">,</span> <span class="n">gnmf_tab</span><span class="p">)</span>
+
+<span class="sd">&#39;&#39;&#39; Test plots comparing the original, inverted, and reconstructed signals in frequency domain.&#39;&#39;&#39;</span>
+
+<span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">freqs</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">freqs</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">fft</span><span class="p">(</span><span class="n">xt</span><span class="p">)[</span><span class="n">idx</span><span class="p">]),</span><span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="s1">&#39;Original&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">freqs</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">fft</span><span class="p">(</span><span class="n">xt_inverted</span><span class="p">)[</span><span class="n">idx</span><span class="p">]),</span><span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;dotted&#39;</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="s1">&#39;Inverted&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">freqs</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">xl_reconstr_gnm</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">Nf</span><span class="o">*</span><span class="mi">2</span><span class="p">)),</span><span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;dashed&#39;</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="s1">&#39;Reconstructed&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Magnitude of FFT of original, inverted, and reconstructed signals&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">freqs</span><span class="p">)</span>
+<span class="n">fig</span><span class="p">,</span> <span class="p">(</span><span class="n">ax1</span><span class="p">,</span> <span class="n">ax2</span><span class="p">)</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">set_figwidth</span><span class="p">(</span><span class="mi">15</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">freqs</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">fft</span><span class="p">(</span><span class="n">xt</span><span class="o">-</span><span class="n">xt_inverted</span><span class="p">)[</span><span class="n">idx</span><span class="p">]),</span><span class="n">label</span><span class="o">=</span><span class="s1">&#39;|FFT(xt-xt_inverted)|&#39;</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">freqs</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">fft</span><span class="p">(</span><span class="n">xt</span><span class="p">)[</span><span class="n">idx</span><span class="p">]</span><span class="o">-</span><span class="n">xl_reconstr_gnm</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">Nf</span><span class="o">*</span><span class="mi">2</span><span class="p">)),</span><span class="n">label</span><span class="o">=</span><span class="s1">&#39;|FFT(xt-xl_reconstr_gnm)|&#39;</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">freqs</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">fft</span><span class="p">(</span><span class="n">xt</span><span class="o">-</span><span class="n">xt_inverted</span><span class="p">)[</span><span class="n">idx</span><span class="p">])</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">fft</span><span class="p">(</span><span class="n">xt</span><span class="p">)[</span><span class="n">idx</span><span class="p">]),</span><span class="n">label</span><span class="o">=</span><span class="s1">&#39;|FFT(xt-xt_inverted)|/|FFT(xt)|&#39;</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">freqs</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">fft</span><span class="p">(</span><span class="n">xt</span><span class="p">)[</span><span class="n">idx</span><span class="p">]</span><span class="o">-</span><span class="n">xl_reconstr_gnm</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">Nf</span><span class="o">*</span><span class="mi">2</span><span class="p">))</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">fft</span><span class="p">(</span><span class="n">xt</span><span class="p">)[</span><span class="n">idx</span><span class="p">]),</span><span class="n">label</span><span class="o">=</span><span class="s1">&#39;|FFT(xt-xl_reconstr_gnm)|/|FFT(xt)|&#39;</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Absolute error in frequency domain&#39;</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Relative error in frequency domain&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/e24f5e68a52d0eea46b0de9d58057495578743e2e9f14e419bdc476ba959f530.png" src="../_images/e24f5e68a52d0eea46b0de9d58057495578743e2e9f14e419bdc476ba959f530.png" />
+<img alt="../_images/8a5554de325a8205111ce155428054416c11c09436fcdfcc276ba4d256b09d64.png" src="../_images/8a5554de325a8205111ce155428054416c11c09436fcdfcc276ba4d256b09d64.png" />
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="sd">&#39;&#39;&#39; Tests of the orthogonality properties of the Gabor atoms, which are the basis functions of the WDM.&#39;&#39;&#39;</span>
+<span class="n">mfix_test</span><span class="o">=</span><span class="mi">1</span>
+<span class="n">mfix_naxgrid</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;nk,lk-&gt;nl&#39;</span><span class="p">,</span> <span class="n">gnmf_tab</span><span class="p">[:,</span><span class="n">mfix_test</span><span class="p">,:],</span> <span class="n">np</span><span class="o">.</span><span class="n">conjugate</span><span class="p">(</span><span class="n">gnmf_tab</span><span class="p">[:,</span><span class="n">mfix_test</span><span class="p">,:]))</span>
+<span class="n">nfix_test</span><span class="o">=</span><span class="mi">16</span>
+<span class="n">nfix_maxgrid</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;mk,lk-&gt;ml&#39;</span><span class="p">,</span> <span class="n">gnmf_tab</span><span class="p">[</span><span class="n">nfix_test</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">conjugate</span><span class="p">(</span><span class="n">gnmf_tab</span><span class="p">[</span><span class="n">nfix_test</span><span class="p">]))</span>
+<span class="n">taxgrid</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;nmk,nml-&gt;kl&#39;</span><span class="p">,</span> <span class="n">gnmf_tab</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">conjugate</span><span class="p">(</span><span class="n">gnmf_tab</span><span class="p">))</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="p">(</span><span class="n">ax1</span><span class="p">,</span> <span class="n">ax2</span><span class="p">,</span> <span class="n">ax3</span><span class="p">)</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">set_figwidth</span><span class="p">(</span><span class="mi">15</span><span class="p">)</span>
+<span class="n">im1</span><span class="o">=</span><span class="n">ax1</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">mfix_naxgrid</span><span class="p">),</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;hot&#39;</span><span class="p">,</span> <span class="n">interpolation</span><span class="o">=</span><span class="s1">&#39;nearest&#39;</span><span class="p">)</span>
+<span class="n">im2</span><span class="o">=</span><span class="n">ax2</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">nfix_maxgrid</span><span class="p">),</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;hot&#39;</span><span class="p">,</span> <span class="n">interpolation</span><span class="o">=</span><span class="s1">&#39;nearest&#39;</span><span class="p">)</span>
+<span class="n">im3</span><span class="o">=</span><span class="n">ax3</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">taxgrid</span><span class="p">),</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;hot&#39;</span><span class="p">,</span> <span class="n">interpolation</span><span class="o">=</span><span class="s1">&#39;nearest&#39;</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">im1</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax1</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">im2</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax2</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">im3</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax3</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/0e9e444255edf3251d838ea69631bb68122094391742c153261c82778473e008.png" src="../_images/0e9e444255edf3251d838ea69631bb68122094391742c153261c82778473e008.png" />
+</div>
+</div>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./examples"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="simple visible nav section-nav flex-column">
+</ul>
+
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By pywavelet developers
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2023.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
