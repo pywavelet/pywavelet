@@ -16,8 +16,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.colors import LogNorm
-from scipy.signal import chirp
-from scipy.signal import spectrogram
+from scipy.signal import chirp, spectrogram
 
 from pywavelet.transforms import (
     from_time_to_wavelet,
@@ -27,7 +26,6 @@ from pywavelet.transforms import (
     phitilde_vec_norm,
 )
 from pywavelet.types import TimeSeries
-
 
 ROOT = Path(__file__).resolve().parents[1]
 STATIC = ROOT / "_static"
@@ -145,8 +143,12 @@ def make_window_effects_wavelet() -> None:
     stats = []
     residuals = []
     for cfg in configs:
-        wave = from_time_to_wavelet(ts, Nf=Nf, Nt=Nt, nx=cfg["nx"], mult=cfg["mult"])
-        recon = from_wavelet_to_time(wave, dt=dt, nx=cfg["nx"], mult=cfg["mult"])
+        wave = from_time_to_wavelet(
+            ts, Nf=Nf, Nt=Nt, nx=cfg["nx"], mult=cfg["mult"]
+        )
+        recon = from_wavelet_to_time(
+            wave, dt=dt, nx=cfg["nx"], mult=cfg["mult"]
+        )
         residual = ts.data - recon.data
         rms = float(np.sqrt(np.mean(residual**2)))
         maxabs = float(np.max(np.abs(residual)))
@@ -201,7 +203,11 @@ def make_window_effects_wavelet() -> None:
     # Residual time series panels (how the signal changes)
     fig, axes = plt.subplots(2, 2, figsize=(10, 5), sharex=True, sharey=True)
     axes = axes.ravel()
-    lim = float(np.max([np.max(np.abs(r)) for r in residuals])) if residuals else 1.0
+    lim = (
+        float(np.max([np.max(np.abs(r)) for r in residuals]))
+        if residuals
+        else 1.0
+    )
     for ax, cfg, r, st in zip(axes, configs, residuals, stats):
         ax.plot(t, r, color="#cf222e", linewidth=1)
         ax.axhline(0.0, color="#6e7781", linewidth=1, alpha=0.6)

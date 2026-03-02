@@ -50,4 +50,3 @@ Notes
 
 - If your input length is not exactly ``Nf * Nt``, pad/crop the data before calling the transform.
 - The transform backend (NumPy/JAX/CuPy) is chosen at import time; see :doc:`backends` if you want GPU/JAX support.
-

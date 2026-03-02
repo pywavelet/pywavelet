@@ -41,4 +41,3 @@ How do I cite PyWavelet?
 ************************
 
 See :doc:`citing` and :file:`docs/references.bib`.
-
